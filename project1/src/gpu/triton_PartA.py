@@ -59,7 +59,7 @@ def main(input_filepath, output_filepath):
     buffer_ptr = buffer.cuda()
     gray_ptr = gray_image.flatten().cuda()
 
-    grid = ((width * height + 512 - 1) // 512,)
+    grid = ((width * height + 512 - 1) // 512,) # (N+M-1) // M = ceil(N/M)
 
     # Measure kernel execution time
     elapsed_time = tt.do_bench(
