@@ -29,14 +29,14 @@ int main(int argc, char** argv)
     MPI_Init(&argc, &argv);
     // How many processes are running
     int numtasks;
-    MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
+    MPI_Comm_size(MPI_COMM_WORLD, &numtasks); // 从MPI_COMM_WORLD中获取进程总数，存入numtasks变量
     // What's my rank?
     int taskid;
-    MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
+    MPI_Comm_rank(MPI_COMM_WORLD, &taskid);  // 从MPI_COMM_WORLD中获取rank，存入taskid变量
     // Which node am I running on?
     int len;
     char hostname[MPI_MAX_PROCESSOR_NAME];
-    MPI_Get_processor_name(hostname, &len);
+    MPI_Get_processor_name(hostname, &len); // 获取当前进程所在节点的名称，存入hostname变量 + 把hostname的长度存入len变量
     MPI_Status status;
 
     // Read JPEG File
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
     int pixel_num_per_task = total_pixel_num / numtasks;
     int left_pixel_num = total_pixel_num % numtasks;
 
-    std::vector<int> cuts(numtasks + 1, 0);
+    std::vector<int> cuts(numtasks + 1, 0); // 存储的是每个进程处理的像素的起始位置。进程0处理 [0, cuts[1])，进程1处理 [cuts[1], cuts[2])，以此类推，所以需要 numtasks + 1
     int divided_left_pixel_num = 0;
 
     for (int i = 0; i < numtasks; i++)

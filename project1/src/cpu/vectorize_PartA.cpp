@@ -58,7 +58,7 @@ int main(int argc, char** argv)
         // /* Maybe the hint of replacing float computation with int can be
         // written in this way */ grayImage[i] = (GRAYSCALE_COEF_R_INT * r +
         // GRAYSCALE_COEF_G_INT * g +
-        //                 GRAYSCALE_COEF_B_INT * b) >>
+        //                 GRAYSCALE_COEF_B_INT * b + 512) >>
         //                10;
     }
     auto end_time = std::chrono::high_resolution_clock::now();
