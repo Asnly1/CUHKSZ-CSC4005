@@ -13,7 +13,7 @@
 #include "../utils.hpp"
 
 inline ColorValue linear_filter_vectorize(
-    const ColorValue* const __restrict__ values,
+    const ColorValue* const __restrict__ values, //向编译器做出的一个承诺：“在当前指针的作用域内，这块内存区域将只能通过该指针进行访问（读取或写入），不会有任何其他指针访问它。”
     const float (&filter)[FILTERSIZE][FILTERSIZE], const int pixel_id,
     const int width, const int num_channels)
 {
@@ -40,11 +40,21 @@ inline ColorValue linear_filter_vectorize(
                             pixel_id + line_width,
                             pixel_id + line_width + num_channels};
     ColorValue neighbor_values[9];
-#pragma GCC unroll 9
+#pragma GCC unroll 9 // 循环展开（Loop Unrolling），指示编译器将紧随其后的循环体复制9次，从而完全消除循环本身
     for (int i = 0; i < 9; i++)
     {
         neighbor_values[i] = values[indices[i]];
     }
+    // 等价于：
+    // sum += neighbor_values[0] * weight[0];
+    // sum += neighbor_values[1] * weight[1];
+    // sum += neighbor_values[2] * weight[2];
+    // sum += neighbor_values[3] * weight[3];
+    // sum += neighbor_values[4] * weight[4];
+    // sum += neighbor_values[5] * weight[5];
+    // sum += neighbor_values[6] * weight[6];
+    // sum += neighbor_values[7] * weight[7];
+    // sum += neighbor_values[8] * weight[8];
 
     // weights of filter matrix
     const float weight[9] = {filter[0][0], filter[0][1], filter[0][2],

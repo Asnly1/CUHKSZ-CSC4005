@@ -31,7 +31,7 @@ int main(int argc, char** argv)
                           input_jpeg.num_channels];
 
     memset(filteredImage, 0,
-           input_jpeg.width * input_jpeg.height * input_jpeg.num_channels);
+           input_jpeg.width * input_jpeg.height * input_jpeg.num_channels); // 将filteredImage初始化为0
 
     auto start_time = std::chrono::high_resolution_clock::now();
 

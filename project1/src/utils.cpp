@@ -439,7 +439,7 @@ float linear_filter(const ColorValue* values,
 }
 
 ColorValue linear_filter(const ColorValue* values,
-                         const float (&filter)[FILTERSIZE][FILTERSIZE],
+                         const float (&filter)[FILTERSIZE][FILTERSIZE], // 数组的引用
                          int index, int width)
 {
     float sum = 0;
