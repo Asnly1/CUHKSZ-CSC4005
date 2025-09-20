@@ -88,6 +88,8 @@ int main(int argc, char** argv)
     cudaMalloc((void**)&d_input_buffer, buffer_size);
     cudaMalloc((void**)&d_filtered_image, buffer_size);
     cudaMalloc((void**)&d_filter, FILTERSIZE * FILTERSIZE * sizeof(float));
+    // 指向“长度为 FILTERSIZE 的一维 float 数组”的指针
+    // 每向前“走一步”（执行 d_filter + 1），就会跨过 FILTERSIZE 个 float 的内存长度
 
     cudaMemset(d_filtered_image, 0, buffer_size);
 

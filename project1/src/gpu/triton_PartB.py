@@ -27,7 +27,7 @@ def soft_blur_kernel(
     )
 
     result = 0.0
-    for sub_h in range(-pad_size, pad_size + 1):
+    for sub_h in range(-pad_size, pad_size + 1): # -1, 0, 1
         for sub_w in range(-pad_size, pad_size + 1):
             pixel_value = tl.load(
                 img_pad_ptr + offset + sub_h * stride_h_pad + sub_w * stride_w_pad
@@ -49,7 +49,7 @@ def blur_filter(img_pad, k_size, activation=""):
         (H_orig, W_orig, C), device=img_pad.device, dtype=torch.float32
     )
     grid = lambda META: (
-        triton.cdiv(H_orig, 1),
+        triton.cdiv(H_orig, 1), # ceil(H_orig/1)
         triton.cdiv(W_orig, 1),
         triton.cdiv(C, 1),
     )
@@ -60,14 +60,14 @@ def blur_filter(img_pad, k_size, activation=""):
             pad,
             output,
             sigma_blur,
-            img_pad.stride(0),
-            img_pad.stride(1),
+            img_pad.stride(0), # 沿着height方向的步长
+            img_pad.stride(1), # 沿着width方向的步长
             output.stride(0),
             output.stride(1),
-            ACTIVATION=activation,
+            ACTIVATION=activation, # 激活函数，relu之类的
         ),
-        warmup=25,  # time to warm up the kernel
-        rep=100,
+        warmup=25,  # time to warm up the kernel #先执行25次，防止第一次执行时间过长
+        rep=100, #重复执行100次，取平均值
     )
     print(f"Execution Time: {elapsed_time:.2f} ms")
     return output

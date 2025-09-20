@@ -15,6 +15,7 @@
 #include "../utils.hpp"
 
 #pragma acc routine seq
+// 创建一个设备端可调用的函数版本，并确保该函数内部逻辑是顺序执行的
 float acc_linear_filter(unsigned char* image_buffer,
                         const float (&filter)[FILTERSIZE][FILTERSIZE],
                         int pixel_id, int width, int num_channels)
