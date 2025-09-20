@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     auto start_time = std::chrono::high_resolution_clock::now();
 
 #pragma omp parallel for shared(input_jpeg, grayscaleImage)
-    for (int y = 0; y < input_jpeg.height; y++)
+    for (int y = 0; y < input_jpeg.height; y++) // 好像没有忽略边界？
     {
         for (int x = 0; x < input_jpeg.width; x++)
         {

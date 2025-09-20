@@ -60,7 +60,7 @@ int main(int argc, char** argv)
     int line_per_task = total_line_num / numtasks;
     int left_line_num = total_line_num % numtasks;
 
-    std::vector<int> cuts(numtasks + 1, 1);
+    std::vector<int> cuts(numtasks + 1, 1); // 跳过第一个pixel
     int divided_left_line_num = 0;
 
     for (int i = 0; i < numtasks; i++)
