@@ -47,6 +47,7 @@ int main(int argc, char** argv)
 
 #pragma omp parallel for default(none) \
     shared(rChannel, gChannel, bChannel, grayImage, input_jpeg)
+    // default(none): 对于在这个并行区域里用到的所有变量，不要做任何默认的假定。我会手动、明确地指定每一个变量是共享的还是私有的
     for (int i = 0; i < input_jpeg.width * input_jpeg.height; i++)
     {
         grayImage[i] = static_cast<unsigned char>(

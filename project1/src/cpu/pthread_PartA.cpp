@@ -20,9 +20,9 @@ struct ThreadData {
 
 // Function to convert RGB to Grayscale for a portion of the image
 void* rgbToGray(void* arg) {
-    ThreadData* data = reinterpret_cast<ThreadData*>(arg);
+    ThreadData* data = reinterpret_cast<ThreadData*>(arg); //将void*类型转换为ThreadData*类型
     
-    for (int i = data->start; i < data->end; i++) {
+    for (int i = data->start; i < data->end; i++) {  //用->访问结构体成员（因为data是一个指针，不能使用.)
         unsigned char r = data->input_buffer[i * 3];
         unsigned char g = data->input_buffer[i * 3 + 1];
         unsigned char b = data->input_buffer[i * 3 + 2];
