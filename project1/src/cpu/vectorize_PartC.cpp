@@ -23,16 +23,55 @@ inline ColorValue bilateral_filter_vectorize(
     const ColorValue* const __restrict__ values, const int row, const int col,
     const int width)
 {
-    const float w_border = expf(-0.5f / (SIGMA_D * SIGMA_D));
-    const float w_corner = expf(-1.0f / (SIGMA_D * SIGMA_D));
-    const float sigma_r_sq_inv = -0.5f / (SIGMA_R * SIGMA_R);
+    static const float w_border = expf(-0.5f / (SIGMA_D * SIGMA_D));
+    static const float w_corner = expf(-1.0f / (SIGMA_D * SIGMA_D));
+    static const float sigma_r_sq_inv = -0.5f / (SIGMA_R * SIGMA_R);
+    static const float w_spatial[9] = {
+        w_corner, w_border, w_corner,
+        w_border, 1.0f, w_border,
+        w_corner, w_border, w_corner
+    };
 
     /**
      * TODO: vectorize the complicated computation
      * you can add pragma for loop unrolling like the one in PartB
      */
 
-    return clamp_pixel_value(0.0);
+    const int indices[9] = {(row-1)*width + (col-1),
+                            (row-1)*width + col,
+                            (row-1)*width + (col+1),
+                            row*width + (col-1),
+                            row*width + col,
+                            row*width + (col+1),
+                            (row+1)*width + (col-1),
+                            (row+1)*width + col,
+                            (row+1)*width + (col+1)};
+    ColorValue neighbor_values[9];
+
+    #pragma GCC unroll 9
+    #pragma GCC ivdep
+    for (int i = 0; i < 9; i++)
+    {
+        neighbor_values[i] = values[indices[i]];
+    }
+ 
+    float center_value = (float)neighbor_values[4];
+    float weights[9];
+    float sum_weights = 0.0f;
+    float filtered_value = 0.0f;
+
+    #pragma GCC unroll 9
+    #pragma GCC ivdep
+    for (int i = 0; i < 9; i++){
+        float difference = center_value - (float)neighbor_values[i];
+        weights[i] = w_spatial[i] * expf(difference * difference * sigma_r_sq_inv);
+        sum_weights += weights[i];
+        filtered_value += weights[i] * (float)neighbor_values[i];
+    }
+
+    filtered_value = filtered_value / sum_weights;
+
+    return clamp_pixel_value(filtered_value);
 }
 
 int main(int argc, char** argv)
@@ -73,6 +112,7 @@ int main(int argc, char** argv)
     for (int row = 1; row < height - 1; ++row)
     {
 #pragma GCC ivdep
+#pragma omp simd
         for (int col = 1; col < width - 1; ++col)
         {
             /**

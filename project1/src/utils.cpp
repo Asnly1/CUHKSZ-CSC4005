@@ -388,8 +388,8 @@ ColorValue bilateral_filter(const ColorValue* values, int row, int col,
     ColorValue value_32 = values[(row + 1) * width + col];
     ColorValue value_33 = values[(row + 1) * width + (col + 1)];
     // Spatial Weights
-    float w_spatial_border = expf(-0.5 / powf(SIGMA_D, 2));
-    float w_spatial_corner = expf(-1.0 / powf(SIGMA_D, 2));
+    float w_spatial_border = expf(-0.5 / powf(SIGMA_D, 2)); // 计算ks，p=1
+    float w_spatial_corner = expf(-1.0 / powf(SIGMA_D, 2)); // 计算ks, p=sqrt(2)
     // Intensity Weights
     ColorValue center_value = value_22;
     float w_11 = w_spatial_corner * expf(powf(center_value - value_11, 2) /
