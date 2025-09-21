@@ -53,11 +53,12 @@ int main(int argc, char** argv)
     ColorValue* output_g = output_jpeg.g_values;
     ColorValue* output_b = output_jpeg.b_values;
 
-    #pragma omp parallel for shared(input_r_values, input_g_values, input_b_values, \
-                                    output_r, output_g, output_b)
-    for (int y = 1; y < input_jpeg.height - 1; y++)
+    #pragma omp parallel for default(none) schedule(static) \
+                            shared(input_r_values, input_g_values, input_b_values, \
+                                   output_r, output_g, output_b, height, width)
+    for (int y = 1; y < height - 1; y++)
     {
-        for (int x = 1; x < input_jpeg.width - 1; x++)
+        for (int x = 1; x < width - 1; x++)
         {
             int index = y * width + x;
             ColorValue red = bilateral_filter(input_r_values, y, x, width);
@@ -70,10 +71,6 @@ int main(int argc, char** argv)
         }
     }
 
-    // clean up
-    delete[] output_r_values;
-    delete[] output_g_values;
-    delete[] output_b_values;
     auto end_time = std::chrono::high_resolution_clock::now();
     auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(
         end_time - start_time);
@@ -87,6 +84,11 @@ int main(int argc, char** argv)
         return -1;
     }
     
+    // clean up
+    delete[] output_r_values;
+    delete[] output_g_values;
+    delete[] output_b_values;
+
     std::cout << "Transformation Complete!" << std::endl;
     std::cout << "Execution Time: " << elapsed_time.count()
               << " milliseconds\n";

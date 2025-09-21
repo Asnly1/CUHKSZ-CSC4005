@@ -30,35 +30,71 @@ def bilateral_filter_kernel(
         (pid_h + pad_size) * stride_h_pad + (pid_w + pad_size) * stride_w_pad + pid_c
     )
 
-    pixel_value = [0] * 9
-    
-    for sub_h in range(-pad_size, pad_size + 1): # -1, 0, 1
-        for sub_w in range(-pad_size, pad_size + 1):
-            pixel_value[3 * sub_h + sub_w + 4] = tl.load(
-                img_pad_ptr + offset + sub_h * stride_h_pad + sub_w * stride_w_pad
-            )
+    pixel_value_11 = tl.load(img_pad_ptr + offset - 1 * stride_h_pad - 1 * stride_w_pad)
+    pixel_value_12  = tl.load(img_pad_ptr + offset - 1 * stride_h_pad + 0 * stride_w_pad)
+    pixel_value_13  = tl.load(img_pad_ptr + offset - 1 * stride_h_pad + 1 * stride_w_pad)
+    pixel_value_21  = tl.load(img_pad_ptr + offset + 0 * stride_h_pad - 1 * stride_w_pad)
+    pixel_value_22 = tl.load(img_pad_ptr + offset) # 中心像素值
+    pixel_value_23   = tl.load(img_pad_ptr + offset + 0 * stride_h_pad + 1 * stride_w_pad)
+    pixel_value_31  = tl.load(img_pad_ptr + offset + 1 * stride_h_pad - 1 * stride_w_pad)
+    pixel_value_32   = tl.load(img_pad_ptr + offset + 1 * stride_h_pad + 0 * stride_w_pad)
+    pixel_value_33   = tl.load(img_pad_ptr + offset + 1 * stride_h_pad + 1 * stride_w_pad)
             
     w_border = tl.exp(-0.5 / (sigma_D * sigma_D))
     w_corner = tl.exp(-1.0 / (sigma_D * sigma_D))
     sigma_r_sq_inv = -0.5 / (sigma_R * sigma_R)
     
-    w_spatial = [
-        w_corner, w_border, w_corner,
-        w_border, 1.0, w_border,
-        w_corner, w_border, w_corner
-    ]
-    
-    center_value = pixel_value[4]
-    weights = [0] * 9
+    center_value = pixel_value_22
     sum_weight = 0.0
     filtered_value = 0.0
-    
-    for i in range(9):
-        difference = center_value - pixel_value[i]
-        weights[i] = w_spatial[i] * tl.exp(difference * difference * sigma_r_sq_inv)
-        sum_weight += weights[i]
-        filtered_value += weights[i] * pixel_value[i]
 
+
+    diff = center_value - pixel_value_11
+    w = w_corner * tl.exp(diff * diff * sigma_r_sq_inv)
+    sum_weight += w
+    filtered_value += w * pixel_value_11
+
+    diff = center_value - pixel_value_12
+    w = w_border * tl.exp(diff * diff * sigma_r_sq_inv)
+    sum_weight += w
+    filtered_value += w * pixel_value_12
+
+    diff = center_value - pixel_value_13
+    w = w_corner * tl.exp(diff * diff * sigma_r_sq_inv)
+    sum_weight += w
+    filtered_value += w * pixel_value_13
+
+    diff = center_value - pixel_value_21
+    w = w_border * tl.exp(diff * diff * sigma_r_sq_inv)
+    sum_weight += w
+    filtered_value += w * pixel_value_21
+
+    diff = 0.0
+    w = 1.0
+    sum_weight += w
+    filtered_value += w * pixel_value_22
+
+    diff = center_value - pixel_value_23
+    w = w_border * tl.exp(diff * diff * sigma_r_sq_inv)
+    sum_weight += w
+    filtered_value += w * pixel_value_23
+
+    diff = center_value - pixel_value_31
+    w = w_corner * tl.exp(diff * diff * sigma_r_sq_inv)
+    sum_weight += w
+    filtered_value += w * pixel_value_31
+
+    diff = center_value - pixel_value_32
+    w = w_border * tl.exp(diff * diff * sigma_r_sq_inv)
+    sum_weight += w
+    filtered_value += w * pixel_value_32
+
+    diff = center_value - pixel_value_33
+    w = w_corner * tl.exp(diff * diff * sigma_r_sq_inv)
+    sum_weight += w
+    filtered_value += w * pixel_value_33
+   
+    
     filtered_value = filtered_value / sum_weight
     
     output_offset = pid_h * stride_h_out + pid_w * stride_w_out + pid_c
