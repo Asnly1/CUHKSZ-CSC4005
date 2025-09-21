@@ -25,10 +25,10 @@ ColorValue acc_clamp_pixel_value(float value)
 #pragma acc routine seq
 ColorValue acc_bilateral_filter(const ColorValue* values, int row, int col, int width)
 {
-    static const float w_border = expf(-0.5f / (SIGMA_D * SIGMA_D));
-    static const float w_corner = expf(-1.0f / (SIGMA_D * SIGMA_D));
-    static const float sigma_r_sq_inv = -0.5f / (SIGMA_R * SIGMA_R);
-    static const float w_spatial[9] = {
+    const float w_border = expf(-0.5f / (SIGMA_D * SIGMA_D));
+    const float w_corner = expf(-1.0f / (SIGMA_D * SIGMA_D));
+    const float sigma_r_sq_inv = -0.5f / (SIGMA_R * SIGMA_R);
+    const float w_spatial[9] = {
         w_corner, w_border, w_corner,
         w_border, 1.0f, w_border,
         w_corner, w_border, w_corner
@@ -116,7 +116,7 @@ int main(int argc, char** argv)
                                 input_b_values[0 : buffer_size], \
                                 output_r[0 : buffer_size], \
                                 output_g[0 : buffer_size], \
-                                output_b[0 : buffer_size])
+                                output_b[0 : buffer_size]) \
                                 num_gangs(1024)
     {
     #pragma acc loop independent

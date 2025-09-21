@@ -111,7 +111,6 @@ int main(int argc, char** argv)
     /* Pixels in the boundary can be ignored in this assignment */
     for (int row = 1; row < height - 1; ++row)
     {
-#pragma GCC ivdep
 #pragma omp simd
         for (int col = 1; col < width - 1; ++col)
         {

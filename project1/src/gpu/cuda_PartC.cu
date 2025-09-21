@@ -20,13 +20,21 @@
  * 
  * You may mimic this to implement your own kernel device functions
  */
+
+__device__ unsigned char d_clamp_pixel_value(float value)
+{
+    return value > 255 ? 255
+           : value < 0 ? 0
+                       : static_cast<unsigned char>(value);
+}
+
 __device__ ColorValue d_bilateral_filter(ColorValue* values,
                                     int row, int col, int width)
 {
-    static const float w_border = expf(-0.5f / (SIGMA_D * SIGMA_D));
-    static const float w_corner = expf(-1.0f / (SIGMA_D * SIGMA_D));
-    static const float sigma_r_sq_inv = -0.5f / (SIGMA_R * SIGMA_R);
-    static const float w_spatial[9] = {
+    const float w_border = expf(-0.5f / (SIGMA_D * SIGMA_D));
+    const float w_corner = expf(-1.0f / (SIGMA_D * SIGMA_D));
+    const float sigma_r_sq_inv = -0.5f / (SIGMA_R * SIGMA_R);
+    const float w_spatial[9] = {
         w_corner, w_border, w_corner,
         w_border, 1.0f, w_border,
         w_corner, w_border, w_corner
@@ -63,13 +71,6 @@ __device__ ColorValue d_bilateral_filter(ColorValue* values,
     filtered_value = filtered_value / sum_weights;
 
     return d_clamp_pixel_value(filtered_value);
-}
-
-__device__ unsigned char d_clamp_pixel_value(float value)
-{
-    return value > 255 ? 255
-           : value < 0 ? 0
-                       : static_cast<unsigned char>(value);
 }
 
 __global__ void apply_filter_kernel(ColorValue* input_r_values,

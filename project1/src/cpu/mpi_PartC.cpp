@@ -16,7 +16,7 @@
 #define MASTER 0
 #define TAG_GATHER 0
 
-void set_filtered_image(ColorValue* values, ColorValue* output_values, int width, int start_line,
+void set_filtered_image(const ColorValue* input_values, ColorValue* output_values, int width, int start_line,
                         int end_line, int offset);
 
 int main(int argc, char** argv)

@@ -53,7 +53,7 @@ int main(int argc, char** argv)
     ColorValue* output_g = output_jpeg.g_values;
     ColorValue* output_b = output_jpeg.b_values;
 
-    #pragma omp parallel for shared(input_r_values, input_g_values, input_b_values,
+    #pragma omp parallel for shared(input_r_values, input_g_values, input_b_values, \
                                     output_r, output_g, output_b)
     for (int y = 1; y < input_jpeg.height - 1; y++)
     {
