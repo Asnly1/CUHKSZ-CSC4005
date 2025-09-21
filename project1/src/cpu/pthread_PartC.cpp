@@ -39,9 +39,9 @@ void* filter_thread_function(void* arg)
             ColorValue red = bilateral_filter(data->input_r_values, y, x, data->width);
             ColorValue green = bilateral_filter(data->input_g_values, y, x, data->width);
             ColorValue blue = bilateral_filter(data->input_b_values, y, x, data->width);
-            data->output_r[index] = clamp_pixel_value(red);
-            data->output_g[index] = clamp_pixel_value(green);
-            data->output_b[index] = clamp_pixel_value(blue);
+            data->output_r[index] = red;
+            data->output_g[index] = green;
+            data->output_b[index] = blue;
         }
     }
     return nullptr;

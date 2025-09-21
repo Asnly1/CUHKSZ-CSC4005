@@ -63,9 +63,9 @@ int main(int argc, char** argv)
             ColorValue red = bilateral_filter(input_r_values, y, x, width);
             ColorValue green = bilateral_filter(input_g_values, y, x, width);
             ColorValue blue = bilateral_filter(input_b_values, y, x, width);
-            output_r[index] = clamp_pixel_value(red);
-            output_g[index] = clamp_pixel_value(green);
-            output_b[index] = clamp_pixel_value(blue);
+            output_r[index] = red;
+            output_g[index] = green;
+            output_b[index] = blue;
 
         }
     }

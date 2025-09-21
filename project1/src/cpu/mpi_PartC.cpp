@@ -174,7 +174,7 @@ void set_filtered_image(const ColorValue* input_values, ColorValue* output_value
         {
             int index = y * width + x;
             ColorValue filtered_value = bilateral_filter(input_values, y, x, width);
-            output_values[index-offset] = clamp_pixel_value(filtered_value);
+            output_values[index-offset] = filtered_value;
         }
     }
 }
