@@ -102,9 +102,9 @@ int main(int argc, char** argv)
         output_r_values, output_g_values, output_b_values,       width,
         height,          num_channels,    input_jpeg.color_space};
     auto start_time = std::chrono::high_resolution_clock::now();
-    ColorValue* __restrict__ buf_r = input_jpeg.get_channel(0);
-    ColorValue* __restrict__ buf_g = input_jpeg.get_channel(1);
-    ColorValue* __restrict__ buf_b = input_jpeg.get_channel(2);
+    ColorValue* __restrict__ input_r_values = input_jpeg.get_channel(0);
+    ColorValue* __restrict__ input_g_values = input_jpeg.get_channel(1);
+    ColorValue* __restrict__ input_b_values = input_jpeg.get_channel(2);
     ColorValue* output_r = output_jpeg.r_values;
     ColorValue* output_g = output_jpeg.g_values;
     ColorValue* output_b = output_jpeg.b_values;
@@ -120,11 +120,11 @@ int main(int argc, char** argv)
              * simply fill in the bilateral_filter_vectorize.
              */
             ColorValue filtered_value_r =
-                bilateral_filter_vectorize(buf_r, row, col, width);
+                bilateral_filter_vectorize(input_r_values, row, col, width);
             ColorValue filtered_value_g =
-                bilateral_filter_vectorize(buf_g, row, col, width);
+                bilateral_filter_vectorize(input_g_values, row, col, width);
             ColorValue filtered_value_b =
-                bilateral_filter_vectorize(buf_b, row, col, width);
+                bilateral_filter_vectorize(input_b_values, row, col, width);
             int index = row * width + col;
             output_r[index] = filtered_value_r;
             output_g[index] = filtered_value_g;

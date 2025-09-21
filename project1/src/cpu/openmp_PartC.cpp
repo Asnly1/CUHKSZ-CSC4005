@@ -26,15 +26,54 @@ int main(int argc, char** argv)
     const char* input_filename = argv[1];
     std::cout << "Input file from: " << input_filename << "\n";
     JpegSOA input_jpeg = read_jpeg_soa(input_filename);
+
+    int NUM_THREADS = std::stoi(argv[3]);
+    omp_set_num_threads(NUM_THREADS);
+    
     if (input_jpeg.r_values == nullptr)
     {
         std::cerr << "Failed to read input JPEG image\n";
         return -1;
     }
     auto start_time = std::chrono::high_resolution_clock::now();
-    /**
-     * TODO: OpenMP PartC
-     */
+
+    const int width = input_jpeg.width;
+    const int height = input_jpeg.height;
+    const int num_channels = input_jpeg.num_channels;
+    auto output_r_values = new ColorValue[width * height];
+    auto output_g_values = new ColorValue[width * height];
+    auto output_b_values = new ColorValue[width * height];
+    JpegSOA output_jpeg{
+        output_r_values, output_g_values, output_b_values,       width,
+        height,          num_channels,    input_jpeg.color_space};
+    ColorValue* __restrict__ input_r_values = input_jpeg.get_channel(0);
+    ColorValue* __restrict__ input_g_values = input_jpeg.get_channel(1);
+    ColorValue* __restrict__ input_b_values = input_jpeg.get_channel(2);
+    ColorValue* output_r = output_jpeg.r_values;
+    ColorValue* output_g = output_jpeg.g_values;
+    ColorValue* output_b = output_jpeg.b_values;
+
+    #pragma omp parallel for shared(input_r_values, input_g_values, input_b_values,
+                                    output_r, output_g, output_b)
+    for (int y = 1; y < input_jpeg.height - 1; y++)
+    {
+        for (int x = 1; x < input_jpeg.width - 1; x++)
+        {
+            int index = y * width + x;
+            ColorValue red = bilateral_filter(input_r_values, y, x, width);
+            ColorValue green = bilateral_filter(input_g_values, y, x, width);
+            ColorValue blue = bilateral_filter(input_b_values, y, x, width);
+            output_r[index] = clamp_pixel_value(red);
+            output_g[index] = clamp_pixel_value(green);
+            output_b[index] = clamp_pixel_value(blue);
+
+        }
+    }
+
+    // clean up
+    delete[] output_r_values;
+    delete[] output_g_values;
+    delete[] output_b_values;
     auto end_time = std::chrono::high_resolution_clock::now();
     auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(
         end_time - start_time);
