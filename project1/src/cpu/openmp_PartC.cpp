@@ -77,6 +77,16 @@ int main(int argc, char** argv)
     auto end_time = std::chrono::high_resolution_clock::now();
     auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(
         end_time - start_time);
+
+    // Save output JPEG image
+    const char* output_filepath = argv[2];
+    std::cout << "Output file to: " << output_filepath << "\n";
+    if (export_jpeg(output_jpeg, output_filepath))
+    {
+        std::cerr << "Failed to write output JPEG\n";
+        return -1;
+    }
+    
     std::cout << "Transformation Complete!" << std::endl;
     std::cout << "Execution Time: " << elapsed_time.count()
               << " milliseconds\n";
