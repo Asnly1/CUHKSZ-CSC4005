@@ -78,7 +78,7 @@ __device__ ColorValue d_bilateral_filter(ColorValue* __restrict__ values, float*
     return d_clamp_pixel_value(filtered_value);
 }
 
-template <const uint BLOCKSIZE>
+template <const uint BLOCKSIZE_X, const uint BLOCKSIZE_Y, const uint PIXELS_PER_THREAD>
 __global__ void apply_filter_kernel(ColorValue* __restrict__ input_r_values,
                                     ColorValue* __restrict__ input_g_values,
                                     ColorValue* __restrict__ input_b_values,
@@ -90,22 +90,22 @@ __global__ void apply_filter_kernel(ColorValue* __restrict__ input_r_values,
 {   
     int local_col = threadIdx.x;
     int local_row = threadIdx.y;
-    int global_col = blockIdx.x * blockDim.x + threadIdx.x;
-    int global_row = blockIdx.y * blockDim.y + threadIdx.y;
+    int global_col = (blockIdx.x * BLOCKSIZE_X + threadIdx.x) * PIXELS_PER_THREAD;
+    int global_row = blockIdx.y * BLOCKSIZE_Y + threadIdx.y;
 
-    __shared__ ColorValue shared_input_r_values[(BLOCKSIZE+2) * (BLOCKSIZE+2)];
-    __shared__ ColorValue shared_input_g_values[(BLOCKSIZE+2) * (BLOCKSIZE+2)];
-    __shared__ ColorValue shared_input_b_values[(BLOCKSIZE+2) * (BLOCKSIZE+2)];
+    __shared__ ColorValue shared_input_r_values[(BLOCKSIZE_X * PIXELS_PER_THREAD + 2) * (BLOCKSIZE_Y + 2)];
+    __shared__ ColorValue shared_input_g_values[(BLOCKSIZE_X * PIXELS_PER_THREAD + 2) * (BLOCKSIZE_Y + 2)];
+    __shared__ ColorValue shared_input_b_values[(BLOCKSIZE_X * PIXELS_PER_THREAD + 2) * (BLOCKSIZE_Y + 2)];
 
-    int global_col_start = blockIdx.x * blockDim.x;
-    int global_row_start = blockIdx.y * blockDim.y;
+    int global_col_start = blockIdx.x * BLOCKSIZE_X * PIXELS_PER_THREAD;
+    int global_row_start = blockIdx.y * BLOCKSIZE_Y;
 
-    int tid = threadIdx.y * blockDim.x + threadIdx.x;
+    int tid = threadIdx.y * BLOCKSIZE_X + threadIdx.x;
 
-    for (int i = tid; i < (BLOCKSIZE+2) * (BLOCKSIZE+2); i += blockDim.x * blockDim.y)
+    for (int i = tid; i < (BLOCKSIZE_X * PIXELS_PER_THREAD + 2) * (BLOCKSIZE_Y + 2); i += BLOCKSIZE_X * BLOCKSIZE_Y)
     {
-        int local_copy_col = i % (BLOCKSIZE+2);
-        int local_copy_row = i / (BLOCKSIZE+2);
+        int local_copy_col = i % (BLOCKSIZE_X * PIXELS_PER_THREAD + 2);
+        int local_copy_row = i / (BLOCKSIZE_X * PIXELS_PER_THREAD + 2);
 
         int global_copy_col = global_col_start + local_copy_col - 1;
         int global_copy_row = global_row_start + local_copy_row - 1;
@@ -119,14 +119,25 @@ __global__ void apply_filter_kernel(ColorValue* __restrict__ input_r_values,
     }
     __syncthreads();
 
-    if (global_col >= 1 && global_col < width - 1 && global_row >= 1 && global_row < height - 1)
+    if (global_row >= 1 && global_row < height - 1)
     {
-        ColorValue red   = d_bilateral_filter(shared_input_r_values, d_expf_look_up, local_row, local_col, BLOCKSIZE+2);
-        ColorValue green = d_bilateral_filter(shared_input_g_values, d_expf_look_up, local_row, local_col, BLOCKSIZE+2);
-        ColorValue blue  = d_bilateral_filter(shared_input_b_values, d_expf_look_up, local_row, local_col, BLOCKSIZE+2);
-        output_r[global_row * width + global_col] = red;
-        output_g[global_row * width + global_col] = green;
-        output_b[global_row * width + global_col] = blue;
+        #pragma unroll 
+        for (int i = 0; i < PIXELS_PER_THREAD; i++)
+        {
+            int current_global_col = global_col + i;
+            if (current_global_col >= 1 && current_global_col < width -1)
+            {
+                int current_local_col = local_col * PIXELS_PER_THREAD + i;
+                
+                ColorValue red   = d_bilateral_filter(shared_input_r_values, d_expf_look_up, local_row, current_local_col, BLOCKSIZE_X * PIXELS_PER_THREAD + 2);
+                ColorValue green = d_bilateral_filter(shared_input_g_values, d_expf_look_up, local_row, current_local_col, BLOCKSIZE_X * PIXELS_PER_THREAD + 2);
+                ColorValue blue  = d_bilateral_filter(shared_input_b_values, d_expf_look_up, local_row, current_local_col, BLOCKSIZE_X * PIXELS_PER_THREAD + 2);
+                
+                output_r[global_row * width + current_global_col] = red;
+                output_g[global_row * width + current_global_col] = green;
+                output_b[global_row * width + current_global_col] = blue;
+            }
+        }
     }
 }
 
@@ -204,10 +215,13 @@ int main(int argc, char** argv)
     cudaMalloc((void**)&d_expf_look_up, 256 * sizeof(float));
     cudaMemcpy(d_expf_look_up, h_expf_look_up, 256 * sizeof(float), cudaMemcpyHostToDevice);
 
-    const unsigned int BLOCKSIZE = 16;
-    dim3 blockDim(BLOCKSIZE, BLOCKSIZE);
-    dim3 gridDim((width + BLOCKSIZE - 1) / BLOCKSIZE,
-                 (height + BLOCKSIZE - 1) / BLOCKSIZE);
+    const unsigned int PIXELS_PER_THREAD = 2;
+    const unsigned int BLOCKSIZE_X = 32;
+    const unsigned int BLOCKSIZE_Y = 8;
+
+    dim3 blockDim(BLOCKSIZE_X, BLOCKSIZE_Y);
+    dim3 gridDim((width + (BLOCKSIZE_X * PIXELS_PER_THREAD) - 1) / (BLOCKSIZE_X * PIXELS_PER_THREAD),
+                 (height + BLOCKSIZE_Y - 1) / BLOCKSIZE_Y);
 
     cudaEvent_t start, stop;
     float gpuDuration;
@@ -216,7 +230,7 @@ int main(int argc, char** argv)
     // Perform filtering on GPU
     cudaEventRecord(start, 0); // GPU start time
     // Launch CUDA kernel
-    apply_filter_kernel<BLOCKSIZE><<<gridDim, blockDim>>>(
+    apply_filter_kernel<BLOCKSIZE_X, BLOCKSIZE_Y, PIXELS_PER_THREAD><<<gridDim, blockDim>>>(
         d_input_r_values,
         d_input_g_values,
         d_input_b_values,
