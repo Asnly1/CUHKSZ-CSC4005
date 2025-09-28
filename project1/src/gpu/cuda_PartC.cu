@@ -191,7 +191,7 @@ int main(int argc, char** argv)
     cudaMemcpyToSymbol(d_w_corner, &h_w_corner, sizeof(float));
     cudaMemcpyToSymbol(d_sigma_r_sq_inv, &h_sigma_r_sq_inv, sizeof(float));
 
-    const unsigned int BLOCKSIZE = 32;
+    const unsigned int BLOCKSIZE = 16;
     dim3 blockDim(BLOCKSIZE, BLOCKSIZE);
     dim3 gridDim((width + BLOCKSIZE - 1) / BLOCKSIZE,
                  (height + BLOCKSIZE - 1) / BLOCKSIZE);
