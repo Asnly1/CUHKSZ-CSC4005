@@ -68,7 +68,7 @@ __device__ ColorValue d_bilateral_filter(ColorValue* values,
     #pragma unroll
     for (int i = 0; i < 9; i++){
         float difference = center_value - (float)neighbor_values[i];
-        weights[i] = w_spatial[i] * expf(difference * difference * d_sigma_r_sq_inv);
+        weights[i] = w_spatial[i] * __expf(difference * difference * d_sigma_r_sq_inv);
         sum_weights += weights[i];
         filtered_value += weights[i] * (float)neighbor_values[i];
     }
@@ -229,8 +229,8 @@ int main(int argc, char** argv)
     cudaMemcpy(d_input_g_values, input_g_values, buffer_size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_input_b_values, input_b_values, buffer_size, cudaMemcpyHostToDevice);
 
-    const float h_w_border = expf(-0.5f / (SIGMA_D * SIGMA_D));
-    const float h_w_corner = expf(-1.0f / (SIGMA_D * SIGMA_D));
+    const float h_w_border = __expf(-0.5f / (SIGMA_D * SIGMA_D));
+    const float h_w_corner = __expf(-1.0f / (SIGMA_D * SIGMA_D));
     const float h_sigma_r_sq_inv = -0.5f / (SIGMA_R * SIGMA_R);
 
     cudaMemcpyToSymbol(d_w_border, &h_w_border, sizeof(float));
