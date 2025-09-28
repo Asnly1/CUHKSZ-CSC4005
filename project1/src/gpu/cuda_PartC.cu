@@ -29,6 +29,7 @@
 __constant__ float d_w_border;
 __constant__ float d_w_corner;
 __constant__ float d_sigma_r_sq_inv;
+__constant__ float d_w_spatial[9];
 
 __device__ unsigned char d_clamp_pixel_value(float value)
 {
@@ -40,12 +41,6 @@ __device__ unsigned char d_clamp_pixel_value(float value)
 __device__ ColorValue d_bilateral_filter(ColorValue* __restrict__ values, float* __restrict__ d_expf_look_up,
                                          int local_row, int local_col, int width)
 {
-    const float w_spatial[9] = {
-        d_w_corner, d_w_border, d_w_corner,
-        d_w_border, 1.0f,       d_w_border,
-        d_w_corner, d_w_border, d_w_corner
-    };
-
     int center_row = local_row + 1;
     int center_col = local_col + 1;
 
@@ -54,6 +49,7 @@ __device__ ColorValue d_bilateral_filter(ColorValue* __restrict__ values, float*
     #pragma unroll
     for (int i = -1; i <= 1; i++)
     {
+        #pragma unroll
         for (int j = -1; j <=1; j++)
         {
             neighbor_values[index++] = values[(center_row+i) * width + (center_col+j)];
@@ -68,7 +64,7 @@ __device__ ColorValue d_bilateral_filter(ColorValue* __restrict__ values, float*
     #pragma unroll
     for (int i = 0; i < 9; i++){
         int  difference = (int)center_value - (int)neighbor_values[i];
-        weights[i] = w_spatial[i] * d_expf_look_up[abs(difference)];
+        weights[i] = d_w_spatial[i] * d_expf_look_up[abs(difference)];
         sum_weights += weights[i];
         filtered_value += weights[i] * (float)neighbor_values[i];
     }
@@ -198,6 +194,11 @@ int main(int argc, char** argv)
     const float h_w_border = expf(-0.5f / (SIGMA_D * SIGMA_D));
     const float h_w_corner = expf(-1.0f / (SIGMA_D * SIGMA_D));
     const float h_sigma_r_sq_inv = -0.5f / (SIGMA_R * SIGMA_R);
+    const float w_spatial[9] = {
+        h_w_corner, h_w_border, h_w_corner,
+        h_w_border, 1.0f,       h_w_border,
+        h_w_corner, h_w_border, h_w_corner
+    };
     const int max_difference = 255;
     float h_expf_look_up [max_difference+1];
 
@@ -210,6 +211,7 @@ int main(int argc, char** argv)
     cudaMemcpyToSymbol(d_w_border, &h_w_border, sizeof(float));
     cudaMemcpyToSymbol(d_w_corner, &h_w_corner, sizeof(float));
     cudaMemcpyToSymbol(d_sigma_r_sq_inv, &h_sigma_r_sq_inv, sizeof(float));
+    cudaMemcpyToSymbol(d_w_spatial, w_spatial, sizeof(w_spatial));
 
     float* d_expf_look_up;
     cudaMalloc((void**)&d_expf_look_up, 256 * sizeof(float));
