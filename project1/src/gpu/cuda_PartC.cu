@@ -79,12 +79,12 @@ __device__ ColorValue d_bilateral_filter(ColorValue* values,
 }
 
 template <const uint BLOCKSIZE>
-__global__ void apply_filter_kernel(ColorValue* input_r_values,
-                                    ColorValue* input_g_values,
-                                    ColorValue* input_b_values,
-                                    ColorValue* output_r,
-                                    ColorValue* output_g,
-                                    ColorValue* output_b,
+__global__ void apply_filter_kernel(ColorValue* __restrict__ input_r_values,
+                                    ColorValue* __restrict__ input_g_values,
+                                    ColorValue* __restrict__ input_b_values,
+                                    ColorValue* __restrict__ output_r,
+                                    ColorValue* __restrict__ output_g,
+                                    ColorValue* __restrict__ output_b,
                                     int width, int height)
 {   
     int local_col = threadIdx.x;
@@ -182,7 +182,7 @@ int main(int argc, char** argv)
     cudaMemcpy(d_output_r, d_input_r_values, buffer_size, cudaMemcpyDeviceToDevice);
     cudaMemcpy(d_output_g, d_input_g_values, buffer_size, cudaMemcpyDeviceToDevice);
     cudaMemcpy(d_output_b, d_input_b_values, buffer_size, cudaMemcpyDeviceToDevice);
-    
+
     const float h_w_border = expf(-0.5f / (SIGMA_D * SIGMA_D));
     const float h_w_corner = expf(-1.0f / (SIGMA_D * SIGMA_D));
     const float h_sigma_r_sq_inv = -0.5f / (SIGMA_R * SIGMA_R);
