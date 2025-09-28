@@ -8,6 +8,11 @@
 // CUDA implementation of bilateral filtering on JPEG image
 //
 
+// Gloabl Memory Coalesing
+// Shared Memory
+// unroll
+// 增加每个thread的工作量
+
 #include <iostream>
 #include <cmath>
 #include <chrono>
@@ -61,6 +66,7 @@ __device__ ColorValue d_bilateral_filter(ColorValue* values,
     float sum_weights = 0.0f;
     float filtered_value = 0.0f;
 
+    #pragma unroll
     for (int i = 0; i < 9; i++){
         float difference = center_value - (float)neighbor_values[i];
         weights[i] = w_spatial[i] * expf(difference * difference * sigma_r_sq_inv);
@@ -73,6 +79,7 @@ __device__ ColorValue d_bilateral_filter(ColorValue* values,
     return d_clamp_pixel_value(filtered_value);
 }
 
+template <const uint BLOCKSIZE>
 __global__ void apply_filter_kernel(ColorValue* input_r_values,
                                     ColorValue* input_g_values,
                                     ColorValue* input_b_values,
@@ -147,16 +154,14 @@ int main(int argc, char** argv)
     cudaMemset(d_output_g, 0, buffer_size);
     cudaMemset(d_output_b, 0, buffer_size);
 
-    cudaMemcpy(d_input_r_values, input_r_values, buffer_size,
-            cudaMemcpyHostToDevice);
-    cudaMemcpy(d_input_g_values, input_g_values, buffer_size,
-        cudaMemcpyHostToDevice);
-    cudaMemcpy(d_input_b_values, input_b_values, buffer_size,
-        cudaMemcpyHostToDevice);
+    cudaMemcpy(d_input_r_values, input_r_values, buffer_size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_input_g_values, input_g_values, buffer_size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_input_b_values, input_b_values, buffer_size, cudaMemcpyHostToDevice);
 
-    dim3 blockDim(32, 32);
-    dim3 gridDim((width + blockDim.x - 1) / blockDim.x,
-                 (height + blockDim.y - 1) / blockDim.y);
+    const unsigned int BLOCK_DIM = 32;
+    dim3 blockDim(BLOCK_DIM, BLOCK_DIM);
+    dim3 gridDim((width + BLOCK_DIM - 1) / BLOCK_DIM,
+                 (height + BLOCK_DIM - 1) / BLOCK_DIM);
 
     cudaEvent_t start, stop;
     float gpuDuration;
@@ -165,7 +170,7 @@ int main(int argc, char** argv)
     // Perform filtering on GPU
     cudaEventRecord(start, 0); // GPU start time
     // Launch CUDA kernel
-    apply_filter_kernel<<<gridDim, blockDim>>>(
+    apply_filter_kernel<BLOCK_DIM><<<gridDim, blockDim>>>(
         d_input_r_values,
         d_input_g_values,
         d_input_b_values,
