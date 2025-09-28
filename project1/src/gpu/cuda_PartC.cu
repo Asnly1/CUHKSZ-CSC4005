@@ -37,8 +37,8 @@ __device__ unsigned char d_clamp_pixel_value(float value)
                        : static_cast<unsigned char>(value);
 }
 
-__device__ ColorValue d_bilateral_filter(ColorValue* values,
-                                    int local_row, int local_col, int width)
+__device__ ColorValue d_bilateral_filter(ColorValue* __restrict__ values, float* __restrict__ d_expf_look_up,
+                                         int local_row, int local_col, int width)
 {
     const float w_spatial[9] = {
         d_w_corner, d_w_border, d_w_corner,
@@ -60,15 +60,15 @@ __device__ ColorValue d_bilateral_filter(ColorValue* values,
         }
     }
 
-    float center_value = (float)neighbor_values[4];
+    int center_value = (int)neighbor_values[4];
     float weights[9];
     float sum_weights = 0.0f;
     float filtered_value = 0.0f;
 
     #pragma unroll
     for (int i = 0; i < 9; i++){
-        float difference = center_value - (float)neighbor_values[i];
-        weights[i] = w_spatial[i] * __expf(difference * difference * d_sigma_r_sq_inv);
+        int  difference = (int)center_value - (int)neighbor_values[i];
+        weights[i] = w_spatial[i] * d_expf_look_up[abs(difference)];
         sum_weights += weights[i];
         filtered_value += weights[i] * (float)neighbor_values[i];
     }
@@ -85,6 +85,7 @@ __global__ void apply_filter_kernel(ColorValue* __restrict__ input_r_values,
                                     ColorValue* __restrict__ output_r,
                                     ColorValue* __restrict__ output_g,
                                     ColorValue* __restrict__ output_b,
+                                    float* __restrict__ d_expf_look_up,
                                     int width, int height)
 {   
     int local_col = threadIdx.x;
@@ -120,9 +121,9 @@ __global__ void apply_filter_kernel(ColorValue* __restrict__ input_r_values,
 
     if (global_col >= 1 && global_col < width - 1 && global_row >= 1 && global_row < height - 1)
     {
-        ColorValue red   = d_bilateral_filter(shared_input_r_values, local_row, local_col, BLOCKSIZE+2);
-        ColorValue green = d_bilateral_filter(shared_input_g_values, local_row, local_col, BLOCKSIZE+2);
-        ColorValue blue  = d_bilateral_filter(shared_input_b_values, local_row, local_col, BLOCKSIZE+2);
+        ColorValue red   = d_bilateral_filter(shared_input_r_values, d_expf_look_up, local_row, local_col, BLOCKSIZE+2);
+        ColorValue green = d_bilateral_filter(shared_input_g_values, d_expf_look_up, local_row, local_col, BLOCKSIZE+2);
+        ColorValue blue  = d_bilateral_filter(shared_input_b_values, d_expf_look_up, local_row, local_col, BLOCKSIZE+2);
         output_r[global_row * width + global_col] = red;
         output_g[global_row * width + global_col] = green;
         output_b[global_row * width + global_col] = blue;
@@ -186,10 +187,22 @@ int main(int argc, char** argv)
     const float h_w_border = expf(-0.5f / (SIGMA_D * SIGMA_D));
     const float h_w_corner = expf(-1.0f / (SIGMA_D * SIGMA_D));
     const float h_sigma_r_sq_inv = -0.5f / (SIGMA_R * SIGMA_R);
+    const int max_difference = 255;
+    float h_expf_look_up [max_difference+1];
+
+    for (int i = 0; i <= max_difference; i++)
+    {
+        float diff_sq = static_cast<float>(i * i);
+        h_expf_look_up[i] = expf(diff_sq * h_sigma_r_sq_inv);
+    }
 
     cudaMemcpyToSymbol(d_w_border, &h_w_border, sizeof(float));
     cudaMemcpyToSymbol(d_w_corner, &h_w_corner, sizeof(float));
     cudaMemcpyToSymbol(d_sigma_r_sq_inv, &h_sigma_r_sq_inv, sizeof(float));
+
+    float* d_expf_look_up;
+    cudaMalloc((void**)&d_expf_look_up, 256 * sizeof(float));
+    cudaMemcpy(d_expf_look_up, h_expf_look_up, 256 * sizeof(float), cudaMemcpyHostToDevice);
 
     const unsigned int BLOCKSIZE = 16;
     dim3 blockDim(BLOCKSIZE, BLOCKSIZE);
@@ -210,6 +223,7 @@ int main(int argc, char** argv)
         d_output_r,
         d_output_g,
         d_output_b,
+        d_expf_look_up,
         width,
         height);
     cudaEventRecord(stop, 0); // GPU end time
@@ -243,6 +257,7 @@ int main(int argc, char** argv)
     cudaFree(d_output_r);
     cudaFree(d_output_g);
     cudaFree(d_output_b);
+    cudaFree(d_expf_look_up);
     std::cout << "Transformation Complete!" << std::endl;
     std::cout << "GPU Execution Time: " << gpuDuration << " milliseconds"
               << std::endl;
