@@ -96,71 +96,26 @@ __global__ void apply_filter_kernel(ColorValue* input_r_values,
     __shared__ ColorValue shared_input_g_values[(BLOCKSIZE+2) * (BLOCKSIZE+2)];
     __shared__ ColorValue shared_input_b_values[(BLOCKSIZE+2) * (BLOCKSIZE+2)];
 
-    if (global_row >= 0 && global_row < height && global_col >= 0 && global_col < width)
-    {
-        // 把中心区域的数据加载到Shared Memory
-        shared_input_r_values[(local_row+1) * (BLOCKSIZE+2) + (local_col+1)] = input_r_values[global_row * width + global_col];
-        shared_input_g_values[(local_row+1) * (BLOCKSIZE+2) + (local_col+1)] = input_g_values[global_row * width + global_col];
-        shared_input_b_values[(local_row+1) * (BLOCKSIZE+2) + (local_col+1)] = input_b_values[global_row * width + global_col];
-    }
+    int global_col_start = blockIdx.x * blockDim.x;
+    int global_row_start = blockIdx.y * blockDim.y;
 
-    // Block内的第一行加载上面的区域
-    if (local_row == 0 && global_row >= 1 && global_row < height && global_col >= 0 && global_col < width )
-    {
-        shared_input_r_values[0 * (BLOCKSIZE+2) + (local_col+1)] = input_r_values[(global_row-1) * width + global_col];
-        shared_input_g_values[0 * (BLOCKSIZE+2) + (local_col+1)] = input_g_values[(global_row-1) * width + global_col];
-        shared_input_b_values[0 * (BLOCKSIZE+2) + (local_col+1)] = input_b_values[(global_row-1) * width + global_col];
-    }
-    // Block内的最后一行加载下面的区域
-    if (local_row == BLOCKSIZE-1 && global_row >= 0 && global_row < height-1 && global_col >= 0 && global_col < width)
-    {
-        shared_input_r_values[(BLOCKSIZE+1) * (BLOCKSIZE+2) + (local_col+1)] = input_r_values[(global_row+1) * width + global_col];
-        shared_input_g_values[(BLOCKSIZE+1) * (BLOCKSIZE+2) + (local_col+1)] = input_g_values[(global_row+1) * width + global_col];
-        shared_input_b_values[(BLOCKSIZE+1) * (BLOCKSIZE+2) + (local_col+1)] = input_b_values[(global_row+1) * width + global_col];
-    }
-    // Block内的第一列加载左边的区域
-    if (local_col == 0 && global_row >= 0 && global_row < height && global_col >= 1 && global_col < width)
-    {
-        shared_input_r_values[(local_row+1) * (BLOCKSIZE+2) + 0] = input_r_values[global_row * width + (global_col-1)];
-        shared_input_g_values[(local_row+1) * (BLOCKSIZE+2) + 0] = input_g_values[global_row * width + (global_col-1)];
-        shared_input_b_values[(local_row+1) * (BLOCKSIZE+2) + 0] = input_b_values[global_row * width + (global_col-1)];
-    }
-    // Block内的最后一列加载右边的区域
-    if (local_col == BLOCKSIZE-1 && global_row >= 0 && global_row < height && global_col >= 0 && global_col < width-1)
-    {
-        shared_input_r_values[(local_row+1) * (BLOCKSIZE+2) + (BLOCKSIZE+1)] = input_r_values[global_row * width + (global_col+1)];
-        shared_input_g_values[(local_row+1) * (BLOCKSIZE+2) + (BLOCKSIZE+1)] = input_g_values[global_row * width + (global_col+1)];
-        shared_input_b_values[(local_row+1) * (BLOCKSIZE+2) + (BLOCKSIZE+1)] = input_b_values[global_row * width + (global_col+1)];
-    }
-    // 左上角加载左上角
-    if (local_row == 0 && local_col == 0 && global_row >= 1 && global_row < height && global_col >= 1 && global_col < width)
-    {
-        shared_input_r_values[0 * (BLOCKSIZE+2) + 0] = input_r_values[(global_row-1) * width + (global_col-1)];
-        shared_input_g_values[0 * (BLOCKSIZE+2) + 0] = input_g_values[(global_row-1) * width + (global_col-1)];
-        shared_input_b_values[0 * (BLOCKSIZE+2) + 0] = input_b_values[(global_row-1) * width + (global_col-1)];
-    }
-    // 右上角加载右上角
-    if (local_row == 0 && local_col == BLOCKSIZE-1 && global_row >= 1 && global_row < height && global_col >= 0 && global_col < width-1)
-    {
-        shared_input_r_values[0 * (BLOCKSIZE+2) + (BLOCKSIZE+1)] = input_r_values[(global_row-1) * width + (global_col+1)];
-        shared_input_g_values[0 * (BLOCKSIZE+2) + (BLOCKSIZE+1)] = input_g_values[(global_row-1) * width + (global_col+1)];
-        shared_input_b_values[0 * (BLOCKSIZE+2) + (BLOCKSIZE+1)] = input_b_values[(global_row-1) * width + (global_col+1)];
-    }
-    // 左下角加载左下角
-    if (local_row == BLOCKSIZE-1 && local_col == 0 && global_row >= 0 && global_row < height-1 && global_col >= 1 && global_col < width)
-    {
-        shared_input_r_values[(BLOCKSIZE+1) * (BLOCKSIZE+2) + 0] = input_r_values[(global_row+1) * width + (global_col-1)];
-        shared_input_g_values[(BLOCKSIZE+1) * (BLOCKSIZE+2) + 0] = input_g_values[(global_row+1) * width + (global_col-1)];
-        shared_input_b_values[(BLOCKSIZE+1) * (BLOCKSIZE+2) + 0] = input_b_values[(global_row+1) * width + (global_col-1)];
-    }
-    // 右下角加载右下角
-    if (local_row == BLOCKSIZE-1 && local_col == BLOCKSIZE-1 && global_row >= 0 && global_row < height-1 && global_col >= 0 && global_col < width-1)
-    {
-        shared_input_r_values[(BLOCKSIZE+1) * (BLOCKSIZE+2) + (BLOCKSIZE+1)] = input_r_values[(global_row+1) * width + (global_col+1)];
-        shared_input_g_values[(BLOCKSIZE+1) * (BLOCKSIZE+2) + (BLOCKSIZE+1)] = input_g_values[(global_row+1) * width + (global_col+1)];
-        shared_input_b_values[(BLOCKSIZE+1) * (BLOCKSIZE+2) + (BLOCKSIZE+1)] = input_b_values[(global_row+1) * width + (global_col+1)];
-    }
+    int tid = threadIdx.y * blockDim.x + threadIdx.x;
 
+    for (int i = tid; i < (BLOCKSIZE+2) * (BLOCKSIZE+2); i += blockDim.x * blockDim.y)
+    {
+        int local_copy_col = i % (BLOCKSIZE+2);
+        int local_copy_row = i / (BLOCKSIZE+2);
+
+        int global_copy_col = global_col_start + local_copy_col - 1;
+        int global_copy_row = global_row_start + local_copy_row - 1;
+
+        if (global_copy_row >= 0 && global_copy_row < height && global_copy_col >= 0 && global_copy_col < width)
+        {
+            shared_input_r_values[i] = input_r_values[global_copy_row * width + global_copy_col];
+            shared_input_g_values[i] = input_g_values[global_copy_row * width + global_copy_col];
+            shared_input_b_values[i] = input_b_values[global_copy_row * width + global_copy_col];
+        }
+    }
     __syncthreads();
 
     if (global_col >= 1 && global_col < width - 1 && global_row >= 1 && global_row < height - 1)
@@ -221,16 +176,15 @@ int main(int argc, char** argv)
     cudaMalloc((void**)&d_output_g, buffer_size);
     cudaMalloc((void**)&d_output_b, buffer_size);
 
-    cudaMemset(d_output_r, 0, buffer_size);
-    cudaMemset(d_output_g, 0, buffer_size);
-    cudaMemset(d_output_b, 0, buffer_size);
-
     cudaMemcpy(d_input_r_values, input_r_values, buffer_size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_input_g_values, input_g_values, buffer_size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_input_b_values, input_b_values, buffer_size, cudaMemcpyHostToDevice);
-
-    const float h_w_border = __expf(-0.5f / (SIGMA_D * SIGMA_D));
-    const float h_w_corner = __expf(-1.0f / (SIGMA_D * SIGMA_D));
+    cudaMemcpy(d_output_r, d_input_r_values, buffer_size, cudaMemcpyDeviceToDevice);
+    cudaMemcpy(d_output_g, d_input_g_values, buffer_size, cudaMemcpyDeviceToDevice);
+    cudaMemcpy(d_output_b, d_input_b_values, buffer_size, cudaMemcpyDeviceToDevice);
+    
+    const float h_w_border = expf(-0.5f / (SIGMA_D * SIGMA_D));
+    const float h_w_corner = expf(-1.0f / (SIGMA_D * SIGMA_D));
     const float h_sigma_r_sq_inv = -0.5f / (SIGMA_R * SIGMA_R);
 
     cudaMemcpyToSymbol(d_w_border, &h_w_border, sizeof(float));
