@@ -12,6 +12,7 @@
 // Shared Memory
 // unroll
 // 增加每个thread的工作量
+// 调整Constant Memory 和 L1 Cache的比例 Constant Memory只使用 9 * 4 = 36B
 
 #include <iostream>
 #include <cmath>
@@ -26,9 +27,6 @@
  * You may mimic this to implement your own kernel device functions
  */
 
-__constant__ float d_w_border;
-__constant__ float d_w_corner;
-__constant__ float d_sigma_r_sq_inv;
 __constant__ float d_w_spatial[9];
 
 __device__ unsigned char d_clamp_pixel_value(float value)
@@ -75,9 +73,9 @@ __device__ ColorValue d_bilateral_filter(ColorValue* __restrict__ values, float*
 }
 
 template <const uint BLOCKSIZE_X, const uint BLOCKSIZE_Y, const uint PIXELS_PER_THREAD>
-__global__ void apply_filter_kernel(ColorValue* __restrict__ input_r_values,
-                                    ColorValue* __restrict__ input_g_values,
-                                    ColorValue* __restrict__ input_b_values,
+__global__ void apply_filter_kernel(cudaTextureObject_t input_r_tex,
+                                    cudaTextureObject_t input_g_tex,
+                                    cudaTextureObject_t input_b_tex,
                                     ColorValue* __restrict__ output_r,
                                     ColorValue* __restrict__ output_g,
                                     ColorValue* __restrict__ output_b,
@@ -106,11 +104,14 @@ __global__ void apply_filter_kernel(ColorValue* __restrict__ input_r_values,
         int global_copy_col = global_col_start + local_copy_col - 1;
         int global_copy_row = global_row_start + local_copy_row - 1;
 
+        float u = static_cast<float>(global_copy_col) + 0.5f;
+        float v = static_cast<float>(global_copy_row) + 0.5f;
+
         if (global_copy_row >= 0 && global_copy_row < height && global_copy_col >= 0 && global_copy_col < width)
         {
-            shared_input_r_values[i] = input_r_values[global_copy_row * width + global_copy_col];
-            shared_input_g_values[i] = input_g_values[global_copy_row * width + global_copy_col];
-            shared_input_b_values[i] = input_b_values[global_copy_row * width + global_copy_col];
+            shared_input_r_values[i] = tex2D<ColorValue>(input_r_tex, u, v);
+            shared_input_g_values[i] = tex2D<ColorValue>(input_g_tex, u, v);
+            shared_input_b_values[i] = tex2D<ColorValue>(input_b_tex, u, v);
         }
     }
     __syncthreads();
@@ -208,14 +209,50 @@ int main(int argc, char** argv)
         h_expf_look_up[i] = expf(diff_sq * h_sigma_r_sq_inv);
     }
 
-    cudaMemcpyToSymbol(d_w_border, &h_w_border, sizeof(float));
-    cudaMemcpyToSymbol(d_w_corner, &h_w_corner, sizeof(float));
-    cudaMemcpyToSymbol(d_sigma_r_sq_inv, &h_sigma_r_sq_inv, sizeof(float));
     cudaMemcpyToSymbol(d_w_spatial, w_spatial, sizeof(w_spatial));
 
     float* d_expf_look_up;
     cudaMalloc((void**)&d_expf_look_up, 256 * sizeof(float));
     cudaMemcpy(d_expf_look_up, h_expf_look_up, 256 * sizeof(float), cudaMemcpyHostToDevice);
+
+    cudaArray *d_input_r_array, *d_input_g_array, *d_input_b_array;
+    const cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<ColorValue>();
+    cudaMallocArray(&d_input_r_array, &channelDesc, width, height);
+    cudaMallocArray(&d_input_g_array, &channelDesc, width, height);
+    cudaMallocArray(&d_input_b_array, &channelDesc, width, height);
+
+    cudaMemcpy2DToArray(d_input_r_array, 0, 0, input_r_values, width * sizeof(ColorValue), width * sizeof(ColorValue), height, cudaMemcpyHostToDevice);
+    cudaMemcpy2DToArray(d_input_g_array, 0, 0, input_g_values, width * sizeof(ColorValue), width * sizeof(ColorValue), height, cudaMemcpyHostToDevice);
+    cudaMemcpy2DToArray(d_input_b_array, 0, 0, input_b_values, width * sizeof(ColorValue), width * sizeof(ColorValue), height, cudaMemcpyHostToDevice);
+
+    cudaResourceDesc resDesc_r, resDesc_g, resDesc_b;
+    memset(&resDesc_r, 0, sizeof(resDesc_r));
+    resDesc_r.resType = cudaResourceTypeArray;
+    resDesc_r.res.array.array = d_input_r_array;
+    // (为 G 和 B 通道做同样的操作)
+    memset(&resDesc_g, 0, sizeof(resDesc_g));
+    resDesc_g.resType = cudaResourceTypeArray;
+    resDesc_g.res.array.array = d_input_g_array;
+    memset(&resDesc_b, 0, sizeof(resDesc_b));
+    resDesc_b.resType = cudaResourceTypeArray;
+    resDesc_b.res.array.array = d_input_b_array;
+
+    // 4. 指定纹理描述
+    cudaTextureDesc texDesc;
+    memset(&texDesc, 0, sizeof(texDesc));
+    texDesc.addressMode[0] = cudaAddressModeClamp; // X方向地址模式：钳位
+    texDesc.addressMode[1] = cudaAddressModeClamp; // Y方向地址模式：钳位
+    texDesc.filterMode = cudaFilterModePoint;     // 点滤波，获取精确像素值
+    texDesc.readMode = cudaReadModeElementType;   // 读取为元素类型 (unsigned char)
+    texDesc.normalizedCoords = 0;                 // 使用非归一化的像素坐标
+
+    // 5. 创建纹理对象
+    cudaTextureObject_t d_input_r_tex = 0;
+    cudaTextureObject_t d_input_g_tex = 0;
+    cudaTextureObject_t d_input_b_tex = 0;
+    cudaCreateTextureObject(&d_input_r_tex, &resDesc_r, &texDesc, NULL);
+    cudaCreateTextureObject(&d_input_g_tex, &resDesc_g, &texDesc, NULL);
+    cudaCreateTextureObject(&d_input_b_tex, &resDesc_b, &texDesc, NULL);
 
     const unsigned int PIXELS_PER_THREAD = 2;
     const unsigned int BLOCKSIZE_X = 32;
@@ -233,9 +270,9 @@ int main(int argc, char** argv)
     cudaEventRecord(start, 0); // GPU start time
     // Launch CUDA kernel
     apply_filter_kernel<BLOCKSIZE_X, BLOCKSIZE_Y, PIXELS_PER_THREAD><<<gridDim, blockDim>>>(
-        d_input_r_values,
-        d_input_g_values,
-        d_input_b_values,
+        d_input_r_tex,
+        d_input_g_tex,
+        d_input_b_tex,
         d_output_r,
         d_output_g,
         d_output_b,
@@ -274,6 +311,12 @@ int main(int argc, char** argv)
     cudaFree(d_output_g);
     cudaFree(d_output_b);
     cudaFree(d_expf_look_up);
+    cudaDestroyTextureObject(d_input_r_tex);
+    cudaDestroyTextureObject(d_input_g_tex);
+    cudaDestroyTextureObject(d_input_b_tex);
+    cudaFreeArray(d_input_r_array);
+    cudaFreeArray(d_input_g_array);
+    cudaFreeArray(d_input_b_array);
     std::cout << "Transformation Complete!" << std::endl;
     std::cout << "GPU Execution Time: " << gpuDuration << " milliseconds"
               << std::endl;
