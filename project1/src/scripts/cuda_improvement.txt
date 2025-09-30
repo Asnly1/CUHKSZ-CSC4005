@@ -1,0 +1,55 @@
+第一版:
+Current directory: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts
+CUDA PartC
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/4K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/4K-Bilateral.jpg
+Transformation Complete!
+GPU Execution Time: 4.09565 milliseconds
+
+第二版：unroll loop & 添加template
+Current directory: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts
+CUDA PartC
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/4K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/4K-Bilateral.jpg
+Transformation Complete!
+GPU Execution Time: 4.06106 milliseconds
+
+第三版:使用Constant Memory缓存d_w_border, d_w_corner, d_sigma_r_sq_inv
+Current directory: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts
+CUDA PartC
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/4K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/4K-Bilateral.jpg
+Transformation Complete!
+GPU Execution Time: 2.99437 milliseconds
+
+第四版：使用Shared Memory
+Current directory: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts
+CUDA PartC
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/4K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/4K-Bilateral.jpg
+Transformation Complete!
+GPU Execution Time: 2.0071 milliseconds
+
+第五版: 使用look_up_table代替expf
+Current directory: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts
+CUDA PartC
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/4K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/4K-Bilateral.jpg
+Transformation Complete!
+GPU Execution Time: 1.5449 milliseconds
+
+第六版：增加每个thread的工作量
+Current directory: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts
+CUDA PartC
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/4K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/4K-Bilateral.jpg
+Transformation Complete!
+GPU Execution Time: 1.39446 milliseconds
+
+第七版：使用Texture Memory
+Current directory: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts
+CUDA PartC
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/4K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/4K-Bilateral.jpg
+Transformation Complete!
+GPU Execution Time: 1.36342 milliseconds
