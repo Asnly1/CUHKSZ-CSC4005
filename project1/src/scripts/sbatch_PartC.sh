@@ -13,7 +13,7 @@ export TRITON_NVDISASM_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/cuda/12.2/bin/
 # export PATH=/opt/rh/rh-python38/root/usr/bin:$PATH
 
 # Get the current directory
-CURRENT_DIR=$(pwd)/src/scripts
+CURRENT_DIR=$(pwd)
 echo "Current directory: ${CURRENT_DIR}"
 
 # Sequential PartC (Array-of-Structure)
@@ -27,7 +27,7 @@ srun -n 1 --cpus-per-task 1 ${CURRENT_DIR}/../../build/src/cpu/sequential_PartC_
 echo ""
 
 # Vectorization PartB
-echo "Vectorization PartC (Optimized with -O2)"
+echo "Vectorization PartC (Optimized with -O3)"
 srun -n 1 --cpus-per-task 1 ${CURRENT_DIR}/../../build/src/cpu/vectorize_PartC ${CURRENT_DIR}/../../images/4K-RGB.jpg ${CURRENT_DIR}/../../images/4K-Bilateral.jpg
 echo ""
 
@@ -37,7 +37,7 @@ srun -n 1 --cpus-per-task 1 ${CURRENT_DIR}/../../build/src/cpu/simd_PartC ${CURR
 echo ""
 
 # MPI PartC
-echo "MPI PartC (Optimized with -O2)"
+echo "MPI PartC (Optimized with -O3)"
 for num_processes in 1 2 4 8 16 32
 do
   echo "Number of processes: $num_processes"
@@ -46,7 +46,7 @@ do
 done
 
 # Pthread PartC
-echo "Pthread PartC (Optimized with -O2)"
+echo "Pthread PartC (Optimized with -O3)"
 for num_cores in 1 2 4 8 16 32
 do
   echo "Number of cores: $num_cores"
@@ -55,7 +55,7 @@ do
 done
 
 # OpenMP PartC
-echo "OpenMP PartC (Optimized with -O2)"
+echo "OpenMP PartC (Optimized with -O3)"
 for num_cores in 1 2 4 8 16 32
 do
   echo "Number of cores: $num_cores"

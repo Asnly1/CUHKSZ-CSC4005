@@ -8,12 +8,6 @@
 // CUDA implementation of bilateral filtering on JPEG image
 //
 
-// Gloabl Memory Coalesing
-// Shared Memory
-// unroll
-// 增加每个thread的工作量
-// 调整Constant Memory 和 L1 Cache的比例 Constant Memory只使用 9 * 4 = 36B
-
 #include <iostream>
 #include <cmath>
 #include <chrono>
@@ -240,11 +234,11 @@ int main(int argc, char** argv)
     // 4. 指定纹理描述
     cudaTextureDesc texDesc;
     memset(&texDesc, 0, sizeof(texDesc));
-    texDesc.addressMode[0] = cudaAddressModeClamp; // X方向地址模式：钳位
-    texDesc.addressMode[1] = cudaAddressModeClamp; // Y方向地址模式：钳位
-    texDesc.filterMode = cudaFilterModePoint;     // 点滤波，获取精确像素值
-    texDesc.readMode = cudaReadModeElementType;   // 读取为元素类型 (unsigned char)
-    texDesc.normalizedCoords = 0;                 // 使用非归一化的像素坐标
+    texDesc.addressMode[0] = cudaAddressModeClamp;
+    texDesc.addressMode[1] = cudaAddressModeClamp;
+    texDesc.filterMode = cudaFilterModePoint;
+    texDesc.readMode = cudaReadModeElementType;
+    texDesc.normalizedCoords = 0;
 
     // 5. 创建纹理对象
     cudaTextureObject_t d_input_r_tex = 0;
@@ -254,7 +248,7 @@ int main(int argc, char** argv)
     cudaCreateTextureObject(&d_input_g_tex, &resDesc_g, &texDesc, NULL);
     cudaCreateTextureObject(&d_input_b_tex, &resDesc_b, &texDesc, NULL);
 
-    const unsigned int PIXELS_PER_THREAD = 2;
+    const unsigned int PIXELS_PER_THREAD = 4;
     const unsigned int BLOCKSIZE_X = 32;
     const unsigned int BLOCKSIZE_Y = 8;
 

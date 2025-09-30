@@ -57,7 +57,7 @@ target_compile_options(vectorize_PartB PRIVATE -O2 -mavx2 -march=native -ftree-v
 add_executable(vectorize_PartC
         vectorize_PartC.cpp
         ../utils.cpp ../utils.hpp)
-target_compile_options(vectorize_PartC PRIVATE -O2 -mavx2 -march=native -ftree-vectorize -funroll-loops -fopenmp -ffast-math -msse2 -fopt-info-vec-optimized)
+target_compile_options(vectorize_PartC PRIVATE -O3 -mavx2 -march=native -ftree-vectorize -funroll-loops -fopenmp -ffast-math -msse2 -fopt-info-vec-optimized)
 
 ## SIMD Vectorization (AVX2)
 add_executable(simd_PartA
@@ -93,7 +93,7 @@ target_link_libraries(mpi_PartB ${MPI_LIBRARIES})
 add_executable(mpi_PartC
         mpi_PartC.cpp
         ../utils.cpp ../utils.hpp)
-target_compile_options(mpi_PartC PRIVATE -O2)
+target_compile_options(mpi_PartC PRIVATE -O3)
 target_include_directories(mpi_PartC PRIVATE ${MPI_CXX_INCLUDE_DIRS})
 target_link_libraries(mpi_PartC ${MPI_LIBRARIES})
 
@@ -113,7 +113,7 @@ target_link_libraries(pthread_PartB PRIVATE pthread)
 add_executable(pthread_PartC
         pthread_PartC.cpp
         ../utils.cpp ../utils.hpp)
-target_compile_options(pthread_PartC PRIVATE -O2)
+target_compile_options(pthread_PartC PRIVATE -O3)
 target_link_libraries(pthread_PartC PRIVATE pthread)
 
 ## OpenMP
@@ -134,6 +134,6 @@ target_link_libraries(openmp_PartB PRIVATE ${OpenMP_CXX_LIBRARIES})
 add_executable(openmp_PartC
         openmp_PartC.cpp
         ../utils.cpp ../utils.hpp)
-target_compile_options(openmp_PartC PRIVATE -O2 -fopenmp)
+target_compile_options(openmp_PartC PRIVATE -O3 -fopenmp)
 target_include_directories(openmp_PartC PRIVATE ${OpenMP_CXX_INCLUDE_DIRS})
 target_link_libraries(openmp_PartC PRIVATE ${OpenMP_CXX_LIBRARIES})

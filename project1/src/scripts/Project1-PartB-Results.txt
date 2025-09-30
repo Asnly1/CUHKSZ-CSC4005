@@ -1,0 +1,153 @@
+Current directory: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts
+Sequential PartB (Array-of-Structure) (Optimized with -O2)
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 6714 milliseconds
+
+Sequential PartB (Structure-of-Array) (Optimized with -O2)
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 6727 milliseconds
+
+Vectorization PartB (Optimized with -O2)
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 5359 milliseconds
+
+SIMD(AVX2) PartB (Optimized with -O2)
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 3373 milliseconds
+
+MPI PartB (Optimized with -O2)
+Number of processes: 1
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 6892 milliseconds
+
+Number of processes: 2
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 6886 milliseconds
+
+Number of processes: 4
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 3613 milliseconds
+
+Number of processes: 8
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 1965 milliseconds
+
+Number of processes: 16
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 1160 milliseconds
+
+Number of processes: 32
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 688 milliseconds
+
+Pthread PartB (Optimized with -O2)
+Number of cores: 1
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 7536 milliseconds
+
+Number of cores: 2
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 6907 milliseconds
+
+Number of cores: 4
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 3459 milliseconds
+
+Number of cores: 8
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 1738 milliseconds
+
+Number of cores: 16
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 878 milliseconds
+
+Number of cores: 32
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 573 milliseconds
+
+OpenMP PartB (Optimized with -O2)
+Number of cores: 1
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 7860 milliseconds
+
+Number of cores: 2
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 7006 milliseconds
+
+Number of cores: 4
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 3519 milliseconds
+
+Number of cores: 8
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 1765 milliseconds
+
+Number of cores: 16
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 889 milliseconds
+
+Number of cores: 32
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 513 milliseconds
+
+CUDA PartB
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+GPU Execution Time: 34.3001 milliseconds
+
+OpenACC PartB
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+Transformation Complete!
+Execution Time: 23 milliseconds
+
+Triton PartB
+Input file from: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-RGB.jpg
+Execution Time: 1423.54 ms
+Output file to: /nfsmnt/123090765/CUHKSZ-CSC4005/project1/src/scripts/../../images/20K-Smooth.jpg
+
