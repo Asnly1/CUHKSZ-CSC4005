@@ -19,8 +19,7 @@
 /**
  * Matmul with Loop Re-ordering, Serving as the utility function for blocks
  */
-void matrix_multiply_loop_reorder(const Matrix& matrix1, const Matrix& matrix2,
-                                  MAT_DATATYPE* __restrict__ result_data)
+Matrix matrix_multiply_loop_reorder(const Matrix& matrix1, const Matrix& matrix2)
 {
     if (matrix1.getCols() != matrix2.getRows())
     {
@@ -30,9 +29,21 @@ void matrix_multiply_loop_reorder(const Matrix& matrix1, const Matrix& matrix2,
 
     size_t M = matrix1.getRows(), K = matrix1.getCols(), N = matrix2.getCols();
 
-    /**
-     * Refer to Task 3 & 4
-     */
+    __restrict Matrix result(M, N);
+    const MAT_DATATYPE* const mat1_data = matrix1.getDataConst();
+    const MAT_DATATYPE* const mat2_data = matrix2.getDataConst();
+    for (size_t i = 0; i < M; ++i)
+    {
+        for (size_t k = 0; k < K; ++k)
+        {
+            for (size_t j = 0; j < N; ++j)
+            {
+                result(i, j) += mat1_data[i * K + k] * mat2_data[k * N + j];
+            }
+        }
+    }
+
+    return result;
 }
 
 /**
@@ -51,10 +62,28 @@ Matrix matrix_multiply_autovec(const Matrix& matrix1, const Matrix& matrix2,
     std::cout << "M = " << M << ", N = " << N << ", K = " << K << std::endl;
 
     Matrix result(M, N);
-
-    /**
-     * TODO: Auto-Vec Build upon Task 1 ~ 4
-     */
+    Matrix block_ik(block_size, block_size);
+    Matrix block_kj(block_size, block_size);
+    MAT_DATATYPE* block_ik_data = block_ik.getData();
+    MAT_DATATYPE* block_kj_data = block_kj.getData();
+    MAT_DATATYPE* result_data = result.getData();
+    for (size_t i = 0; i < M; i += block_size)
+    {
+        for (size_t j = 0; j < N; j += block_size)
+        {
+            #pragma GCC ivdep
+            #pragma GCC vector always
+            #pragma GCC unroll 8
+            for (size_t k = 0; k < K; k += block_size)
+            {
+                /** 如果i, j, k超出范围？ */
+                matrix1.getBlock(block_ik_data, i, k, block_size);
+                matrix2.getBlock(block_kj_data, k, j, block_size);
+                Matrix result_block_ij = matrix_multiply_loop_reorder(block_ik, block_kj);
+                result_block_ij.setBlock(result_data, 0, 0, block_size);
+            }
+        }
+    }
 
     return result;
 }

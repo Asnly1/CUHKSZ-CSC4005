@@ -70,6 +70,7 @@ Matrix matrix_multiply_tiling(const Matrix& matrix1, const Matrix& matrix2,
         {
             for (size_t k = 0; k < K; k += block_size)
             {
+                /** 如果i, j, k超出范围？ */
                 matrix1.getBlock(block_ik_data, i, k, block_size);
                 matrix2.getBlock(block_kj_data, k, j, block_size);
                 Matrix result_block_ij = matrix_multiply_transpose(block_ik, block_kj);
