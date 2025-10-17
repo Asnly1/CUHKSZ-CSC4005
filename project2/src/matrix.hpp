@@ -109,6 +109,11 @@ public:
      */
     static Matrix getResultMatrix(const std::string& mat1_path,
                                   const std::string& mat2_path);
+
+    /**
+     * Get the transpose of a matrix
+     */
+    static Matrix getTranspose(const Matrix& mat);
 };
 
 #endif

@@ -272,3 +272,23 @@ Matrix Matrix::getResultMatrix(const std::string& mat1_path,
     std::cerr << "Invalid matrix path: " << mat1_path << "\n";
     return Matrix(0, 0); // return size = 0 matrix if invalid
 }
+
+Matrix Matrix::getTranspose(const Matrix& mat)
+{
+    int rows = mat.getRows();
+    int cols = mat.getCols();
+    Matrix T = Matrix(rows, cols);
+    const MAT_DATATYPE* const mat_data = mat.getDataConst();
+    MAT_DATATYPE* const T_data = T.getData();
+    for (size_t i=0; i < rows; ++i)
+    {
+#pragma GCC ivdep
+#pragma GCC vector always
+#pragma GCC unroll 8
+        for (size_t j=0; j<cols; ++j)
+        {
+            T_data[i * cols + j] = mat_data[i * cols + j];
+        }
+    }
+    return T
+}
