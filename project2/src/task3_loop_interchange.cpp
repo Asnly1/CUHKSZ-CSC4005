@@ -28,11 +28,19 @@ Matrix matrix_multiply_loop_interchange(const Matrix& matrix1,
     size_t M = matrix1.getRows(), K = matrix1.getCols(), N = matrix2.getCols();
     std::cout << "M = " << M << ", N = " << N << ", K = " << K << std::endl;
 
-    Matrix result(M, N);
-
-    /**
-     * Task 1 ~ 3: Improve memory locality with loop interchange
-     */
+    __restrict Matrix result(M, N);
+    const MAT_DATATYPE* const mat1_data = matrix1.getDataConst();
+    const MAT_DATATYPE* const mat2_data = matrix2.getDataConst();
+    for (size_t i = 0; i < M; ++i)
+    {
+        for (size_t k = 0; k < K; ++k)
+        {
+            for (size_t j = 0; j < N; ++j)
+            {
+                result(i, j) += mat1_data[i * K + k] * mat2_data[k * N + j];
+            }
+        }
+    }
 
     return result;
 }
