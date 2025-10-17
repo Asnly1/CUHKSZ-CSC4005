@@ -1,17 +1,26 @@
+//
+// Created by Sergei Kudria on 2024Fall
+//
+// Modified by Li Mengkang on 2025/09/30.
+// Email: mengkangli@link.cuhk.edu.cn
+//
+// Naive Sparse MatMul
+//
+
 #ifndef SPARSE_SPARSE_MATRIX_H
 #define SPARSE_SPARSE_MATRIX_H
 
 #include <vector>
 
-class SparseMatrix{
+class SparseMatrix
+{
 public:
-
     SparseMatrix();
 
     SparseMatrix& operator=(const SparseMatrix& rhs) = default;
     SparseMatrix& operator=(SparseMatrix&& rhs) = default;
     SparseMatrix(const SparseMatrix& rhs) = default;
-    SparseMatrix(SparseMatrix&& rhs) =default;
+    SparseMatrix(SparseMatrix&& rhs) = default;
     ~SparseMatrix() = default;
     bool operator==(const SparseMatrix& rhs) const;
     bool operator==(SparseMatrix&& rhs) const;
@@ -28,4 +37,4 @@ public:
     size_t n_row_;
 };
 
-#endif //SPARSE_SPARSE_MATRIX_H
+#endif // SPARSE_SPARSE_MATRIX_H

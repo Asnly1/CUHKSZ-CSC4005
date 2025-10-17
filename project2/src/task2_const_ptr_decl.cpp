@@ -1,11 +1,8 @@
 //
-// Created by Yang Yufan on 2023/10/07.
-// Email: yufanyang1@link.cuhk.edu.cn
-//
 // Modified by Liu Yuxuan on 2025/10/12
 // Email: yuxuanliu1@link.cuhk.edu.cn
 //
-// Naive Matrix Multiplication with i-j-k triple loop
+// Naive Matrix Multiplication with mat1 & mat2 array declared as const
 //
 
 #include <stdexcept>
@@ -15,7 +12,8 @@
 /**
  * Naive Triple-Loop Matmul
  */
-Matrix matrix_multiply(const Matrix& matrix1, const Matrix& matrix2)
+Matrix matrix_multiply_const_ptr_decl(const Matrix& matrix1,
+                                      const Matrix& matrix2)
 {
     if (matrix1.getCols() != matrix2.getRows())
     {
@@ -27,16 +25,10 @@ Matrix matrix_multiply(const Matrix& matrix1, const Matrix& matrix2)
     std::cout << "M = " << M << ", N = " << N << ", K = " << K << std::endl;
 
     Matrix result(M, N);
-    for (size_t i = 0; i < M; ++i)
-    {
-        for (size_t j = 0; j < N; ++j)
-        {
-            for (size_t k = 0; k < K; ++k)
-            {
-                result(i, j) += matrix1(i, k) * matrix2(k, j);
-            }
-        }
-    }
+
+    /**
+     * Task 1 + 2: declare constant pointers
+     */
 
     return result;
 }
@@ -57,7 +49,7 @@ int main(int argc, char** argv)
 
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    Matrix result = matrix_multiply(matrix1, matrix2);
+    Matrix result = matrix_multiply_const_ptr_decl(matrix1, matrix2);
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(

@@ -21,21 +21,21 @@ Welcome to take course **CSC4005: Parallel Programming** offered by The Chinese 
 ## Programming Projects
 
 - **Project 1:** Embarrassingly Parallel Programming *(Image Processing)*
-  - Duration: from September 16th *(Tuesday)* to October 6th *(Monday)*
+  - Duration: from September 16th *(Tuesday)* to October 10th *(Friday)*
 - **Project 2:** Parallel Programming with Memory Locality and Reduction *(Matrix Multiplication)*
-  - Duration: from October 7th *(Tuesday)* to October 27th *(Monday)*
+  - Duration: from October 11th *(Saturday)* to October 31st *(Friday)*
 - **Project 3:** Parallel Programming with Synchronization *(Sorting and Searching)*
-  - Duration: from October 28th *(Tuesday)* to November 24th *(Monday)*
+  - Duration: from Novmeber 1st *(Saturday)* to November 28th *(Friday)*
 - **Project 4:** New Technologies & Applications of GPU Parallel Programming *(FlashAttention)*
-  - Duration: from November 25th *(Tuesday)* to December 22nd *(Monday)*
+  - Duration: from November 29th *(Saturday)* to December 22nd *(Monday)*
 
 ## Teaching Stuff
 
 **Instructor:**
 
 - Prof.Wei-Chung HSU (徐慰中教授) [[Email](mailto:hsuweichung@cuhk.edu.cn)]\
-  - Office Hour: 2:00 P.M. to 3:00 P.M., Tuesday & Wednesday
-  - Location: Daoyuan Building (道远楼) room 509a
+  - Office Hour: 5:00 P.M. to 6:00 P.M., Monday & Wednesday
+  - Location: Room 509a, Daoyuan Building (道远楼)
 
 **Teaching Assistants:**
 - Mr. Yuxuan LIU  (刘宇轩先生, *L*) [[Email](mailto:yuxuanliu1@link.cuhk.edu.cn)]\
