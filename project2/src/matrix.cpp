@@ -104,7 +104,7 @@ void Matrix::getBlock(MAT_DATATYPE* __restrict__ block_data, size_t row_start,
 #pragma GCC unroll 8
         for (size_t j = 0; j < block_size; ++j)
         {
-            block_data[block_base_idx + j] = data[base_idx + j];
+            block_data[block_base_idx + j] = data[base_idx + col_start + j];
         }
     }
 }
@@ -122,7 +122,7 @@ void Matrix::setBlock(const MAT_DATATYPE* const block_data, size_t row_start,
 #pragma GCC unroll 8
         for (size_t j = 0; j < block_size; ++j)
         {
-            data[base_idx + j] += block_data[block_base_idx + j];
+            data[base_idx + col_start + j] += block_data[block_base_idx + j];
         }
     }
 }
@@ -290,5 +290,5 @@ Matrix Matrix::getTranspose(const Matrix& mat)
             T_data[i * cols + j] = mat_data[i * cols + j];
         }
     }
-    return T
+    return T;
 }

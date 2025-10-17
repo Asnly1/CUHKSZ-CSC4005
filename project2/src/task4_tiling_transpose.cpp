@@ -12,8 +12,7 @@
 /**
  * Matmul with Matrix Transposition, Serving as the utility function for blocks
  */
-void matrix_multiply_transpose(const Matrix& matrix1, const Matrix& matrix2,
-                               MAT_DATATYPE* result_data)
+Matrix matrix_multiply_transpose(const Matrix& matrix1, const Matrix& matrix2)
 {
     if (matrix1.getCols() != matrix2.getRows())
     {
@@ -23,9 +22,21 @@ void matrix_multiply_transpose(const Matrix& matrix1, const Matrix& matrix2,
 
     size_t M = matrix1.getRows(), K = matrix1.getCols(), N = matrix2.getCols();
 
-    /**
-     * Refer Task 3: Matrix Transposition
-     */
+    __restrict Matrix result(M, N);
+    const MAT_DATATYPE* const mat1_data = matrix1.getDataConst();
+    Matrix T = Matrix::getTranspose(matrix2);
+    const MAT_DATATYPE* const T_data = T.getDataConst();
+    for (size_t i = 0; i < M; ++i)
+    {
+        for (size_t j = 0; j < N; ++j)
+        {
+            for (size_t k = 0; k < K; ++k)
+            {
+                result(i, j) += mat1_data[i * K + k] * T_data[j * K + k];
+            }
+        }
+    }
+    return result;
 }
 
 /**
@@ -48,13 +59,24 @@ Matrix matrix_multiply_tiling(const Matrix& matrix1, const Matrix& matrix2,
     std::cout << "M = " << M << ", N = " << N << ", K = " << K << std::endl;
 
     Matrix result(M, N);
-
-    /**
-     * TODO: tiled matmul
-     */
-    // // Do matmul to blocks
-    // matrix_multiply_transpose(mat1_block_ik, mat2_block_kj,
-    //                             result_block_ij.getData());
+    Matrix block_ik(block_size, block_size);
+    Matrix block_kj(block_size, block_size);
+    MAT_DATATYPE* block_ik_data = block_ik.getData();
+    MAT_DATATYPE* block_kj_data = block_kj.getData();
+    MAT_DATATYPE* result_data = result.getData();
+    for (size_t i = 0; i < M; i += block_size)
+    {
+        for (size_t j = 0; j < N; j += block_size)
+        {
+            for (size_t k = 0; k < K; k += block_size)
+            {
+                matrix1.getBlock(block_ik_data, i, k, block_size);
+                matrix2.getBlock(block_kj_data, k, j, block_size);
+                Matrix result_block_ij = matrix_multiply_transpose(block_ik, block_kj);
+                result_block_ij.setBlock(result_data, 0, 0, block_size);
+            }
+        }
+    }
 
     return result;
 }
