@@ -24,11 +24,18 @@ Matrix matrix_multiply_fma(const Matrix& matrix1, const Matrix& matrix2)
     std::cout << "M = " << M << ", N = " << N << ", K = " << K << std::endl;
 
     Matrix result(M, N);
-
-    /**
-     * Deine a standalone variable for FMA
-     */
-
+    for (size_t i = 0; i < M; ++i)
+    {
+        for (size_t j = 0; j < N; ++j)
+        {
+            double local_sum = 0.0;
+            for (size_t k = 0; k < K; ++k)
+            {
+                local_sum += matrix1(i, k) * matrix2(k, j);
+            }
+            result(i, j) = local_sum;
+        }
+    }
     return result;
 }
 

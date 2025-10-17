@@ -23,11 +23,17 @@ Matrix matrix_multiply_fma(const Matrix& matrix1, const Matrix& matrix2)
     size_t M = matrix1.getRows(), K = matrix1.getCols(), N = matrix2.getCols();
     std::cout << "M = " << M << ", N = " << N << ", K = " << K << std::endl;
 
-    Matrix result(M, N);
-
-    /**
-     * TODO: apply __restrict__ pointer for FMA
-     */
+    __restrict Matrix result(M, N);
+    for (size_t i = 0; i < M; ++i)
+    {
+        for (size_t j = 0; j < N; ++j)
+        {
+            for (size_t k = 0; k < K; ++k)
+            {
+                result(i, j) += matrix1(i, k) * matrix2(k, j);
+            }
+        }
+    }
 
     return result;
 }
