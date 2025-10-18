@@ -23,7 +23,8 @@ Matrix matrix_multiply_transpose(const Matrix& matrix1, const Matrix& matrix2)
     size_t M = matrix1.getRows(), K = matrix1.getCols(), N = matrix2.getCols();
     std::cout << "M = " << M << ", N = " << N << ", K = " << K << std::endl;
 
-    __restrict Matrix result(M, N);
+    Matrix result(M, N);
+    MAT_DATATYPE* __restrict__ result_data = result.getData();
     const MAT_DATATYPE* const mat1_data = matrix1.getDataConst();
     Matrix T = Matrix::getTranspose(matrix2);
     const MAT_DATATYPE* const T_data = T.getDataConst();
@@ -33,7 +34,7 @@ Matrix matrix_multiply_transpose(const Matrix& matrix1, const Matrix& matrix2)
         {
             for (size_t k = 0; k < K; ++k)
             {
-                result(i, j) += mat1_data[i * K + k] * T_data[j * K + k];
+                result_data[i * N + j] += mat1_data[i * K + k] * T_data[j * K + k];
             }
         }
     }

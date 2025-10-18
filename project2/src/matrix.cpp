@@ -200,7 +200,7 @@ bool Matrix::isIdentical(const Matrix& mat1, const Matrix& mat2, double epsilon)
     {
         for (size_t j = 0; j < mat1.getCols(); ++j)
         {
-            if (std::fabs(mat1(i, j) - mat2(i, j)) < epsilon)
+            if (std::fabs(mat1(i, j) - mat2(i, j)) >= epsilon)
             {
                 std::cout << "Mat1 value: " << mat1(i, j) << "\n";
                 std::cout << "Mat2 value: " << mat2(i, j) << "\n";
@@ -277,7 +277,7 @@ Matrix Matrix::getTranspose(const Matrix& mat)
 {
     int rows = mat.getRows();
     int cols = mat.getCols();
-    Matrix T = Matrix(rows, cols);
+    Matrix T = Matrix(cols, rows);
     const MAT_DATATYPE* const mat_data = mat.getDataConst();
     MAT_DATATYPE* const T_data = T.getData();
     for (size_t i=0; i < rows; ++i)
@@ -287,7 +287,7 @@ Matrix Matrix::getTranspose(const Matrix& mat)
 #pragma GCC unroll 8
         for (size_t j=0; j<cols; ++j)
         {
-            T_data[i * cols + j] = mat_data[i * cols + j];
+            T_data[j * rows + i] = mat_data[i * cols + j];
         }
     }
     return T;
