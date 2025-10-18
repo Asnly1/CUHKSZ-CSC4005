@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -o ./Project2-Matmul5x6.txt
+#SBATCH -o ./Project2-Matmul5x6_2.txt
 #SBATCH -p Debug
 #SBATCH -J Project2
 #SBATCH --nodes=1

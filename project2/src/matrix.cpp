@@ -221,6 +221,8 @@ bool Matrix::isIdentical(const Matrix& mat1, const Matrix& mat2, double epsilon)
             {
                 std::cout << "Mat1 value: " << mat1(i, j) << "\n";
                 std::cout << "Mat2 value: " << mat2(i, j) << "\n";
+                std::cout << "Difference at (" << i << ", " << j << "): "
+                << std::fabs(mat1(i, j) - mat2(i, j)) << "\n";
                 return false;
             }
         }

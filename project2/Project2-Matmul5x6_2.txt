@@ -1,0 +1,532 @@
+Naive MatMul (-O2)
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 12728 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 12669 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 12618 milliseconds
+
+Naive MatMul with FMA (__restrict__ ptr)
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 8838 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 8792 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 9010 milliseconds
+
+Naive MatMul with FMA (standalone var)
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 8652 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 8676 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 8715 milliseconds
+
+Naive MatMul with const ptr decl
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 3987 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 3997 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 3963 milliseconds
+
+MatMul with Transposition
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1482 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1483 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1484 milliseconds
+
+MatMul with Loop Re-ordering
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 809 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 808 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 807 milliseconds
+
+Tiling + Transposition
+BLOCK_SIZE: 8
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1497 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1490 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1493 milliseconds
+
+BLOCK_SIZE: 16
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1052 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1042 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1033 milliseconds
+
+BLOCK_SIZE: 32
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1186 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1186 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1182 milliseconds
+
+BLOCK_SIZE: 64
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1205 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1205 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1207 milliseconds
+
+BLOCK_SIZE: 128
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1333 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1333 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1332 milliseconds
+
+Tiling + Loop interchange
+BLOCK_SIZE: 8
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1410 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1413 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1411 milliseconds
+
+BLOCK_SIZE: 16
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1042 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1037 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 1041 milliseconds
+
+BLOCK_SIZE: 32
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 878 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 882 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 880 milliseconds
+
+BLOCK_SIZE: 64
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 821 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 820 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 817 milliseconds
+
+BLOCK_SIZE: 128
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 844 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 844 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 844 milliseconds
+
+Auto Vectorization with BLOCK_SIZE = 32
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 496 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 497 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 500 milliseconds
+
+OpenMP + Everything (BLOCK_SIZE = 32)
+Number of cores: 1
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 345 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 349 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 350 milliseconds
+
+Number of cores: 2
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 344 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 343 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 343 milliseconds
+
+Number of cores: 4
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 187 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 187 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 188 milliseconds
+
+Number of cores: 8
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 107 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 105 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 106 milliseconds
+
+Number of cores: 16
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 63 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 64 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 66 milliseconds
+
+Number of cores: 32
+Iteration 1...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 67 milliseconds
+Iteration 2...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 61 milliseconds
+Iteration 3...
+M = 1024, N = 1024, K = 1024
+Verification: Mat1 value: -22203.5
+Mat2 value: -22203.5
+Difference at (0, 0): 0.0474674
+Failed
+Execution Time: 53 milliseconds
+
