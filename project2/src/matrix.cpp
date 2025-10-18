@@ -94,9 +94,11 @@ void Matrix::getBlock(MAT_DATATYPE* __restrict__ block_data, size_t row_start,
                       size_t col_start, size_t block_size) const
 {
     const MAT_DATATYPE* const data = getDataConst();
+    const size_t num_rows = getRows();
     const size_t num_cols = getCols();
     for (size_t i = 0; i < block_size; ++i)
-    {
+    {   
+        const size_t mat_row = row_start + i;
         const size_t base_idx = (row_start + i) * num_cols;
         const size_t block_base_idx = i * block_size;
 #pragma GCC ivdep
@@ -104,7 +106,15 @@ void Matrix::getBlock(MAT_DATATYPE* __restrict__ block_data, size_t row_start,
 #pragma GCC unroll 8
         for (size_t j = 0; j < block_size; ++j)
         {
-            block_data[block_base_idx + j] = data[base_idx + col_start + j];
+            const size_t mat_col = col_start + j;
+            if (mat_row < num_rows && mat_col < num_cols)
+            {
+                block_data[block_base_idx + j] = data[base_idx + mat_col];
+            }
+            else
+            {
+                block_data[block_base_idx + j] = 0.0;
+            }
         }
     }
 }
@@ -112,9 +122,12 @@ void Matrix::getBlock(MAT_DATATYPE* __restrict__ block_data, size_t row_start,
 void Matrix::setBlock(const MAT_DATATYPE* const block_data, size_t row_start,
                       size_t col_start, size_t block_size)
 {
+    MAT_DATATYPE* const data = getData();
+    const size_t num_rows = getRows();
     const size_t num_cols = getCols();
     for (size_t i = 0; i < block_size; ++i)
     {
+        const size_t mat_row = row_start + i;
         const size_t base_idx = (row_start + i) * num_cols;
         const size_t block_base_idx = i * block_size;
 #pragma GCC ivdep
@@ -122,7 +135,11 @@ void Matrix::setBlock(const MAT_DATATYPE* const block_data, size_t row_start,
 #pragma GCC unroll 8
         for (size_t j = 0; j < block_size; ++j)
         {
-            data[base_idx + col_start + j] += block_data[block_base_idx + j];
+            const size_t mat_col = col_start + j;
+            if (mat_row < num_rows && mat_col < num_cols)
+            {
+                data[base_idx + mat_col] += block_data[block_base_idx + j];
+            }
         }
     }
 }

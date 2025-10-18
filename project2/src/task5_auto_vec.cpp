@@ -37,6 +37,9 @@ Matrix matrix_multiply_loop_reorder(const Matrix& matrix1, const Matrix& matrix2
     {
         for (size_t k = 0; k < K; ++k)
         {
+            #pragma GCC ivdep
+            #pragma GCC vector always
+            #pragma GCC unroll 8
             for (size_t j = 0; j < N; ++j)
             {
                 result_data[i * N + j] += mat1_data[i * K + k] * mat2_data[k * N + j];
@@ -67,20 +70,16 @@ Matrix matrix_multiply_autovec(const Matrix& matrix1, const Matrix& matrix2,
     Matrix block_kj(block_size, block_size);
     MAT_DATATYPE* block_ik_data = block_ik.getData();
     MAT_DATATYPE* block_kj_data = block_kj.getData();
-    MAT_DATATYPE* result_data = result.getData();
     for (size_t i = 0; i < M; i += block_size)
     {
         for (size_t j = 0; j < N; j += block_size)
         {
-            #pragma GCC ivdep
-            #pragma GCC vector always
-            #pragma GCC unroll 8
             for (size_t k = 0; k < K; k += block_size)
             {
                 matrix1.getBlock(block_ik_data, i, k, block_size);
                 matrix2.getBlock(block_kj_data, k, j, block_size);
                 Matrix result_block_ij = matrix_multiply_loop_reorder(block_ik, block_kj);
-                result_block_ij.setBlock(result_data, 0, 0, block_size);
+                result.setBlock(result_block_ij.getData(), i, j, block_size);
             }
         }
     }
