@@ -38,11 +38,11 @@ void matrix_multiply_loop_reorder(const Matrix& matrix1,
     {
         for (size_t k = 0; k < K; ++k)
         {
+            #pragma GCC ivdep
+            #pragma GCC vector always
+            #pragma GCC unroll 8
             for (size_t j = 0; j < N; ++j)
             {
-                #pragma GCC ivdep
-                #pragma GCC vector always
-                #pragma GCC unroll 8
                 result_data[i * N + j] += mat1_data[i * K + k] * mat2_data[k * N + j];
             }
         }

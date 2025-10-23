@@ -2,185 +2,230 @@ Naive MatMul (-O2)
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 12939 milliseconds
+Execution Time: 12871 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 12732 milliseconds
+Execution Time: 12717 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 12669 milliseconds
+Execution Time: 12723 milliseconds
 
 Naive MatMul with FMA (__restrict__ ptr)
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 9052 milliseconds
+Execution Time: 8898 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 8956 milliseconds
+Execution Time: 8900 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 9217 milliseconds
+Execution Time: 8915 milliseconds
 
 Naive MatMul with FMA (standalone var)
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 8799 milliseconds
+Execution Time: 8753 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 8712 milliseconds
+Execution Time: 8725 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 8803 milliseconds
+Execution Time: 8759 milliseconds
 
 Naive MatMul with const ptr decl
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 3967 milliseconds
+Execution Time: 3953 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 3967 milliseconds
+Execution Time: 3988 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 4005 milliseconds
+Execution Time: 4007 milliseconds
 
 MatMul with Transposition
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 1484 milliseconds
+Execution Time: 1483 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 1483 milliseconds
+Execution Time: 1481 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 1490 milliseconds
+Execution Time: 1483 milliseconds
 
 MatMul with Loop Re-ordering
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 808 milliseconds
+Execution Time: 812 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 818 milliseconds
+Execution Time: 810 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 814 milliseconds
+Execution Time: 808 milliseconds
 
 Tiling + Transposition
 BLOCK_SIZE: 8
 Iteration 1...
 M = 1024, N = 1024, K = 1024
-Verification: Passed
-Execution Time: 1489 milliseconds
+Verification: Mat1 value: -2.77084e+06
+Mat2 value: -22203.5
+Difference at (0, 0): 2.74864e+06
+Failed
+Execution Time: 1375 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
-Verification: Passed
-Execution Time: 1505 milliseconds
+Verification: Mat1 value: -2.77084e+06
+Mat2 value: -22203.5
+Difference at (0, 0): 2.74864e+06
+Failed
+Execution Time: 1374 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
-Verification: Passed
-Execution Time: 1492 milliseconds
+Verification: Mat1 value: -2.77084e+06
+Mat2 value: -22203.5
+Difference at (0, 0): 2.74864e+06
+Failed
+Execution Time: 1385 milliseconds
 
 BLOCK_SIZE: 16
 Iteration 1...
 M = 1024, N = 1024, K = 1024
-Verification: Passed
-Execution Time: 1077 milliseconds
+Verification: Mat1 value: -1.37476e+06
+Mat2 value: -22203.5
+Difference at (0, 0): 1.35255e+06
+Failed
+Execution Time: 994 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
-Verification: Passed
-Execution Time: 1065 milliseconds
+Verification: Mat1 value: -1.37476e+06
+Mat2 value: -22203.5
+Difference at (0, 0): 1.35255e+06
+Failed
+Execution Time: 997 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
-Verification: Passed
-Execution Time: 1060 milliseconds
+Verification: Mat1 value: -1.37476e+06
+Mat2 value: -22203.5
+Difference at (0, 0): 1.35255e+06
+Failed
+Execution Time: 996 milliseconds
 
 BLOCK_SIZE: 32
 Iteration 1...
 M = 1024, N = 1024, K = 1024
-Verification: Passed
-Execution Time: 1180 milliseconds
+Verification: Mat1 value: -726533
+Mat2 value: -22203.5
+Difference at (0, 0): 704330
+Failed
+Execution Time: 1189 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
-Verification: Passed
-Execution Time: 1182 milliseconds
+Verification: Mat1 value: -726533
+Mat2 value: -22203.5
+Difference at (0, 0): 704330
+Failed
+Execution Time: 1187 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
-Verification: Passed
-Execution Time: 1184 milliseconds
+Verification: Mat1 value: -726533
+Mat2 value: -22203.5
+Difference at (0, 0): 704330
+Failed
+Execution Time: 1191 milliseconds
 
 BLOCK_SIZE: 64
 Iteration 1...
 M = 1024, N = 1024, K = 1024
-Verification: Passed
-Execution Time: 1233 milliseconds
+Verification: Mat1 value: -351977
+Mat2 value: -22203.5
+Difference at (0, 0): 329774
+Failed
+Execution Time: 1214 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
-Verification: Passed
-Execution Time: 1212 milliseconds
+Verification: Mat1 value: -351977
+Mat2 value: -22203.5
+Difference at (0, 0): 329774
+Failed
+Execution Time: 1211 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
-Verification: Passed
-Execution Time: 1210 milliseconds
+Verification: Mat1 value: -351977
+Mat2 value: -22203.5
+Difference at (0, 0): 329774
+Failed
+Execution Time: 1209 milliseconds
 
 BLOCK_SIZE: 128
 Iteration 1...
 M = 1024, N = 1024, K = 1024
-Verification: Passed
-Execution Time: 1336 milliseconds
+Verification: Mat1 value: -228686
+Mat2 value: -22203.5
+Difference at (0, 0): 206483
+Failed
+Execution Time: 1363 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
-Verification: Passed
-Execution Time: 1335 milliseconds
+Verification: Mat1 value: -228686
+Mat2 value: -22203.5
+Difference at (0, 0): 206483
+Failed
+Execution Time: 1364 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
-Verification: Passed
-Execution Time: 1335 milliseconds
+Verification: Mat1 value: -228686
+Mat2 value: -22203.5
+Difference at (0, 0): 206483
+Failed
+Execution Time: 1364 milliseconds
 
 Tiling + Loop interchange
 BLOCK_SIZE: 8
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 1394 milliseconds
+Execution Time: 1361 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 1399 milliseconds
+Execution Time: 1348 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 1407 milliseconds
+Execution Time: 1355 milliseconds
 
 BLOCK_SIZE: 16
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 1045 milliseconds
+Execution Time: 1042 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 1039 milliseconds
+Execution Time: 1045 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 1057 milliseconds
+Execution Time: 1043 milliseconds
 
 BLOCK_SIZE: 32
 Iteration 1...
@@ -190,136 +235,136 @@ Execution Time: 883 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 883 milliseconds
+Execution Time: 884 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 887 milliseconds
+Execution Time: 883 milliseconds
 
 BLOCK_SIZE: 64
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 820 milliseconds
+Execution Time: 823 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 821 milliseconds
+Execution Time: 827 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 824 milliseconds
+Execution Time: 826 milliseconds
 
 BLOCK_SIZE: 128
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 845 milliseconds
+Execution Time: 680 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 845 milliseconds
+Execution Time: 679 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 847 milliseconds
+Execution Time: 700 milliseconds
 
 Auto Vectorization with BLOCK_SIZE = 32
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 508 milliseconds
+Execution Time: 426 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 496 milliseconds
+Execution Time: 427 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 501 milliseconds
+Execution Time: 426 milliseconds
 
 OpenMP + Everything (BLOCK_SIZE = 32)
 Number of cores: 1
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 343 milliseconds
+Execution Time: 332 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 345 milliseconds
+Execution Time: 332 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 343 milliseconds
+Execution Time: 331 milliseconds
 
 Number of cores: 2
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 344 milliseconds
+Execution Time: 331 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 344 milliseconds
+Execution Time: 332 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 341 milliseconds
+Execution Time: 332 milliseconds
 
 Number of cores: 4
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 189 milliseconds
+Execution Time: 182 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 189 milliseconds
+Execution Time: 182 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 190 milliseconds
+Execution Time: 182 milliseconds
 
 Number of cores: 8
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 106 milliseconds
+Execution Time: 105 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 107 milliseconds
+Execution Time: 102 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 106 milliseconds
+Execution Time: 103 milliseconds
 
 Number of cores: 16
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 65 milliseconds
+Execution Time: 62 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 65 milliseconds
+Execution Time: 63 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 65 milliseconds
+Execution Time: 63 milliseconds
 
 Number of cores: 32
 Iteration 1...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 131 milliseconds
+Execution Time: 58 milliseconds
 Iteration 2...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 53 milliseconds
+Execution Time: 52 milliseconds
 Iteration 3...
 M = 1024, N = 1024, K = 1024
 Verification: Passed
-Execution Time: 65 milliseconds
+Execution Time: 53 milliseconds
 

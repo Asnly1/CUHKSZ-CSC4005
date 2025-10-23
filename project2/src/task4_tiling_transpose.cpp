@@ -35,6 +35,7 @@ void matrix_multiply_transpose(const Matrix& matrix1, const Matrix& matrix2,
             }
         }
     }
+}
 
 /**
  * Tiled Matmul with Tiling
