@@ -12,7 +12,8 @@
 /**
  * Matmul with Matrix Transposition, Serving as the utility function for blocks
  */
-Matrix matrix_multiply_transpose(const Matrix& matrix1, const Matrix& matrix2)
+void matrix_multiply_transpose(const Matrix& matrix1, const Matrix& matrix2,
+                               MAT_DATATYPE* result_data)
 {
     if (matrix1.getCols() != matrix2.getRows())
     {
@@ -21,9 +22,6 @@ Matrix matrix_multiply_transpose(const Matrix& matrix1, const Matrix& matrix2)
     }
 
     size_t M = matrix1.getRows(), K = matrix1.getCols(), N = matrix2.getCols();
-
-    Matrix result(M, N);
-    MAT_DATATYPE* __restrict__ result_data = result.getData();
     const MAT_DATATYPE* const mat1_data = matrix1.getDataConst();
     Matrix T = Matrix::getTranspose(matrix2);
     const MAT_DATATYPE* const T_data = T.getDataConst();
@@ -37,8 +35,6 @@ Matrix matrix_multiply_transpose(const Matrix& matrix1, const Matrix& matrix2)
             }
         }
     }
-    return result;
-}
 
 /**
  * Tiled Matmul with Tiling
@@ -62,6 +58,8 @@ Matrix matrix_multiply_tiling(const Matrix& matrix1, const Matrix& matrix2,
     Matrix result(M, N);
     Matrix block_ik(block_size, block_size);
     Matrix block_kj(block_size, block_size);
+    Matrix result_block_ij(block_size, block_size);
+    MAT_DATATYPE * __restrict__ result_block_ij_data = result_block_ij.getData();
     MAT_DATATYPE* block_ik_data = block_ik.getData();
     MAT_DATATYPE* block_kj_data = block_kj.getData();
     for (size_t i = 0; i < M; i += block_size)
@@ -72,8 +70,8 @@ Matrix matrix_multiply_tiling(const Matrix& matrix1, const Matrix& matrix2,
             {
                 matrix1.getBlock(block_ik_data, i, k, block_size);
                 matrix2.getBlock(block_kj_data, k, j, block_size);
-                Matrix result_block_ij = matrix_multiply_transpose(block_ik, block_kj);
-                result.setBlock(result_block_ij.getData(), i, j, block_size);
+                matrix_multiply_transpose(block_ik, block_kj, result_block_ij_data);
+                result.setBlock(result_block_ij_data, i, j, block_size);
             }
         }
     }

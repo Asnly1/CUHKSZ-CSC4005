@@ -16,7 +16,9 @@
 /**
  * Matmul with Loop Re-ordering, Serving as the utility function for blocks
  */
-Matrix matrix_multiply_loop_reorder(const Matrix& matrix1, const Matrix& matrix2)
+void matrix_multiply_loop_reorder(const Matrix& matrix1,
+                                      const Matrix& matrix2,
+                                      MAT_DATATYPE* __restrict__ result_data)
 {
     if (matrix1.getCols() != matrix2.getRows())
     {
@@ -25,26 +27,23 @@ Matrix matrix_multiply_loop_reorder(const Matrix& matrix1, const Matrix& matrix2
     }
 
     size_t M = matrix1.getRows(), K = matrix1.getCols(), N = matrix2.getCols();
-
-    Matrix result(M, N);
-    MAT_DATATYPE* __restrict__ result_data = result.getData();
     const MAT_DATATYPE* const mat1_data = matrix1.getDataConst();
     const MAT_DATATYPE* const mat2_data = matrix2.getDataConst();
+
+    std::memset(result_data, 0, M * N * sizeof(MAT_DATATYPE));
     for (size_t i = 0; i < M; ++i)
     {
         for (size_t k = 0; k < K; ++k)
-        {           
-            #pragma GCC ivdep
-            #pragma GCC vector always
-            #pragma GCC unroll 8
+        {
             for (size_t j = 0; j < N; ++j)
             {
+                #pragma GCC ivdep
+                #pragma GCC vector always
+                #pragma GCC unroll 8
                 result_data[i * N + j] += mat1_data[i * K + k] * mat2_data[k * N + j];
             }
         }
     }
-
-    return result;
 }
 
 /**
@@ -63,6 +62,8 @@ Matrix matrix_multiply_openmp(const Matrix& matrix1, const Matrix& matrix2,
     std::cout << "M = " << M << ", N = " << N << ", K = " << K << std::endl;
 
     Matrix result(M, N);
+    Matrix result_block_ij(block_size, block_size);
+    MAT_DATATYPE* __restrict__ result_block_ij_data = result_block_ij_data.getData();
     for (size_t i = 0; i < M; i += block_size)
     {
         #pragma omp parallel for default(none) \
@@ -81,8 +82,8 @@ Matrix matrix_multiply_openmp(const Matrix& matrix1, const Matrix& matrix2,
             {
                 matrix1.getBlock(block_ik_data, i, k, block_size);
                 matrix2.getBlock(block_kj_data, k, j, block_size);
-                Matrix result_block_ij = matrix_multiply_loop_reorder(block_ik, block_kj);
-                private_result_block.setBlock(result_block_ij.getData(), 0, 0, block_size);
+                matrix_multiply_loop_reorder(block_ik, block_kj, result_block_ij_data);
+                private_result_block.setBlock(result_block_ij_data, 0, 0, block_size);
             }
 
             #pragma omp critical
