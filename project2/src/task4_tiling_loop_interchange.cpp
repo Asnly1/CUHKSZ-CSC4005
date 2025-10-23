@@ -33,9 +33,10 @@ void matrix_multiply_loop_interchange(const Matrix& matrix1,
     {
         for (size_t k = 0; k < K; ++k)
         {
+            MAT_DATATYPE scalar_mat1 = mat1_data[i * K + k];
             for (size_t j = 0; j < N; ++j)
             {
-                result_data[i * N + j] += mat1_data[i * K + k] * mat2_data[k * N + j];
+                result_data[i * N + j] += scalar_mat1 * mat2_data[k * N + j];
             }
         }
     }
