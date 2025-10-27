@@ -7,7 +7,7 @@
 #SBATCH --gres=gpu:1
 
 CURRENT_DIR=$(pwd)
-REPEAT=1
+REPEAT=3
 
 ###########
 ## Naive ##
