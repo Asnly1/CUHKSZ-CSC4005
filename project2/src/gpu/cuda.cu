@@ -5,7 +5,7 @@
 // Matrix Multiplication with CUDA, for bonus
 //
 
-#include "matrix.hpp"
+#include "../matrix.hpp"
 #define CEIL_DIV(M, N) (((M) + (N)-1) / (N))
 
 template <const int BM, const int BN, const int BK, const int TM, const int TN>
@@ -77,9 +77,9 @@ __global__ void __launch_bounds__(((BM * BN) / (TM * TN)), 1)
             __syncthreads();
         }
 
-        for (uint resIdxM = 0; resIdxM < TM; ++resIdxM) 
+        for (int resIdxM = 0; resIdxM < TM; ++resIdxM) 
         {
-            for (uint resIdxN = 0; resIdxN < TN; ++resIdxN) 
+            for (int resIdxN = 0; resIdxN < TN; ++resIdxN) 
             {
                 C[(threadRow * TM + resIdxM) * N + threadCol * TN + resIdxN] = threadResults[resIdxM * TN + resIdxN];
             }
@@ -141,7 +141,7 @@ int main(int argc, char** argv)
     // Perform filtering on GPU
     cudaEventRecord(start, 0); // GPU start time
     // Launch CUDA kernel
-    matrix_multiply<BM, BN, BK, TM, TN><<gridDim, blockDim>>(M, K, N, d_mat1_data, d_mat2_data, d_result_data);
+    matrix_multiply<BM, BN, BK, TM, TN><<<gridDim, blockDim>>>(M, K, N, d_mat1_data, d_mat2_data, d_result_data);
     cudaEventRecord(stop, 0); // GPU end time
     cudaEventSynchronize(stop);
     // Print the result of the GPU computation

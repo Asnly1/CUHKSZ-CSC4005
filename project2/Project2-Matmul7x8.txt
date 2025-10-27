@@ -2,155 +2,144 @@ Naive MatMul (-O2)
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 220017 milliseconds
+Execution Time: 241543 milliseconds
 
 Naive MatMul with FMA (__restrict__ ptr)
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 147734 milliseconds
+Execution Time: 169945 milliseconds
 
 Naive MatMul with FMA (standalone var)
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 149536 milliseconds
+Execution Time: 175790 milliseconds
 
 Naive MatMul with const ptr decl
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 66523 milliseconds
+Execution Time: 69119 milliseconds
 
 MatMul with Transposition
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 12543 milliseconds
+Execution Time: 12541 milliseconds
 
 MatMul with Loop Re-ordering
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 7153 milliseconds
+Execution Time: 6948 milliseconds
 
 Tiling + Transposition
 BLOCK_SIZE: 8
 Iteration 1...
 M = 2048, N = 2048, K = 2048
-Verification: Mat1 value: 4.34649e+07
-Mat2 value: 127857
-Difference at (0, 0): 4.33371e+07
-Failed
-Execution Time: 14658 milliseconds
+Verification: Passed
+Execution Time: 15316 milliseconds
 
 BLOCK_SIZE: 16
 Iteration 1...
 M = 2048, N = 2048, K = 2048
-Verification: Mat1 value: 2.18147e+07
-Mat2 value: 127857
-Difference at (0, 0): 2.16868e+07
-Failed
-Execution Time: 9294 milliseconds
+Verification: Passed
+Execution Time: 9894 milliseconds
 
 BLOCK_SIZE: 32
 Iteration 1...
 M = 2048, N = 2048, K = 2048
-Verification: Mat1 value: 1.09523e+07
-Mat2 value: 127857
-Difference at (0, 0): 1.08245e+07
-Failed
-Execution Time: 9822 milliseconds
+Verification: Passed
+Execution Time: 8425 milliseconds
 
 BLOCK_SIZE: 64
 Iteration 1...
 M = 2048, N = 2048, K = 2048
-Verification: Mat1 value: 5.49704e+06
-Mat2 value: 127857
-Difference at (0, 0): 5.36919e+06
-Failed
-Execution Time: 9942 milliseconds
+Verification: Passed
+Execution Time: 8467 milliseconds
 
 BLOCK_SIZE: 128
 Iteration 1...
 M = 2048, N = 2048, K = 2048
-Verification: Mat1 value: 2.78599e+06
-Mat2 value: 127857
-Difference at (0, 0): 2.65813e+06
-Failed
-Execution Time: 10929 milliseconds
+Verification: Passed
+Execution Time: 10324 milliseconds
 
 Tiling + Loop interchange
 BLOCK_SIZE: 8
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 14614 milliseconds
+Execution Time: 14470 milliseconds
 
 BLOCK_SIZE: 16
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 9596 milliseconds
+Execution Time: 9520 milliseconds
 
 BLOCK_SIZE: 32
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 7606 milliseconds
+Execution Time: 7529 milliseconds
 
 BLOCK_SIZE: 64
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 6753 milliseconds
+Execution Time: 6692 milliseconds
 
 BLOCK_SIZE: 128
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 5500 milliseconds
+Execution Time: 5578 milliseconds
 
 Auto Vectorization with BLOCK_SIZE = 32
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 3725 milliseconds
+Execution Time: 3629 milliseconds
 
 OpenMP + Everything (BLOCK_SIZE = 32)
 Number of cores: 1
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 2934 milliseconds
+Execution Time: 2836 milliseconds
 
 Number of cores: 2
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 2929 milliseconds
+Execution Time: 2815 milliseconds
 
 Number of cores: 4
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 1499 milliseconds
+Execution Time: 1448 milliseconds
 
 Number of cores: 8
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 758 milliseconds
+Execution Time: 748 milliseconds
 
 Number of cores: 16
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 410 milliseconds
+Execution Time: 404 milliseconds
 
 Number of cores: 32
 Iteration 1...
 M = 2048, N = 2048, K = 2048
 Verification: Passed
-Execution Time: 248 milliseconds
+Execution Time: 274 milliseconds
 
+CUDA
+Iteration 1...
+Verification: Passed
+Execution Time: 146.524 milliseconds

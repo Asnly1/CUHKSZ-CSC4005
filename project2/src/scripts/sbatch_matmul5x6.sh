@@ -120,3 +120,12 @@ do
   done
   echo ""
 done
+
+####################
+## BONUS ##
+####################
+echo "CUDA"
+for i in $(seq 1 $REPEAT); do
+    echo "Iteration $i..."
+    srun -n 1 --gpus 1 ${CURRENT_DIR}/build/src/gpu/cuda ${CURRENT_DIR}/matrices/matrix5.txt ${CURRENT_DIR}/matrices/matrix6.txt
+done
