@@ -28,7 +28,7 @@ Matrix matrix_multiply_fma(const Matrix& matrix1, const Matrix& matrix2)
     {
         for (size_t j = 0; j < N; ++j)
         {
-            double local_sum = 0.0;
+            MAT_DATATYPE local_sum = 0.0;
             for (size_t k = 0; k < K; ++k)
             {
                 local_sum += matrix1(i, k) * matrix2(k, j);

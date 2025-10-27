@@ -98,4 +98,17 @@ target_link_libraries(openmp PRIVATE ${OpenMP_CXX_LIBRARIES})
 # target_include_directories(mpi PRIVATE ${MPI_CXX_INCLUDE_DIRS} ${OpenMP_CXX_INCLUDE_DIRS})
 # target_link_libraries(mpi ${MPI_LIBRARIES} ${OpenMP_CXX_LIBRARIES})
 
-# add_subdirectory(gpu)
+add_subdirectory(gpu)
+set(CMAKE_CUDA_COMPILER "/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/compilers/bin/nvcc")
+set(CUDA_TOOLKIT_ROOT_DIR "/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/cuda/12.2")
+enable_language(CUDA)  # 启用CUDA支持
+find_package(CUDA REQUIRED)
+if (CUDA_FOUND)
+    message("CUDA FOUND, Version: " ${CUDA_VERSION_STRING})
+endif ()
+
+list(APPEND CUDA_NVCC_FLAGS "-fmad=true")
+cuda_add_executable(cuda
+        cuda.cu
+        ../matrix.cpp ../matrix.hpp)
+target_link_libraries(cuda cudart)

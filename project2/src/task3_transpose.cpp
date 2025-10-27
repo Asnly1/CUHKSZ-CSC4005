@@ -32,10 +32,12 @@ Matrix matrix_multiply_transpose(const Matrix& matrix1, const Matrix& matrix2)
     {
         for (size_t j = 0; j < N; ++j)
         {
+            MAT_DATATYPE local_sum = 0.0;
             for (size_t k = 0; k < K; ++k)
             {
-                result_data[i * N + j] += mat1_data[i * K + k] * T_data[j * K + k];
+                local_sum += mat1_data[i * K + k] * T_data[j * K + k];
             }
+            result_data[i * N + j] = local_sum;
         }
     }
 

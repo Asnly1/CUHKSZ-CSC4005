@@ -28,14 +28,17 @@ Matrix matrix_multiply_const_ptr_decl(const Matrix& matrix1,
     MAT_DATATYPE* __restrict__ result_data = result.getData();
     const MAT_DATATYPE* const mat1_data = matrix1.getDataConst();
     const MAT_DATATYPE* const mat2_data = matrix2.getDataConst();
+    
     for (size_t i = 0; i < M; ++i)
     {
         for (size_t j = 0; j < N; ++j)
         {
+            MAT_DATATYPE local_sum = 0.0;
             for (size_t k = 0; k < K; ++k)
             {
-                result_data[i * N + j] += mat1_data[i * K + k] * mat2_data[k * N + j];
+                local_sum += mat1_data[i * K + k] * mat2_data[k * N + j];
             }
+            result_data[i * N + j] = local_sum;
         }
     }
 
