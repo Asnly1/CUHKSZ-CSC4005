@@ -127,5 +127,5 @@ done
 echo "CUDA"
 for i in $(seq 1 $REPEAT); do
     echo "Iteration $i..."
-    srun -n 1 --gpus 1 nsys profile -t cuda,nvtx,osrt -o ./cuda.qdrep ${CURRENT_DIR}/build/src/gpu/cuda ${CURRENT_DIR}/matrices/matrix5.txt ${CURRENT_DIR}/matrices/matrix6.txt
+    srun -n 1 --gpus 1 nsys profile -t cuda,nvtx,osrt -o ./cuda5x6.qdrep ${CURRENT_DIR}/build/src/gpu/cuda ${CURRENT_DIR}/matrices/matrix5.txt ${CURRENT_DIR}/matrices/matrix6.txt
 done
