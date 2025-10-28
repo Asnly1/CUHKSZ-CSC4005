@@ -30,10 +30,9 @@ void matrix_multiply_loop_reorder(const Matrix& matrix1,
     }
 
     size_t M = matrix1.getRows(), K = matrix1.getCols(), N = matrix2.getCols();
-    const MAT_DATATYPE* const mat1_data = matrix1.getDataConst();
-    const MAT_DATATYPE* const mat2_data = matrix2.getDataConst();
+    const MAT_DATATYPE* __restrict__ const mat1_data = matrix1.getDataConst();
+    const MAT_DATATYPE* __restrict__ const mat2_data = matrix2.getDataConst();
 
-    std::memset(result_data, 0, M * N * sizeof(MAT_DATATYPE));
     for (size_t i = 0; i < M; ++i)
     {
         for (size_t k = 0; k < K; ++k)
@@ -70,19 +69,20 @@ Matrix matrix_multiply_autovec(const Matrix& matrix1, const Matrix& matrix2,
     Matrix block_kj(block_size, block_size);
     Matrix result_block_ij(block_size, block_size);
     MAT_DATATYPE* __restrict__ result_block_ij_data = result_block_ij.getData();
-    MAT_DATATYPE* block_ik_data = block_ik.getData();
-    MAT_DATATYPE* block_kj_data = block_kj.getData();
+    MAT_DATATYPE* __restrict__ block_ik_data = block_ik.getData();
+    MAT_DATATYPE* __restrict__ block_kj_data = block_kj.getData();
     for (size_t i = 0; i < M; i += block_size)
     {
         for (size_t j = 0; j < N; j += block_size)
         {
+            std::memset(result_block_ij_data, 0, block_size * block_size * sizeof(MAT_DATATYPE));
             for (size_t k = 0; k < K; k += block_size)
             {
                 matrix1.getBlock(block_ik_data, i, k, block_size);
                 matrix2.getBlock(block_kj_data, k, j, block_size);
                 matrix_multiply_loop_reorder(block_ik, block_kj, result_block_ij_data);
-                result.setBlock(result_block_ij_data, i, j, block_size);
             }
+            result.setBlock(result_block_ij_data, i, j, block_size);
         }
     }
 

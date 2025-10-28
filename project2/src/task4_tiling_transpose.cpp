@@ -22,9 +22,8 @@ void matrix_multiply_transpose(const Matrix& matrix1, const Matrix& matrix2,
     }
 
     size_t M = matrix1.getRows(), K = matrix1.getCols(), N = matrix2.getCols();
-    const MAT_DATATYPE* const mat1_data = matrix1.getDataConst();
-    Matrix T = Matrix::getTranspose(matrix2);
-    const MAT_DATATYPE* const T_data = T.getDataConst();
+    const MAT_DATATYPE* __restrict__ const mat1_data = matrix1.getDataConst();
+    const MAT_DATATYPE* __restrict__ const mat2_data = matrix2.getDataConst();
     for (size_t i = 0; i < M; ++i)
     {
         for (size_t j = 0; j < N; ++j)
@@ -32,9 +31,9 @@ void matrix_multiply_transpose(const Matrix& matrix1, const Matrix& matrix2,
             MAT_DATATYPE local_sum = 0.0;
             for (size_t k = 0; k < K; ++k)
             {
-                local_sum += mat1_data[i * K + k] * T_data[j * K + k];
+                local_sum += mat1_data[i * K + k] * mat2_data[j * K + k];
             }
-            result_data[i * N + j] = local_sum;
+            result_data[i * N + j] += local_sum;
         }
     }
 }
@@ -58,24 +57,27 @@ Matrix matrix_multiply_tiling(const Matrix& matrix1, const Matrix& matrix2,
     size_t M = matrix1.getRows(), K = matrix1.getCols(), N = matrix2.getCols();
     std::cout << "M = " << M << ", N = " << N << ", K = " << K << std::endl;
 
+    Matrix T = Matrix::getTranspose(matrix2);
+
     Matrix result(M, N);
     Matrix block_ik(block_size, block_size);
     Matrix block_kj(block_size, block_size);
     Matrix result_block_ij(block_size, block_size);
     MAT_DATATYPE * __restrict__ result_block_ij_data = result_block_ij.getData();
-    MAT_DATATYPE* block_ik_data = block_ik.getData();
-    MAT_DATATYPE* block_kj_data = block_kj.getData();
+    MAT_DATATYPE* __restrict__ block_ik_data = block_ik.getData();
+    MAT_DATATYPE* __restrict__ block_kj_data = block_kj.getData();
     for (size_t i = 0; i < M; i += block_size)
     {
         for (size_t j = 0; j < N; j += block_size)
         {
+            std::memset(result_block_ij_data, 0, block_size * block_size * sizeof(MAT_DATATYPE));
             for (size_t k = 0; k < K; k += block_size)
             {
                 matrix1.getBlock(block_ik_data, i, k, block_size);
-                matrix2.getBlock(block_kj_data, k, j, block_size);
+                T.getBlock(block_kj_data, j, k, block_size);
                 matrix_multiply_transpose(block_ik, block_kj, result_block_ij_data);
-                result.setBlock(result_block_ij_data, i, j, block_size);
             }
+            result.setBlock(result_block_ij_data, i, j, block_size);
         }
     }
 
