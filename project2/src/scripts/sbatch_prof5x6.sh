@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -o ./Project2-Matmul5x6.txt
+#SBATCH -o ./Project2-Matmul5x6_prof.txt
 #SBATCH -p Debug
 #SBATCH -J Project2
 #SBATCH --nodes=1
@@ -7,7 +7,7 @@
 #SBATCH --gres=gpu:1
 
 CURRENT_DIR=$(pwd)
-REPEAT=3
+REPEAT=1
 
 ###########
 ## Naive ##
@@ -119,4 +119,13 @@ do
     srun -n 1 --cpus-per-task $num_cores perf stat -e cpu-cycles,cache-misses,page-faults ${CURRENT_DIR}/build/src/openmp $num_cores $block_size ${CURRENT_DIR}/matrices/matrix5.txt ${CURRENT_DIR}/matrices/matrix6.txt
   done
   echo ""
+done
+
+####################
+## BONUS ##
+####################
+echo "CUDA"
+for i in $(seq 1 $REPEAT); do
+    echo "Iteration $i..."
+    srun -n 1 --gpus 1 nsys profile -t cuda,nvtx,osrt -o ./cuda.qdrep ${CURRENT_DIR}/build/src/gpu/cuda ${CURRENT_DIR}/matrices/matrix5.txt ${CURRENT_DIR}/matrices/matrix6.txt
 done

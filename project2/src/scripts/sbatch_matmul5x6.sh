@@ -72,6 +72,7 @@ echo ""
 ####################
 
 # Tiling + Transposition
+# block_size = 16
 echo "Tiling + Transposition"
 for block_size in 8 16 32 64 128
 do
@@ -85,6 +86,7 @@ done
 
 # Tiling + Loop-interchange
 echo "Tiling + Loop interchange"
+# block_size = 32 64
 for block_size in 8 16 32 64 128
 do
   echo "BLOCK_SIZE: $block_size"

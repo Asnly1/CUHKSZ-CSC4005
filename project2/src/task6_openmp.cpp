@@ -62,24 +62,22 @@ Matrix matrix_multiply_openmp(const Matrix& matrix1, const Matrix& matrix2,
     std::cout << "M = " << M << ", N = " << N << ", K = " << K << std::endl;
 
     Matrix result(M, N);
-    #pragma omp parallel for default(none) \
-                        schedule(static) \
-                        shared(matrix1, matrix2, result, M, N, K, i, block_size)
+    #pragma omp parallel default(none) \
+                        shared(matrix1, matrix2, result, M, N, K, block_size)
     {
         Matrix block_ik(block_size, block_size);
         Matrix block_kj(block_size, block_size);
+        Matrix result_block_ij(block_size, block_size);
         MAT_DATATYPE* __restrict__ block_ik_data = block_ik.getData();
         MAT_DATATYPE* __restrict__ block_kj_data = block_kj.getData();
-        Matrix result_block_ij(block_size, block_size);
         MAT_DATATYPE* __restrict__ result_block_ij_data = result_block_ij.getData();
 
+        #pragma omp for schedule(static)
         for (size_t i = 0; i < M; i += block_size)
         {
             for (size_t j = 0; j < N; j += block_size)
             {
-
                 std::memset(result_block_ij_data, 0, block_size * block_size * sizeof(MAT_DATATYPE));
-                
                 for (size_t k = 0; k < K; k += block_size)
                 {
                     matrix1.getBlock(block_ik_data, i, k, block_size);

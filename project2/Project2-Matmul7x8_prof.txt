@@ -1,0 +1,448 @@
+Naive MatMul (-O2)
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 262618 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/naive /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+   775,014,397,129      cpu-cycles                                                  
+     6,890,497,440      cache-misses                                                
+            32,907      page-faults                                                 
+
+     267.919508642 seconds time elapsed
+
+     267.735664000 seconds user
+       0.143989000 seconds sys
+
+
+
+Naive MatMul with FMA (__restrict__ ptr)
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 181034 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/fma_restrict /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+   533,478,032,865      cpu-cycles                                                  
+     6,262,974,471      cache-misses                                                
+            32,908      page-faults                                                 
+
+     184.421638277 seconds time elapsed
+
+     184.302484000 seconds user
+       0.092009000 seconds sys
+
+
+
+Naive MatMul with FMA (standalone var)
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 189032 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/fma_standalone_var /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+   556,584,734,059      cpu-cycles                                                  
+     6,646,402,998      cache-misses                                                
+            32,906      page-faults                                                 
+
+     192.407061770 seconds time elapsed
+
+     192.272112000 seconds user
+       0.107984000 seconds sys
+
+
+
+Naive MatMul with const ptr decl
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 69450 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/const_ptr_decl /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+   210,690,297,463      cpu-cycles                                                  
+     5,800,375,489      cache-misses                                                
+            32,908      page-faults                                                 
+
+      72.836369431 seconds time elapsed
+
+      72.732499000 seconds user
+       0.091990000 seconds sys
+
+
+
+MatMul with Transposition
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 12462 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/transpose /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    45,835,734,479      cpu-cycles                                                  
+       706,353,380      cache-misses                                                
+            41,101      page-faults                                                 
+
+      15.846918263 seconds time elapsed
+
+      15.719413000 seconds user
+       0.123995000 seconds sys
+
+
+
+MatMul with Loop Re-ordering
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 7227 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/loop_interchange /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    30,689,504,640      cpu-cycles                                                  
+       693,188,302      cache-misses                                                
+            32,909      page-faults                                                 
+
+      10.610019394 seconds time elapsed
+
+      10.532134000 seconds user
+       0.076000000 seconds sys
+
+
+
+Tiling + Transposition
+BLOCK_SIZE: 8
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 6566 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/tiling_transpose 8 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    28,775,080,873      cpu-cycles                                                  
+       107,484,375      cache-misses                                                
+            41,101      page-faults                                                 
+
+       9.948747181 seconds time elapsed
+
+       9.822539000 seconds user
+       0.123981000 seconds sys
+
+
+
+BLOCK_SIZE: 16
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 6453 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/tiling_transpose 16 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    28,453,052,226      cpu-cycles                                                  
+        64,123,535      cache-misses                                                
+            41,103      page-faults                                                 
+
+       9.836184963 seconds time elapsed
+
+       9.743119000 seconds user
+       0.091991000 seconds sys
+
+
+
+BLOCK_SIZE: 32
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 7738 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/tiling_transpose 32 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    32,143,120,457      cpu-cycles                                                  
+        43,543,697      cache-misses                                                
+            41,105      page-faults                                                 
+
+      11.112507034 seconds time elapsed
+
+      10.994600000 seconds user
+       0.115985000 seconds sys
+
+
+
+BLOCK_SIZE: 64
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 8031 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/tiling_transpose 64 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    33,016,597,108      cpu-cycles                                                  
+        28,176,597      cache-misses                                                
+            41,124      page-faults                                                 
+
+      11.414004502 seconds time elapsed
+
+      11.292535000 seconds user
+       0.119963000 seconds sys
+
+
+
+BLOCK_SIZE: 128
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 10030 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/tiling_transpose 128 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    38,808,726,422      cpu-cycles                                                  
+        21,827,014      cache-misses                                                
+            41,202      page-faults                                                 
+
+      13.415783302 seconds time elapsed
+
+      13.298499000 seconds user
+       0.115986000 seconds sys
+
+
+
+Tiling + Loop interchange
+BLOCK_SIZE: 8
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 10331 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/tiling_loop_interchange 8 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    39,630,618,251      cpu-cycles                                                  
+       197,120,329      cache-misses                                                
+            32,908      page-faults                                                 
+
+      13.702647283 seconds time elapsed
+
+      13.606586000 seconds user
+       0.091963000 seconds sys
+
+
+
+BLOCK_SIZE: 16
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 6817 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/tiling_loop_interchange 16 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    29,523,951,023      cpu-cycles                                                  
+        87,411,292      cache-misses                                                
+            32,908      page-faults                                                 
+
+      10.206563150 seconds time elapsed
+
+      10.121195000 seconds user
+       0.083976000 seconds sys
+
+
+
+BLOCK_SIZE: 32
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 5360 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/tiling_loop_interchange 32 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    25,285,227,626      cpu-cycles                                                  
+        42,048,069      cache-misses                                                
+            32,910      page-faults                                                 
+
+       8.740553063 seconds time elapsed
+
+       8.648107000 seconds user
+       0.092001000 seconds sys
+
+
+
+BLOCK_SIZE: 64
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 5049 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/tiling_loop_interchange 64 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    24,394,838,867      cpu-cycles                                                  
+        24,904,701      cache-misses                                                
+            32,928      page-faults                                                 
+
+       8.433220390 seconds time elapsed
+
+       8.324387000 seconds user
+       0.108056000 seconds sys
+
+
+
+BLOCK_SIZE: 128
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 5149 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/tiling_loop_interchange 128 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    24,678,605,307      cpu-cycles                                                  
+        23,436,080      cache-misses                                                
+            33,008      page-faults                                                 
+
+       8.531352970 seconds time elapsed
+
+       8.446491000 seconds user
+       0.083985000 seconds sys
+
+
+
+Auto Vectorization with BLOCK_SIZE = 32
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 2897 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/autovec 32 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    16,996,278,537      cpu-cycles                                                  
+        40,855,172      cache-misses                                                
+            32,913      page-faults                                                 
+
+       6.274153710 seconds time elapsed
+
+       6.200929000 seconds user
+       0.072010000 seconds sys
+
+
+
+OpenMP + Everything (BLOCK_SIZE = 32)
+Number of cores: 1
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 2307 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/openmp 1 32 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    21,410,716,484      cpu-cycles                                                  
+        30,065,061      cache-misses                                                
+            70,916      page-faults                                                 
+
+       5.739445353 seconds time elapsed
+
+       7.924708000 seconds user
+       0.108064000 seconds sys
+
+
+
+Number of cores: 2
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 2304 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/openmp 2 32 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    21,385,660,798      cpu-cycles                                                  
+        27,587,417      cache-misses                                                
+            72,895      page-faults                                                 
+
+       5.733346242 seconds time elapsed
+
+       7.892278000 seconds user
+       0.132071000 seconds sys
+
+
+
+Number of cores: 4
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 1203 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/openmp 4 32 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    21,528,661,129      cpu-cycles                                                  
+        26,830,923      cache-misses                                                
+            53,672      page-faults                                                 
+
+       4.635471348 seconds time elapsed
+
+       8.023658000 seconds user
+       0.116110000 seconds sys
+
+
+
+Number of cores: 8
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 628 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/openmp 8 32 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    21,811,900,121      cpu-cycles                                                  
+        22,510,568      cache-misses                                                
+            40,727      page-faults                                                 
+
+       4.063481270 seconds time elapsed
+
+       8.209405000 seconds user
+       0.100017000 seconds sys
+
+
+
+Number of cores: 16
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 429 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/openmp 16 32 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    21,923,797,007      cpu-cycles                                                  
+        27,666,301      cache-misses                                                
+            33,059      page-faults                                                 
+
+       3.903110215 seconds time elapsed
+
+       8.305627000 seconds user
+       0.143889000 seconds sys
+
+
+
+Number of cores: 32
+Iteration 1...
+M = 2048, N = 2048, K = 2048
+Verification: Passed
+Execution Time: 278 milliseconds
+
+ Performance counter stats for '/nfsmnt/123090765/CUHKSZ-CSC4005/project2/build/src/openmp 32 32 /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix7.txt /nfsmnt/123090765/CUHKSZ-CSC4005/project2/matrices/matrix8.txt':
+
+    23,189,500,104      cpu-cycles                                                  
+        25,427,372      cache-misses                                                
+            90,555      page-faults                                                 
+
+       3.726972516 seconds time elapsed
+
+       8.399820000 seconds user
+       0.581371000 seconds sys
+
+
+
+CUDA
+Iteration 1...
+Verification: Passed
+Execution Time: 138.815 milliseconds
+Generating '/tmp/nsys-report-5c13.qdstrm'
+[1/1] [0%                          ] cuda7x8.nsys-rep[1/1] [0%                          ] cuda7x8.nsys-rep[1/1] [==19%                       ] cuda7x8.nsys-rep[1/1] [=============59%            ] cuda7x8.nsys-rep[1/1] [================69%         ] cuda7x8.nsys-rep[1/1] [================70%         ] cuda7x8.nsys-rep[1/1] [=================73%        ] cuda7x8.nsys-rep[1/1] [=================74%        ] cuda7x8.nsys-rep[1/1] [===================79%      ] cuda7x8.nsys-rep[1/1] [====================84%     ] cuda7x8.nsys-rep[1/1] [========================99% ] cuda7x8.nsys-rep[1/1] [========================100%] cuda7x8.nsys-rep[1/1] [========================100%] cuda7x8.nsys-rep
+Generated:
+    /nfsmnt/123090765/CUHKSZ-CSC4005/project2/./cuda7x8.nsys-rep
