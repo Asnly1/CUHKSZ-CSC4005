@@ -30,8 +30,8 @@ Matrix matrix_multiply_loop_interchange(const Matrix& matrix1,
 
     Matrix result(M, N);
     MAT_DATATYPE* __restrict__ result_data = result.getData();
-    const MAT_DATATYPE* const mat1_data = matrix1.getDataConst();
-    const MAT_DATATYPE* const mat2_data = matrix2.getDataConst();
+    const MAT_DATATYPE* __restrict__ const mat1_data = matrix1.getDataConst();
+    const MAT_DATATYPE* __restrict__ const mat2_data = matrix2.getDataConst();
     for (size_t i = 0; i < M; ++i)
     {
         for (size_t k = 0; k < K; ++k)
