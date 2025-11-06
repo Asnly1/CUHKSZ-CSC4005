@@ -17,9 +17,120 @@
 
 void radixSort(std::vector<int> &vec) {
     int n = vec.size();
-    /* Your code here!
-        Implement GPU Radix sort
-    */
+    int *vec_raw = vec.data();
+
+    int *output = new int[n];
+    int count[BASE];
+    int (*local_counts)[BASE] = new int[NUM_GANGS][BASE];
+    int start_pos[BASE];
+    int (*gang_prefix_sum)[BASE] = new int[NUM_GANGS][BASE];
+    int (*local_offsets)[BASE] = new int[NUM_GANGS][BASE];
+
+    #pragma acc data copy(vec_raw[0:n]) create(output[0:n], count[0:BASE], local_counts[0:NUM_GANGS][0:BASE], \
+                          start_pos[0:BASE], gang_prefix_sum[0:NUM_GANGS][0:BASE], local_offsets[0:NUM_GANGS][0:BASE])
+    {
+        for (int shift = 0; shift < 32; shift += BASE_BITS)
+        {
+            #pragma acc parallel loop collapse(2) present(local_counts)
+            for (int g = 0; g < NUM_GANGS; g++) 
+            {
+                for (int b = 0; b < BASE; b++) 
+                {
+                    local_counts[g][b] = 0;
+                }
+            }
+
+            #pragma acc parallel num_gangs(NUM_GANGS) present(vec_raw, local_counts)
+            {
+                int gang_id = __pgi_gangidx();
+                int chunk_size = (n + NUM_GANGS - 1) / NUM_GANGS;
+                int start = gang_id * chunk_size;
+                int end = (start + chunk_size > n) ? n : (start + chunk_size);
+                
+                #pragma acc loop worker vector
+                for (int i = start; i < end; i++) 
+                {
+                    int digit = (vec_raw[i] >> shift) & (BASE - 1);
+
+                    #pragma acc atomic update
+                    local_counts[gang_id][digit]++;
+                }
+            }
+
+            #pragma acc parallel loop present(count, local_counts)
+            for (int b = 0; b < BASE; b++) {
+                int sum = 0;
+                for (int g = 0; g < NUM_GANGS; g++) 
+                {
+                    sum += local_counts[g][b];
+                }
+                
+                count[b] = sum;
+            }
+
+            #pragma acc serial loop present(start_pos count)
+            {
+                start_pos[0] = 0;
+                for (int d = 1; d < BASE; d++)
+                {
+                    start_pos[d] = start_pos[d - 1] + count[d - 1];
+                }
+            }
+
+            #pragma acc parallel loop present(local_counts, gang_prefix_sum)
+            for (int b = 0; b < BASE; b++) 
+            {
+                gang_prefix_sum[0][b] = 0;
+                for (int g = 1; g < NUM_GANGS; g++) 
+                {
+                    gang_prefix_sum[g][b] = gang_prefix_sum[g-1][b] + local_counts[g-1][b];
+                }
+            }
+            
+            #pragma acc parallel collapse(2) present(local_offsets)
+            for (int g = 0; g < NUM_GANGS; g++) 
+            {
+                #pragma acc loop
+                for (int b = 0; b < BASE; b++) 
+                {
+                    local_offsets[g][b] = 0;
+                }
+            }
+
+            #pragma acc parallel num_gangs(NUM_GANGS) \
+                            present(vec_raw, output, start_pos, gang_prefix_sum, local_offsets)
+            {
+                int gang_id = __pgi_gangidx();
+                int chunk_size = (n + NUM_GANGS - 1) / NUM_GANGS;
+                int start = gang_id * chunk_size;
+                int end = (start + chunk_size > n) ? n : (start + chunk_size);
+
+                #pragma acc loop worker vector
+                for (int i = start; i < end; i++) {
+                    int digit = (vec_raw[i] >> shift) & (BASE - 1);
+
+                    int global_start = start_pos[digit];
+                    int prior_gang_offset = gang_prefix_sum[gang_id][digit];
+                    int within_gang_offset;
+                    #pragma acc atomic capture
+                    within_gang_offset = local_offsets[gang_id][digit]++;
+
+                    int pos = global_start + prior_gang_offset + within_gang_offset;
+                    output[pos] = vec_raw[i];
+                }
+            }
+
+            #pragma acc parallel loop present(vec_raw output)
+            for (int i = 0; i < n; i++)
+            {
+                vec_raw[i] = output[i];
+            }
+        }
+    }
+    delete[] output;
+    delete[] local_counts;
+    delete[] gang_prefix_sum;
+    delete[] local_offsets;
 }
 
 int main(int argc, char** argv) {
