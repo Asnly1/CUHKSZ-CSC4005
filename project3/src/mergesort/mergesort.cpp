@@ -148,7 +148,7 @@ void sequentialMergeHelper(const std::vector<int>& L, int l_start, int l_end,
 }
                            
 void parMerge(std::vector<int>& vec, int l, int m, int r, int depth, int max_depth) {
-    if ((r - l + 1) < 100 || depth > max_depth)
+    if ((r - l + 1) < 10000 || depth > max_depth)
     {
         sequentialMerge(vec, l, m, r);
     }
@@ -177,6 +177,8 @@ void parMerge(std::vector<int>& vec, int l, int m, int r, int depth, int max_dep
         
         #pragma omp task
         sequentialMergeHelper(L, i, n1-1, R, j, n2-1, vec, l+k);
+
+        #pragma omp taskwait
     }
 }
 
@@ -184,7 +186,7 @@ void parMergeSort(std::vector<int>& vec, const int &l, const int &r, int depth, 
     if (l < r)
     {
         int vec_length = r - l + 1;
-        if (vec_length <= 100)
+        if (vec_length <= 10000)
         {
             insertionSort(vec, l ,r);
             return;

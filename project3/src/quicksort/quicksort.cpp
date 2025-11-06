@@ -93,7 +93,7 @@ void quickSort(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &L,
                int low, int high, int depth, int max_depth) {
     if (low < high) {
         int pivotIndex;
-        if (high - low <= 1000 || depth > max_depth)
+        if (high - low <= 10000 || depth > max_depth)
         {
             pivotIndex = partition_sequential(vec, low, high);
         }
