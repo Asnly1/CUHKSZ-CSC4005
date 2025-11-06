@@ -31,7 +31,7 @@ void radixSort(std::vector<int> &vec) {
     {
         for (int shift = 0; shift < 32; shift += BASE_BITS)
         {
-            #pragma acc parallel loop collapse(2) present(local_counts)
+            #pragma acc parallel loop collapse(2)
             for (int g = 0; g < NUM_GANGS; g++) 
             {
                 for (int b = 0; b < BASE; b++) 
@@ -40,7 +40,7 @@ void radixSort(std::vector<int> &vec) {
                 }
             }
 
-            #pragma acc parallel num_gangs(NUM_GANGS) present(vec_raw, local_counts)
+            #pragma acc parallel num_gangs(NUM_GANGS)
             {
                 int gang_id = __pgi_gangidx();
                 int chunk_size = (n + NUM_GANGS - 1) / NUM_GANGS;
@@ -57,7 +57,7 @@ void radixSort(std::vector<int> &vec) {
                 }
             }
 
-            #pragma acc parallel loop present(count, local_counts)
+            #pragma acc parallel loop
             for (int b = 0; b < BASE; b++) {
                 int sum = 0;
                 for (int g = 0; g < NUM_GANGS; g++) 
@@ -68,7 +68,7 @@ void radixSort(std::vector<int> &vec) {
                 count[b] = sum;
             }
 
-            #pragma acc serial loop present(start_pos count)
+            #pragma acc serial loop
             {
                 start_pos[0] = 0;
                 for (int d = 1; d < BASE; d++)
@@ -77,7 +77,7 @@ void radixSort(std::vector<int> &vec) {
                 }
             }
 
-            #pragma acc parallel loop present(local_counts, gang_prefix_sum)
+            #pragma acc parallel loop
             for (int b = 0; b < BASE; b++) 
             {
                 gang_prefix_sum[0][b] = 0;
@@ -87,18 +87,16 @@ void radixSort(std::vector<int> &vec) {
                 }
             }
             
-            #pragma acc parallel collapse(2) present(local_offsets)
+            #pragma acc parallel loop collapse(2)
             for (int g = 0; g < NUM_GANGS; g++) 
             {
-                #pragma acc loop
                 for (int b = 0; b < BASE; b++) 
                 {
                     local_offsets[g][b] = 0;
                 }
             }
 
-            #pragma acc parallel num_gangs(NUM_GANGS) \
-                            present(vec_raw, output, start_pos, gang_prefix_sum, local_offsets)
+            #pragma acc parallel num_gangs(NUM_GANGS)
             {
                 int gang_id = __pgi_gangidx();
                 int chunk_size = (n + NUM_GANGS - 1) / NUM_GANGS;
@@ -120,7 +118,7 @@ void radixSort(std::vector<int> &vec) {
                 }
             }
 
-            #pragma acc parallel loop present(vec_raw output)
+            #pragma acc parallel loop
             for (int i = 0; i < n; i++)
             {
                 vec_raw[i] = output[i];

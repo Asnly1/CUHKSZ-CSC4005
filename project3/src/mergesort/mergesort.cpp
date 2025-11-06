@@ -10,6 +10,7 @@
 #include "../utils.hpp"
 #include <utility>
 #include <climits>
+#include <omp.h> 
 
 std::pair<int, int> findSplit(std::vector<int>&L, std::vector<int>&R, int k)
 {

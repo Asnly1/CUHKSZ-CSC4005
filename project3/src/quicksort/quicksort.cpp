@@ -29,13 +29,15 @@ int partition_sequential(std::vector<int> &vec, int low, int high) {
 int prefix_sum_parallel(std::vector<int> &vec, std::vector<int> &result, int low, int high) {
     int total_sum = 0;
 
-    #pragma omp for reduction(inscan, +:total_sum)
-    for (int i = low; i < high; i++)
+    #pragma omp parallel
     {
-        #pragma omp scan exclusive(total_sum)
-        total_sum += vec[i];
-
-        result[i] = total_sum;
+        #pragma omp for reduction(inscan, +:total_sum)
+        for (int i = low; i < high; i++)
+        {
+            result[i] = total_sum;
+            #pragma omp scan exclusive(total_sum)
+            total_sum += vec[i];
+        }
     }
 
     return total_sum;
@@ -45,8 +47,10 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
                        std::vector<int> &S_prefix_sum, std::vector<int> &L_prefix_sum, std::vector<int> &temp,
                        int low, int high) {
     int pivot = vec[high];
+    int num_small;
+    int no_use;
     
-    #pragma omp for
+    #pragma omp parallel for
     for (int i = low; i < high; i++)
     {
         S[i] = (vec[i] <= pivot) ? 1 : 0;
@@ -54,12 +58,12 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
     }
 
     #pragma omp task
-    int num_small = prefix_sum_parallel(S, S_prefix_sum, low, high);
+    num_small = prefix_sum_parallel(S, S_prefix_sum, low, high);
     #pragma omp task
-    int no_use = prefix_sum_parallel(L, L_prefix_sum, low, high);
+    no_use = prefix_sum_parallel(L, L_prefix_sum, low, high);
     #pragma omp taskwait
 
-    #pragma omp for
+    #pragma omp parallel for
     for (int i = low; i < high; i++)
     {
         int x = vec[i];
@@ -73,7 +77,7 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
         }
     }
 
-    #pragma omp for
+    #pragma omp parallel for
     for (int i = low; i < high; i++)
     {
         vec[i] = temp[i];

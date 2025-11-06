@@ -52,6 +52,8 @@ std::vector<int> binarySearchArray(const std::vector<int>& vec,
             binarySearch(vec_ptr, n, nbits, target_ptr, i, results_ptr);
         }
     }
+
+    return results;
 }
 
 int main(int argc, char** argv) {
