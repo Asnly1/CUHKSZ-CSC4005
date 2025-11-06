@@ -11,20 +11,47 @@
 // Binary Search - finds the FIRST occurrence of targets from [i, i + BATCH_SIZE - 1] in range [0, size - 1]
 #pragma acc routine seq
 void binarySearch(const int* vec, int size, int bits, const int* targets, int i, int* results) {
-    /* Your code here!
-    Optimized GPU binary search
-    */
+    int target = targets[i];
+    int left = 0;
+    int right = size-1;
+    int result = size;
+
+    for (int iter = 0; iter <= bits; iter++)
+    {
+        bool valid = (left <= right);
+        int mid = left + (right - left) / 2;
+
+        int value = valid ? vec[mid] : 0;
+
+        bool large = value >= target;
+
+        result = (valid && large) ? mid : result;
+        right = (valid && large) ? mid - 1 : right;
+        left = (valid && !large) ? mid + 1 : left; 
+    }
+
+    results[i] = result;
 }
 
 std::vector<int> binarySearchArray(const std::vector<int>& vec, 
                                     const std::vector<int>& search_targets) {
     int n = vec.size();
-    int nbits = 31 - __builtin_clz(n);
+    int nbits = 31 - __builtin_clz(n); // log2(n)
     int search_size = search_targets.size();
     std::vector<int> results(search_size);
-    /* Your code here
-       Binary search for array
-    */
+
+    const int* vec_ptr = vec.data();
+    const int* target_ptr = search_targets.data();
+    int* results_ptr = results.data();
+
+    #pragma acc data copyin(vec_ptr[0:n], target_ptr[0:search_size]) copyout(results_ptr[0:search_size])
+    {
+        #pragma acc parallel loop
+        for (int i = 0; i < search_size; i++)
+        {
+            binarySearch(vec_ptr, n, nbits, target_ptr, i, results_ptr);
+        }
+    }
 }
 
 int main(int argc, char** argv) {
