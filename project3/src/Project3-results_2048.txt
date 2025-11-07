@@ -1,22 +1,14 @@
 Parallel Quick Sort with Parallel Partitioning on CPU (Optimized with -O2)
 Number of cores: 4
 Quick Sort Complete!
-Execution Time: 6540 milliseconds
-std::sort Time: 10634 milliseconds
-Pass the sorting result check!
+Execution Time: 8197 milliseconds
 Number of cores: 8
 Quick Sort Complete!
-Execution Time: 4189 milliseconds
-std::sort Time: 10617 milliseconds
-Pass the sorting result check!
+Execution Time: 4907 milliseconds
 Number of cores: 16
 Quick Sort Complete!
-Execution Time: 3785 milliseconds
-std::sort Time: 10594 milliseconds
-Pass the sorting result check!
+Execution Time: 4478 milliseconds
 Number of cores: 32
 Quick Sort Complete!
-Execution Time: 3084 milliseconds
-std::sort Time: 10600 milliseconds
-Pass the sorting result check!
+Execution Time: 3370 milliseconds
 
