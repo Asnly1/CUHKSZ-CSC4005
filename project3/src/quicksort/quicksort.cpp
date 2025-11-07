@@ -165,15 +165,18 @@ void quickSort(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &tem
                int low, int high, int depth, int max_depth) {
     if (low < high) {
         int pivotIndex;
-        if (high - low <= 8192 || depth > max_depth || omp_get_max_threads() < 2)
-        {
-            pivotIndex = partition_sequential(vec, low, high);
-        }
-        else
+        bool use_parallel = (high - low > 16384) && 
+                            (depth < max_depth) && 
+                            (omp_get_max_threads() > 1);
+        if (use_parallel)
         {
             pivotIndex = partition_parallel(vec, S, temp, low, high);
         }
-        if (depth < max_depth && (high - low + 1) >= 8192)
+        else
+        {
+            pivotIndex = partition_sequential(vec, low, high);
+        }
+        if (use_parallel)
         {
              #pragma omp task default(none) \
                     firstprivate(low, pivotIndex, depth, max_depth) \
