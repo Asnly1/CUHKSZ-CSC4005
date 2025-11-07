@@ -1,92 +1,23 @@
 Parallel Quick Sort with Parallel Partitioning on CPU (Optimized with -O2)
-Number of cores: 1
-Quick Sort Complete!
-Execution Time: 12611 milliseconds
-std::sort Time: 11371 milliseconds
-Pass the sorting result check!
-
- Performance counter stats for '../build/src/quicksort/quicksort 1 100000000':
-
-    76,656,766,315      cpu-cycles                                                  
-       152,887,843      cache-misses                                                
-           488,426      page-faults                                                 
-
-      26.517419551 seconds time elapsed
-
-      25.554219000 seconds user
-       0.955783000 seconds sys
-
-
-Number of cores: 4
-Quick Sort Complete!
-Execution Time: 6854 milliseconds
-std::sort Time: 11494 milliseconds
-Pass the sorting result check!
-
- Performance counter stats for '../build/src/quicksort/quicksort 4 100000000':
-
-    89,415,065,869      cpu-cycles                                                  
-       292,028,554      cache-misses                                                
-           839,810      page-faults                                                 
-
-      20.972153809 seconds time elapsed
-
-      29.864274000 seconds user
-       1.124160000 seconds sys
-
-
-Number of cores: 8
-Quick Sort Complete!
-Execution Time: 4707 milliseconds
-std::sort Time: 11461 milliseconds
-Pass the sorting result check!
-
- Performance counter stats for '../build/src/quicksort/quicksort 8 100000000':
-
-    89,167,022,277      cpu-cycles                                                  
-       346,209,109      cache-misses                                                
-           817,560      page-faults                                                 
-
-      18.770736934 seconds time elapsed
-
-      29.904790000 seconds user
-       1.120629000 seconds sys
-
-
 Number of cores: 16
+WARNING: Kernel address maps (/proc/{kallsyms,modules}) are restricted,
+check /proc/sys/kernel/kptr_restrict and /proc/sys/kernel/perf_event_paranoid.
+
+Samples in kernel functions may not be resolved if a suitable vmlinux
+file is not found in the buildid cache or in the vmlinux path.
+
+Samples in kernel modules won't be resolved at all.
+
+If some relocation was applied (e.g. kexec) symbols may be misresolved
+even with a suitable vmlinux or kallsyms file.
+
+Couldn't record kernel reference relocation symbol
+Symbol resolution may be skewed if relocation was used (e.g. kexec).
+Check /proc/kallsyms permission or run as root.
 Quick Sort Complete!
-Execution Time: 3944 milliseconds
-std::sort Time: 11433 milliseconds
+Execution Time: 3897 milliseconds
+std::sort Time: 10713 milliseconds
 Pass the sorting result check!
-
- Performance counter stats for '../build/src/quicksort/quicksort 16 100000000':
-
-    86,899,044,544      cpu-cycles                                                  
-       395,840,203      cache-misses                                                
-           753,599      page-faults                                                 
-
-      17.980668788 seconds time elapsed
-
-      29.583527000 seconds user
-       1.096872000 seconds sys
-
-
-Number of cores: 32
-Quick Sort Complete!
-Execution Time: 3234 milliseconds
-std::sort Time: 11715 milliseconds
-Pass the sorting result check!
-
- Performance counter stats for '../build/src/quicksort/quicksort 32 100000000':
-
-    90,843,531,757      cpu-cycles                                                  
-       444,375,545      cache-misses                                                
-           735,412      page-faults                                                 
-
-      17.865532091 seconds time elapsed
-
-      31.195168000 seconds user
-       1.741497000 seconds sys
-
-
+[ perf record: Woken up 27 times to write data ]
+[ perf record: Captured and wrote 8.536 MB perf.data.16 (119840 samples) ]
 

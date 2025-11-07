@@ -30,7 +30,7 @@ SEARCH_SIZE=200000000  # Larger size for searching tasks
 
 # Task 2: Parallel Quick Sort with Parallel Partitioning on CPU
 echo "Parallel Quick Sort with Parallel Partitioning on CPU (Optimized with -O2)"
-for num_cores in 1 4 8 16 32
+for num_cores in 16
 do
   echo "Number of cores: $num_cores"
   srun -n 1 --cpus-per-task $num_cores perf record -g -o perf.data.$num_cores ../build/src/quicksort/quicksort $num_cores $DATA_SIZE
