@@ -29,15 +29,12 @@ int partition_sequential(std::vector<int> &vec, int low, int high) {
 int prefix_sum_parallel(std::vector<int> &vec, std::vector<int> &result, int low, int high) {
     int total_sum = 0;
 
-    #pragma omp parallel
+    #pragma omp for reduction(inscan, +:total_sum)
+    for (int i = low; i < high; i++)
     {
-        #pragma omp for reduction(inscan, +:total_sum)
-        for (int i = low; i < high; i++)
-        {
-            result[i] = total_sum;
-            #pragma omp scan exclusive(total_sum)
-            total_sum += vec[i];
-        }
+        result[i] = total_sum;
+        #pragma omp scan exclusive(total_sum)
+        total_sum += vec[i];
     }
 
     return total_sum;
@@ -57,11 +54,8 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
         L[i] = 1 - S[i];
     }
 
-    #pragma omp task
     num_small = prefix_sum_parallel(S, S_prefix_sum, low, high);
-    #pragma omp task
     no_use = prefix_sum_parallel(L, L_prefix_sum, low, high);
-    #pragma omp taskwait
 
     #pragma omp parallel for
     for (int i = low; i < high; i++)
@@ -93,7 +87,7 @@ void quickSort(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &L,
                int low, int high, int depth, int max_depth) {
     if (low < high) {
         int pivotIndex;
-        if (high - low <= (1<<20) || depth > max_depth || omp_get_max_threads() >= 4)
+        if (high - low <= (1<<20) || depth > max_depth || omp_get_max_threads() < 2)
         {
             pivotIndex = partition_sequential(vec, low, high);
         }
