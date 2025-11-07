@@ -10,6 +10,7 @@
 #include <thread>
 #include <omp.h> 
 #include "../utils.hpp"
+#include <cmath>
 
 int partition_sequential(std::vector<int> &vec, int low, int high) {
     int mid = low + (high - low) / 2;
@@ -37,14 +38,14 @@ int partition_sequential(std::vector<int> &vec, int low, int high) {
 
 int prefix_sum_parallel(std::vector<int> &vec, std::vector<int> &result, int low, int high) {
     int n = high - low;
-    if (n <= 0) {
+    if (n <= 0) 
+    {
         return 0;
     }
 
-    int total_sum = 0;
     std::vector<int> block_sums;
     std::vector<int> block_offsets;
-    int num_threads = 0;
+    int num_threads;
 
     #pragma omp parallel
     {
@@ -53,38 +54,46 @@ int prefix_sum_parallel(std::vector<int> &vec, std::vector<int> &result, int low
         #pragma omp single
         {
             num_threads = omp_get_num_threads();
-            block_sums.resize(num_threads);
-            block_offsets.resize(num_threads);
+            block_sums.assign(num_threads, 0);
+            block_offsets.assign(num_threads, 0);
         }
 
+        int chunk_size = n / num_threads;
+        int rem   = n % num_threads;
+        int length   = tid < rem ? (chunk_size + 1) : chunk_size;
+        int offset = tid < rem ? (chunk_size + 1) * tid : rem + chunk_size * tid;
+        int begin = low + offset;
+        int end = begin + length;
+
         int local_sum = 0;
-        #pragma omp for schedule(static) nowait
-        for (int i = low; i < high; i++) {
-            local_sum += vec[i];
-        }
+        for (int i = begin; i < end; ++i) local_sum += vec[i];
         block_sums[tid] = local_sum;
 
         #pragma omp barrier
-
         #pragma omp single
         {
-            int offset = 0;
-            for (int i = 0; i < num_threads; i++) {
-                block_offsets[i] = offset;
-                offset += block_sums[i];
+            int acc = 0;
+            for (int t = 0; t < num_threads; ++t) 
+            {
+                block_offsets[t] = acc;
+                acc += block_sums[t];
             }
-            total_sum = offset;
         }
 
-        int thread_offset = block_offsets[tid];
-        #pragma omp for schedule(static)
-        for (int i = low; i < high; i++) {
-            result[i] = thread_offset;
-            thread_offset += vec[i];
+        int prefix_offset = block_offsets[tid];
+        for (int i = begin; i < end; ++i) 
+        {
+            result[i] = prefix_offset;
+            prefix_offset += vec[i];
         }
     }
 
-    return total_sum;
+        int total = 0;
+        for (int v : block_sums) 
+        {
+            total += v;
+        }
+        return total;
 }
 
 int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &L, 
@@ -103,7 +112,6 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
     int num_small;
     int no_use;
     
-    #pragma omp parallel for
     for (int i = low; i < high; i++)
     {
         S[i] = (vec[i] <= pivot) ? 1 : 0;
@@ -113,7 +121,6 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
     num_small = prefix_sum_parallel(S, S_prefix_sum, low, high);
     no_use = prefix_sum_parallel(L, L_prefix_sum, low, high);
 
-    #pragma omp parallel for
     for (int i = low; i < high; i++)
     {
         int x = vec[i];
@@ -127,7 +134,6 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
         }
     }
 
-    #pragma omp parallel for
     for (int i = low; i < high; i++)
     {
         vec[i] = temp[i];
@@ -153,9 +159,13 @@ void quickSort(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &L,
         }
         if (depth < max_depth)
         {
-            #pragma omp task
+             #pragma omp task default(none) \
+                    firstprivate(low, pivotIndex, depth, max_depth) \
+                    shared(vec, S, L, S_prefix_sum, L_prefix_sum, temp)
             quickSort(vec, S, L, S_prefix_sum, L_prefix_sum, temp, low, pivotIndex - 1, depth+1, max_depth);
-            #pragma omp task
+             #pragma omp task default(none) \
+                    firstprivate(high, pivotIndex, depth, max_depth) \
+                    shared(vec, S, L, S_prefix_sum, L_prefix_sum, temp)
             quickSort(vec, S, L, S_prefix_sum, L_prefix_sum, temp, pivotIndex + 1, high, depth+1, max_depth);
             #pragma omp taskwait
         }

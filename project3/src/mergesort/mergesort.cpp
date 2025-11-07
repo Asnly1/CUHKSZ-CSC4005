@@ -13,7 +13,7 @@
 #include <omp.h> 
 #include <cmath>
 
-std::pair<int, int> findSplit(std::vector<int>& vec, int l_start, int l_end, int r_start, int r_end, int k)
+std::pair<int, int> findSplit(const std::vector<int>& vec, int l_start, int l_end, int r_start, int r_end, int k)
 {
     int n1 = l_end - l_start + 1;
     int n2 = r_end - r_start + 1;
@@ -73,13 +73,6 @@ void insertionSort(std::vector<int>& vec, int low, int high) {
     }
 }
 
-// Merge two subarrays of vector vec[]
-// First subarray is vec[l..m]
-// Second subarray is vec[m+1..r]
-void sequentialMerge(std::vector<int>& dest, std::vector<int>& src, int l, int m, int r) 
-{
-    sequentialMergeHelper(src, l, m, m + 1, r, dest, l);
-}
 
 void sequentialMergeHelper(const std::vector<int>& src, int l_start, int l_end,
                            int r_start, int r_end, std::vector<int>& dest, int des_start)
@@ -117,7 +110,12 @@ void sequentialMergeHelper(const std::vector<int>& src, int l_start, int l_end,
         k++;
     }
 }
-                           
+
+void sequentialMerge(std::vector<int>& dest, std::vector<int>& src, int l, int m, int r) 
+{
+    sequentialMergeHelper(src, l, m, m + 1, r, dest, l);
+}
+
 void parMerge(std::vector<int>& dest, int dest_start, const std::vector<int>& src,
               int l_start, int l_end, 
               int r_start, int r_end,
