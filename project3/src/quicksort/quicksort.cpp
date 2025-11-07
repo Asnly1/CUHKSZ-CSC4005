@@ -36,7 +36,7 @@ int partition_sequential(std::vector<int> &vec, int low, int high) {
     return i + 1;
 }
 
-int prefix_sum_parallel(std::vector<int> &vec, std::vector<int> &result, int low, int high) {
+std::pair<int, std::vector<int>> prefix_sum_parallel(std::vector<int> &vec, int low, int high) {
     int n = high - low;
     if (n <= 0) 
     {
@@ -59,14 +59,18 @@ int prefix_sum_parallel(std::vector<int> &vec, std::vector<int> &result, int low
         }
 
         int chunk_size = n / num_threads;
-        int rem   = n % num_threads;
-        int length   = tid < rem ? (chunk_size + 1) : chunk_size;
+        int rem = n % num_threads;
+        int length = tid < rem ? (chunk_size + 1) : chunk_size;
         int offset = tid < rem ? (chunk_size + 1) * tid : rem + chunk_size * tid;
         int begin = low + offset;
         int end = begin + length;
 
         int local_sum = 0;
-        for (int i = begin; i < end; ++i) local_sum += vec[i];
+        #pragma omp simd reduction(+:local_sum)
+        for (int i = begin; i < end; ++i) 
+        {
+            local_sum += vec[i];
+        }
         block_sums[tid] = local_sum;
 
         #pragma omp barrier
@@ -79,13 +83,6 @@ int prefix_sum_parallel(std::vector<int> &vec, std::vector<int> &result, int low
                 acc += block_sums[t];
             }
         }
-
-        int prefix_offset = block_offsets[tid];
-        for (int i = begin; i < end; ++i) 
-        {
-            result[i] = prefix_offset;
-            prefix_offset += vec[i];
-        }
     }
 
         int total = 0;
@@ -93,11 +90,10 @@ int prefix_sum_parallel(std::vector<int> &vec, std::vector<int> &result, int low
         {
             total += v;
         }
-        return total;
+        return {total, block_offsets};
 }
 
-int partition_parallel(std::vector<int> &vec, std::vector<int> &S,
-                       std::vector<int> &S_prefix_sum, std::vector<int> &temp,
+int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &temp,
                        int low, int high) {
     int mid = low + (high - low) / 2;
     // vec[mid] is median
@@ -111,26 +107,48 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S,
         std::swap(vec[low], vec[high]);
     }
     int pivot = vec[high];
+    int n = high - low;
     int num_small;
+    std::vector<int>block_offsets;
     
-    #pragma omp parallel for schedule(static)
+    #pragma omp parallel for schedule(static) simd
     for (int i = low; i < high; i++)
     {
         S[i] = (vec[i] <= pivot) ? 1 : 0;
     }
 
-    num_small = prefix_sum_parallel(S, S_prefix_sum, low, high);
-    #pragma omp parallel for schedule(static)
-    for (int i = low; i < high; i++)
+    auto prefix_result = prefix_sum_parallel(S, low, high);
+    num_small = prefix_result.first;
+    block_offsets = prefix_result.second;
+
+    #pragma omp parallel
     {
-        int x = vec[i];
-        if (x <= pivot)
+        int tid = omp_get_thread_num();
+        int num_threads = omp_get_num_threads();
+        int chunk_size = n / num_threads;
+        int rem = n % num_threads;
+        int length = tid < rem ? (chunk_size + 1) : chunk_size;
+        int offset = tid < rem ? (chunk_size + 1) * tid : rem + chunk_size * tid;
+        int begin = low + offset;
+        int end = begin + length;
+        int block_offset = block_offsets[tid];
+
+        int local_prefix = 0;
+        int local_large_prefix = 0;
+
+        for (int i = begin; i < end; i++)
         {
-            temp[low+S_prefix_sum[i]] = x;
-        }
-        else
-        {
-            temp[low+num_small+((i - low) - S_prefix_sum[i])] = x; // Total number - S_prefix_sum = L_prefix_sum
+            int x = vec[i];
+            if (x <= pivot)
+            {
+                temp[low + block_offset + local_prefix] = x;
+                local_prefix++;
+            }
+            else
+            {
+                temp[low + num_small + (block_offset - local_prefix) + local_large_prefix] = x;
+                local_large_prefix++;
+            }
         }
     }
 
@@ -141,8 +159,7 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S,
     return low + num_small;
 }
 
-void quickSort(std::vector<int> &vec, std::vector<int> &S,
-               std::vector<int> &S_prefix_sum, std::vector<int> &temp,
+void quickSort(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &temp,
                int low, int high, int depth, int max_depth) {
     if (low < high) {
         int pivotIndex;
@@ -152,24 +169,24 @@ void quickSort(std::vector<int> &vec, std::vector<int> &S,
         }
         else
         {
-            pivotIndex = partition_parallel(vec, S, S_prefix_sum, temp, low, high);
+            pivotIndex = partition_parallel(vec, S, temp, low, high);
         }
         if (depth < max_depth && (high - low + 1) >= 8192)
         {
              #pragma omp task default(none) \
                     firstprivate(low, pivotIndex, depth, max_depth) \
-                    shared(vec, S, S_prefix_sum, temp)
-            quickSort(vec, S, S_prefix_sum,temp, low, pivotIndex - 1, depth+1, max_depth);
+                    shared(vec, S, temp)
+            quickSort(vec, S, temp, low, pivotIndex - 1, depth+1, max_depth);
              #pragma omp task default(none) \
                     firstprivate(high, pivotIndex, depth, max_depth) \
-                    shared(vec, S, S_prefix_sum, temp)
-            quickSort(vec, S, S_prefix_sum, temp, pivotIndex + 1, high, depth+1, max_depth);
+                    shared(vec, S, temp)
+            quickSort(vec, S, temp, pivotIndex + 1, high, depth+1, max_depth);
             #pragma omp taskwait
         }
         else
         {
-            quickSort(vec, S, S_prefix_sum, temp, low, pivotIndex - 1, depth+1, max_depth);
-            quickSort(vec, S, S_prefix_sum, temp, pivotIndex + 1, high, depth+1, max_depth);  
+            quickSort(vec, S, temp, low, pivotIndex - 1, depth+1, max_depth);
+            quickSort(vec, S, temp, pivotIndex + 1, high, depth+1, max_depth);  
         }
     }
 }
@@ -187,7 +204,6 @@ int main(int argc, char** argv) {
     std::vector<int> vec_clone = vec;
 
     std::vector<int> S(size);
-    std::vector<int> S_prefix_sum(size);
     std::vector<int> temp(size);
 
     omp_set_num_threads(thread_num);
@@ -198,7 +214,7 @@ int main(int argc, char** argv) {
     {
         #pragma omp single
         {
-            quickSort(vec, S, S_prefix_sum, temp, 0, size - 1, 0, max_depth);
+            quickSort(vec, S, temp, 0, size - 1, 0, max_depth);
         }
     }
 
