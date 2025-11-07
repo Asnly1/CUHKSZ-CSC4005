@@ -27,20 +27,21 @@ int partition_sequential(std::vector<int> &vec, int low, int high) {
 }
 
 int prefix_sum_parallel(std::vector<int> &vec, std::vector<int> &result, int low, int high) {
-    #pragma omp parallel 
-    {
-        int total_sum = 0;
+    int total_sum = 0;
 
-        #pragma omp for reduction(inscan, +:total_sum)
+    #pragma omp parallel
+    {
+        #pragma omp for reduction(inscan, +: total_sum)
         for (int i = low; i < high; i++)
         {
-            result[i] = total_sum;
+            int v = vec[i];
             #pragma omp scan exclusive(total_sum)
-            total_sum += vec[i];
+            result[i] = total_sum;
+            total_sum += v;
         }
     }
 
-    return result[high - 1] + vec[high - 1];
+    return total_sum;
 }
 
 int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &L, 
@@ -104,6 +105,7 @@ void quickSort(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &L,
             quickSort(vec, S, L, S_prefix_sum, L_prefix_sum, temp, low, pivotIndex - 1, depth+1, max_depth);
             #pragma omp task
             quickSort(vec, S, L, S_prefix_sum, L_prefix_sum, temp, pivotIndex + 1, high, depth+1, max_depth);
+            #pragma omp taskwait
         }
         else
         {

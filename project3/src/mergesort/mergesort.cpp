@@ -142,14 +142,14 @@ void sequentialMergeHelper(const std::vector<int>& buffer, int l_start, int l_en
 }
                            
 void parMerge(std::vector<int>& vec, std::vector<int>& buffer, int l, int m, int r, int depth, int max_depth) {
-    if ((r - l + 1) < (1<<15) || depth > max_depth)
+    if ((r - l + 1) < (1<<15) || depth > max_depth || omp_get_num_threads() < 2)
     {
         sequentialMerge(vec, buffer, l, m, r);
     }
     else
     {
-        for (int i = l; i <= r; i++) {
-            buffer[i] = vec[i];
+        for (int iter = l; iter <= r; i++) {
+            buffer[iter] = vec[iter];
         }
 
         int n1 = m - l + 1;
@@ -160,10 +160,10 @@ void parMerge(std::vector<int>& vec, std::vector<int>& buffer, int l, int m, int
         int i = split.first;
         int j = split.second;
 
-        #pragma omp task shared(buffer, vec)
+        #pragma omp task shared(buffer, vec) firstprivate(l,m,r,i,j,k)
         sequentialMergeHelper(buffer, l, l + i - 1, m + 1, m + 1 + j - 1, vec, l);
         
-        #pragma omp task shared(buffer, vec)
+        #pragma omp task shared(buffer, vec) firstprivate(l,m,r,i,j,k)
         sequentialMergeHelper(buffer, l + i, m, m + 1 + j, r, vec, l + k);
 
         #pragma omp taskwait
@@ -184,11 +184,12 @@ void parMergeSort(std::vector<int>& vec, std::vector<int>& aux, const int &l, co
             int m = l + (r - l) / 2;
 
             if (depth < max_depth)
+            #pragma omp taskgroup
             {
-                #pragma omp task
+                #pragma omp task shared(vec, aux) firstprivate(l, m, depth, max_depth)
                 parMergeSort(vec, aux, l, m, depth+1, max_depth);
 
-                #pragma omp task
+                #pragma omp task shared(vec, aux) firstprivate(m, r, depth, max_depth)
                 parMergeSort(vec, aux, m + 1, r, depth+1, max_depth);
 
                 #pragma omp taskwait
