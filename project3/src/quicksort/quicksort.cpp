@@ -146,7 +146,7 @@ void quickSort(std::vector<int> &vec, std::vector<int> &S,
                int low, int high, int depth, int max_depth) {
     if (low < high) {
         int pivotIndex;
-        if (high - low <= 1024 || depth > max_depth || omp_get_max_threads() < 2)
+        if (high - low <= 4096 || depth > max_depth || omp_get_max_threads() < 2)
         {
             pivotIndex = partition_sequential(vec, low, high);
         }

@@ -57,6 +57,8 @@ void radixSort(std::vector<int> &vec) {
                 }
             }
 
+            #pragma acc wait
+            
             #pragma acc parallel loop
             for (int b = 0; b < BASE; b++) {
                 int sum = 0;
@@ -113,9 +115,8 @@ void radixSort(std::vector<int> &vec) {
 
                     int global_start = start_pos[digit];
                     int prior_gang_offset = gang_prefix_sum[gang_id][digit];
-                    int within_gang_offset;
-                    #pragma acc atomic capture
-                    within_gang_offset = local_offsets[gang_id][digit]++;
+                    int within_gang_offset = local_offsets[gang_id][digit];
+                    local_offsets[gang_id][digit]++;
 
                     int pos = global_start + prior_gang_offset + within_gang_offset;
                     output[pos] = vec_raw[i];
