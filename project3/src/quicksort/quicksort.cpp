@@ -96,8 +96,8 @@ int prefix_sum_parallel(std::vector<int> &vec, std::vector<int> &result, int low
         return total;
 }
 
-int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &L, 
-                       std::vector<int> &S_prefix_sum, std::vector<int> &L_prefix_sum, std::vector<int> &temp,
+int partition_parallel(std::vector<int> &vec, std::vector<int> &S,
+                       std::vector<int> &S_prefix_sum, std::vector<int> &temp,
                        int low, int high) {
     int mid = low + (high - low) / 2;
     if ((vec[low] <= vec[mid] && vec[mid] <= vec[high]) || (vec[high] <= vec[mid] && vec[mid] <= vec[low])) 
@@ -110,16 +110,13 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
     }
     int pivot = vec[high];
     int num_small;
-    int no_use;
     
     for (int i = low; i < high; i++)
     {
         S[i] = (vec[i] <= pivot) ? 1 : 0;
-        L[i] = 1 - S[i];
     }
 
     num_small = prefix_sum_parallel(S, S_prefix_sum, low, high);
-    no_use = prefix_sum_parallel(L, L_prefix_sum, low, high);
 
     for (int i = low; i < high; i++)
     {
@@ -130,7 +127,7 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
         }
         else
         {
-            temp[low+num_small+L_prefix_sum[i]] = x;
+            temp[low+num_small+(i - low - S_prefix_sum[i])] = x; // Total number - S_prefix_sum = L_prefix_sum
         }
     }
 
@@ -144,8 +141,8 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
     return low + num_small;
 }
 
-void quickSort(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &L,
-               std::vector<int> &S_prefix_sum, std::vector<int> &L_prefix_sum, std::vector<int> &temp,
+void quickSort(std::vector<int> &vec, std::vector<int> &S,
+               std::vector<int> &S_prefix_sum, std::vector<int> &temp,
                int low, int high, int depth, int max_depth) {
     if (low < high) {
         int pivotIndex;
@@ -155,24 +152,24 @@ void quickSort(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &L,
         }
         else
         {
-            pivotIndex = partition_parallel(vec, S, L, S_prefix_sum, L_prefix_sum, temp, low, high);
+            pivotIndex = partition_parallel(vec, S, S_prefix_sum, temp, low, high);
         }
         if (depth < max_depth)
         {
              #pragma omp task default(none) \
                     firstprivate(low, pivotIndex, depth, max_depth) \
-                    shared(vec, S, L, S_prefix_sum, L_prefix_sum, temp)
-            quickSort(vec, S, L, S_prefix_sum, L_prefix_sum, temp, low, pivotIndex - 1, depth+1, max_depth);
+                    shared(vec, S, S_prefix_sum, temp)
+            quickSort(vec, S, S_prefix_sum,temp, low, pivotIndex - 1, depth+1, max_depth);
              #pragma omp task default(none) \
                     firstprivate(high, pivotIndex, depth, max_depth) \
-                    shared(vec, S, L, S_prefix_sum, L_prefix_sum, temp)
-            quickSort(vec, S, L, S_prefix_sum, L_prefix_sum, temp, pivotIndex + 1, high, depth+1, max_depth);
+                    shared(vec, S, S_prefix_sum, temp)
+            quickSort(vec, S, S_prefix_sum, temp, pivotIndex + 1, high, depth+1, max_depth);
             #pragma omp taskwait
         }
         else
         {
-            quickSort(vec, S, L, S_prefix_sum, L_prefix_sum, temp, low, pivotIndex - 1, depth+1, max_depth);
-            quickSort(vec, S, L, S_prefix_sum, L_prefix_sum, temp, pivotIndex + 1, high, depth+1, max_depth);  
+            quickSort(vec, S, S_prefix_sum, temp, low, pivotIndex - 1, depth+1, max_depth);
+            quickSort(vec, S, S_prefix_sum, temp, pivotIndex + 1, high, depth+1, max_depth);  
         }
     }
 }
@@ -190,9 +187,7 @@ int main(int argc, char** argv) {
     std::vector<int> vec_clone = vec;
 
     std::vector<int> S(size);
-    std::vector<int> L(size);
     std::vector<int> S_prefix_sum(size);
-    std::vector<int> L_prefix_sum(size);
     std::vector<int> temp(size);
 
     omp_set_num_threads(thread_num);
@@ -203,7 +198,7 @@ int main(int argc, char** argv) {
     {
         #pragma omp single
         {
-            quickSort(vec, S, L, S_prefix_sum, L_prefix_sum, temp, 0, size - 1, 0, max_depth);
+            quickSort(vec, S, S_prefix_sum, temp, 0, size - 1, 0, max_depth);
         }
     }
 
