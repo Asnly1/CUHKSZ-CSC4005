@@ -38,7 +38,7 @@ int partition_sequential(std::vector<int> &vec, int low, int high) {
     return i + 1;
 }
 
-std::pair<int, std::vector<int>> prefix_sum_parallel(std::vector<int> &vec, int low, int high) {
+std::pair<int, std::vector<int>> prefix_sum_parallel(std::vector<uint8_t> &vec, int low, int high) {
     std::vector<int> block_sums;
     std::vector<int> block_offsets;
     int num_threads;
@@ -93,7 +93,7 @@ std::pair<int, std::vector<int>> prefix_sum_parallel(std::vector<int> &vec, int 
     return {total, block_offsets};
 }
 
-int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &temp,
+int partition_parallel(std::vector<int> &vec, std::vector<uint8_t> &S, std::vector<int> &temp,
                        int low, int high) {
     int mid = low + (high - low) / 2;
     // vec[mid] is median
@@ -170,7 +170,7 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
     return low + num_small;
 }
 
-void quickSort(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &temp,
+void quickSort(std::vector<int> &vec, std::vector<uint8_t> &S, std::vector<int> &temp,
                int low, int high, int depth, int max_depth) {
     if (low < high) {
         int pivotIndex;
@@ -214,7 +214,7 @@ int main(int argc, char** argv) {
     std::vector<int> vec = createUniformVec(size); // use default seed
     std::vector<int> vec_clone = vec;
 
-    std::vector<int> S(size);
+    std::vector<uint8_t> S(size);
     std::vector<int> temp(size);
 
     omp_set_num_threads(thread_num);
