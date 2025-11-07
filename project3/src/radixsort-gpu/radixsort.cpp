@@ -37,6 +37,7 @@ void radixSort(std::vector<int> &vec) {
                 for (int b = 0; b < BASE; b++) 
                 {
                     local_counts[g][b] = 0;
+                    local_offsets[g][b] = 0;
                 }
             }
 
@@ -61,13 +62,15 @@ void radixSort(std::vector<int> &vec) {
             
             #pragma acc parallel loop
             for (int b = 0; b < BASE; b++) {
-                int sum = 0;
-                for (int g = 0; g < NUM_GANGS; g++) 
-                {
-                    sum += local_counts[g][b];
+                count[b] = 0;
+            }
+
+            #pragma acc parallel loop reduction(+:count[0:BASE])
+            for (int g = 0; g < NUM_GANGS; g++) {
+                #pragma acc loop vector
+                for (int b = 0; b < BASE; b++) {
+                    count[b] += local_counts[g][b];
                 }
-                
-                count[b] = sum;
             }
             
             #pragma acc wait
@@ -84,6 +87,7 @@ void radixSort(std::vector<int> &vec) {
             #pragma acc parallel loop
             for (int b = 0; b < BASE; b++) 
             {
+                #pragma acc loop seq
                 gang_prefix_sum[0][b] = 0;
                 for (int g = 1; g < NUM_GANGS; g++) 
                 {
@@ -92,15 +96,6 @@ void radixSort(std::vector<int> &vec) {
             }
             
             #pragma acc wait
-            
-            #pragma acc parallel loop collapse(2)
-            for (int g = 0; g < NUM_GANGS; g++) 
-            {
-                for (int b = 0; b < BASE; b++) 
-                {
-                    local_offsets[g][b] = 0;
-                }
-            }
 
             #pragma acc parallel num_gangs(NUM_GANGS)
             {
@@ -109,14 +104,19 @@ void radixSort(std::vector<int> &vec) {
                 int start = gang_id * chunk_size;
                 int end = (start + chunk_size > n) ? n : (start + chunk_size);
 
-                #pragma acc loop seq
+                #pragma acc loop worker vector
                 for (int i = start; i < end; i++) {
                     int digit = (vec_raw[i] >> shift) & (BASE - 1);
 
                     int global_start = start_pos[digit];
                     int prior_gang_offset = gang_prefix_sum[gang_id][digit];
-                    int within_gang_offset = local_offsets[gang_id][digit];
-                    local_offsets[gang_id][digit]++;
+
+                    int within_gang_offset;
+                    #pragma acc atomic capture
+                    {
+                        within_gang_offset = local_offsets[gang_id][digit];
+                        local_offsets[gang_id][digit]++;
+                    }
 
                     int pos = global_start + prior_gang_offset + within_gang_offset;
                     output[pos] = vec_raw[i];

@@ -11,6 +11,7 @@
 #include <omp.h> 
 #include "../utils.hpp"
 #include <cmath>
+#include <cstring>
 
 int partition_sequential(std::vector<int> &vec, int low, int high) {
     int mid = low + (high - low) / 2;
@@ -37,15 +38,14 @@ int partition_sequential(std::vector<int> &vec, int low, int high) {
 }
 
 std::pair<int, std::vector<int>> prefix_sum_parallel(std::vector<int> &vec, int low, int high) {
-    int n = high - low;
-    if (n <= 0) 
-    {
-        return 0;
-    }
-
     std::vector<int> block_sums;
     std::vector<int> block_offsets;
     int num_threads;
+    int n = high - low;
+    if (n <= 0) 
+    {
+        return {0, block_offsets};
+    }
 
     #pragma omp parallel
     {
@@ -111,7 +111,7 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
     int num_small;
     std::vector<int>block_offsets;
     
-    #pragma omp parallel for schedule(static) simd
+    #pragma omp parallel for schedule(static)
     for (int i = low; i < high; i++)
     {
         S[i] = (vec[i] <= pivot) ? 1 : 0;
@@ -131,7 +131,9 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
         int offset = tid < rem ? (chunk_size + 1) * tid : rem + chunk_size * tid;
         int begin = low + offset;
         int end = begin + length;
-        int block_offset = block_offsets[tid];
+        int small_block_offset = block_offsets[tid];
+        int prior_elements = begin - low;
+        int big_block_offset = prior_elements - small_block_offset;
 
         int local_prefix = 0;
         int local_large_prefix = 0;
@@ -141,12 +143,12 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
             int x = vec[i];
             if (x <= pivot)
             {
-                temp[low + block_offset + local_prefix] = x;
+                temp[low + small_block_offset + local_prefix] = x;
                 local_prefix++;
             }
             else
             {
-                temp[low + num_small + (block_offset - local_prefix) + local_large_prefix] = x;
+                temp[low + num_small + big_block_offset + local_large_prefix] = x;
                 local_large_prefix++;
             }
         }
