@@ -12,6 +12,7 @@
 #include "../utils.hpp"
 #include <cmath>
 #include <cstring>
+#include <cstdint>
 
 int partition_sequential(std::vector<int> &vec, int low, int high) {
     int mid = low + (high - low) / 2;
@@ -47,50 +48,49 @@ std::pair<int, std::vector<int>> prefix_sum_parallel(std::vector<int> &vec, int 
         return {0, block_offsets};
     }
 
-    #pragma omp parallel
+    num_threads = omp_get_max_threads();
+    block_sums.assign(num_threads, 0);
+    block_offsets.assign(num_threads, 0);
+
+    int chunk_size = n / num_threads;
+    int rem = n % num_threads;
+    for (int tid = 0; tid < num_threads; tid++)
     {
-        int tid = omp_get_thread_num();
-
-        #pragma omp single
+        #pragma omp task default(none) \
+                firstprivate(tid, low, chunk_size, rem, n) \
+                shared(vec, block_sums)
         {
-            num_threads = omp_get_num_threads();
-            block_sums.assign(num_threads, 0);
-            block_offsets.assign(num_threads, 0);
-        }
+            int length = tid < rem ? (chunk_size + 1) : chunk_size;
+            int offset = tid < rem ? (chunk_size + 1) * tid : rem + chunk_size * tid;
+            int begin = low + offset;
+            int end = begin + length;
 
-        int chunk_size = n / num_threads;
-        int rem = n % num_threads;
-        int length = tid < rem ? (chunk_size + 1) : chunk_size;
-        int offset = tid < rem ? (chunk_size + 1) * tid : rem + chunk_size * tid;
-        int begin = low + offset;
-        int end = begin + length;
-
-        int local_sum = 0;
-        #pragma omp simd reduction(+:local_sum)
-        for (int i = begin; i < end; ++i) 
-        {
-            local_sum += vec[i];
-        }
-        block_sums[tid] = local_sum;
-
-        #pragma omp barrier
-        #pragma omp single
-        {
-            int acc = 0;
-            for (int t = 0; t < num_threads; ++t) 
+            int local_sum = 0;
+            #pragma omp simd reduction(+:local_sum)
+            for (int i = begin; i < end; ++i) 
             {
-                block_offsets[t] = acc;
-                acc += block_sums[t];
+                local_sum += vec[i];
             }
+            block_sums[tid] = local_sum;
         }
     }
 
-        int total = 0;
-        for (int v : block_sums) 
+    #pragma omp taskwait
+    {
+        int acc = 0;
+        for (int t = 0; t < num_threads; ++t) 
         {
-            total += v;
+            block_offsets[t] = acc;
+            acc += block_sums[t];
         }
-        return {total, block_offsets};
+    }
+
+    int total = 0;
+    for (int v : block_sums) 
+    {
+        total += v;
+    }
+    return {total, block_offsets};
 }
 
 int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &temp,
@@ -111,7 +111,9 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
     int num_small;
     std::vector<int>block_offsets;
     
-    #pragma omp parallel for schedule(static)
+    #pragma omp taskloop default(none) \
+            firstprivate(low, high, pivot) \
+            shared(vec, S)
     for (int i = low; i < high; i++)
     {
         S[i] = (vec[i] <= pivot) ? 1 : 0;
@@ -121,38 +123,45 @@ int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<i
     num_small = prefix_result.first;
     block_offsets = prefix_result.second;
 
-    #pragma omp parallel
+    int num_threads = omp_get_max_threads();
+    int chunk_size = n / num_threads;
+    int rem = n % num_threads;
+
+    for (int tid = 0; tid < num_threads; ++tid)
     {
-        int tid = omp_get_thread_num();
-        int num_threads = omp_get_num_threads();
-        int chunk_size = n / num_threads;
-        int rem = n % num_threads;
-        int length = tid < rem ? (chunk_size + 1) : chunk_size;
-        int offset = tid < rem ? (chunk_size + 1) * tid : rem + chunk_size * tid;
-        int begin = low + offset;
-        int end = begin + length;
-        int small_block_offset = block_offsets[tid];
-        int prior_elements = begin - low;
-        int big_block_offset = prior_elements - small_block_offset;
-
-        int local_prefix = 0;
-        int local_large_prefix = 0;
-
-        for (int i = begin; i < end; i++)
+        #pragma omp task default(none) \
+                firstprivate(tid, low, high, n, num_threads, chunk_size, rem, num_small, pivot) \
+                shared(vec, temp, block_offsets)
         {
-            int x = vec[i];
-            if (x <= pivot)
+            int length = tid < rem ? (chunk_size + 1) : chunk_size;
+            int offset = tid < rem ? (chunk_size + 1) * tid : rem + chunk_size * tid;
+            int begin = low + offset;
+            int end = begin + length;
+            int small_block_offset = block_offsets[tid];
+            int prior_elements = begin - low;
+            int big_block_offset = prior_elements - small_block_offset;
+
+            int local_prefix = 0;
+            int local_large_prefix = 0;
+
+            for (int i = begin; i < end; i++)
             {
-                temp[low + small_block_offset + local_prefix] = x;
-                local_prefix++;
-            }
-            else
-            {
-                temp[low + num_small + big_block_offset + local_large_prefix] = x;
-                local_large_prefix++;
+                int x = vec[i];
+                if (x <= pivot)
+                {
+                    temp[low + small_block_offset + local_prefix] = x;
+                    local_prefix++;
+                }
+                else
+                {
+                    temp[low + num_small + big_block_offset + local_large_prefix] = x;
+                    local_large_prefix++;
+                }
             }
         }
     }
+
+    #pragma omp taskwait
 
     std::memcpy(&vec[low], &temp[low], sizeof(int) * (high - low));
 
