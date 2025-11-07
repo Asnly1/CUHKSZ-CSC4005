@@ -1,14 +1,14 @@
 Parallel Quick Sort with Parallel Partitioning on CPU (Optimized with -O2)
 Number of cores: 4
 Quick Sort Complete!
-Execution Time: 6929 milliseconds
+Execution Time: 6873 milliseconds
 Number of cores: 8
 Quick Sort Complete!
-Execution Time: 3939 milliseconds
+Execution Time: 3963 milliseconds
 Number of cores: 16
 Quick Sort Complete!
-Execution Time: 2715 milliseconds
+Execution Time: 2689 milliseconds
 Number of cores: 32
 Quick Sort Complete!
-Execution Time: 4229 milliseconds
+Execution Time: 2019 milliseconds
 

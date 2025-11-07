@@ -174,7 +174,7 @@ void quickSort(std::vector<int> &vec, std::vector<uint8_t> &S, std::vector<int> 
                int low, int high, int depth, int max_depth) {
     if (low < high) {
         int pivotIndex;
-        if (high - low > 4096)
+        if (high - low > 65536)
         {
             pivotIndex = partition_parallel(vec, S, temp, low, high);
         }
@@ -237,7 +237,7 @@ int main(int argc, char** argv) {
     std::cout << "Execution Time: " << elapsed_time.count() << " milliseconds"
               << std::endl;
 
-    // checkSortResult(vec_clone, vec);
+    checkSortResult(vec_clone, vec);
 
     return 0;
 }
