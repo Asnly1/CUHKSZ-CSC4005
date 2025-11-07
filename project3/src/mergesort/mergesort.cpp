@@ -11,6 +11,7 @@
 #include <utility>
 #include <climits>
 #include <omp.h> 
+#include <cmath>
 
 std::pair<int, int> findSplit(std::vector<int>&L, std::vector<int>&R, int k)
 {
@@ -148,7 +149,7 @@ void sequentialMergeHelper(const std::vector<int>& L, int l_start, int l_end,
 }
                            
 void parMerge(std::vector<int>& vec, int l, int m, int r, int depth, int max_depth) {
-    if ((r - l + 1) < 10000 || depth > max_depth)
+    if ((r - l + 1) < (1<<15) || depth > max_depth)
     {
         sequentialMerge(vec, l, m, r);
     }
@@ -172,10 +173,10 @@ void parMerge(std::vector<int>& vec, int l, int m, int r, int depth, int max_dep
         int i = split.first;
         int j = split.second;
 
-        #pragma omp task
+        #pragma omp task shared(L, R, vec)
         sequentialMergeHelper(L, 0, i-1, R, 0, j-1, vec, l);
         
-        #pragma omp task
+        #pragma omp task shared(L, R, vec)
         sequentialMergeHelper(L, i, n1-1, R, j, n2-1, vec, l+k);
 
         #pragma omp taskwait
@@ -186,7 +187,7 @@ void parMergeSort(std::vector<int>& vec, const int &l, const int &r, int depth, 
     if (l < r)
     {
         int vec_length = r - l + 1;
-        if (vec_length <= 10000)
+        if (vec_length <= (1<<15))
         {
             insertionSort(vec, l ,r);
             return;
@@ -195,7 +196,7 @@ void parMergeSort(std::vector<int>& vec, const int &l, const int &r, int depth, 
         {
             int m = l + (r - l) / 2;
 
-            if (depth <= max_depth)
+            if (depth < max_depth)
             {
                 #pragma omp task
                 parMergeSort(vec, l, m, depth+1, max_depth);
@@ -211,7 +212,7 @@ void parMergeSort(std::vector<int>& vec, const int &l, const int &r, int depth, 
                 parMergeSort(vec, l, m, depth+1, max_depth);
                 parMergeSort(vec, m + 1, r, depth+1, max_depth);
 
-                parMerge(vec, l, m, r, depth+1, max_depth);
+                sequentialMerge(vec, l, m, r);
             }
         }
     }

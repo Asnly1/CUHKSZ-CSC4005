@@ -39,7 +39,7 @@ echo ""
 
 # Task 3: Parallel Radix Sort on GPU
 echo "Parallel Radix Sort on GPU (Optimized with -O2)"
-srun -n 1 --cpus-per-task $num_cores --gres=gpu:1 ../build/src/radixsort-gpu/radixsort $DATA_SIZE
+srun -n 1 --gres=gpu:1 ../build/src/radixsort-gpu/radixsort $DATA_SIZE
 echo ""
 
 # Task 4: Parallel Searching for Data Array on CPU
@@ -51,4 +51,4 @@ do
 done
 
 echo "Parallel Searching for Data Array on GPU (Optimized with -O2)"
-srun -n 1 --cpus-per-task $num_cores --gres=gpu:1 ../build/src/searching-gpu/searching_array_gpu $SEARCH_SIZE
+srun -n 1 --gres=gpu:1 ../build/src/searching-gpu/searching_array_gpu $SEARCH_SIZE
