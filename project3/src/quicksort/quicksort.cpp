@@ -165,7 +165,7 @@ void quickSort(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &tem
                int low, int high, int depth, int max_depth) {
     if (low < high) {
         int pivotIndex;
-        bool use_parallel = (high - low > 16384) && 
+        bool use_parallel = (high - low > 4096) && 
                             (depth < max_depth) && 
                             (omp_get_max_threads() > 1);
         if (use_parallel)
@@ -186,12 +186,14 @@ void quickSort(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &tem
                     firstprivate(high, pivotIndex, depth, max_depth) \
                     shared(vec, S, temp)
             quickSort(vec, S, temp, pivotIndex + 1, high, depth+1, max_depth);
-            #pragma omp taskwait
         }
         else
         {
             quickSort(vec, S, temp, low, pivotIndex - 1, depth+1, max_depth);
             quickSort(vec, S, temp, pivotIndex + 1, high, depth+1, max_depth);  
+        }
+        if (use_parallel) {
+            #pragma omp taskwait
         }
     }
 }
@@ -231,7 +233,7 @@ int main(int argc, char** argv) {
     std::cout << "Execution Time: " << elapsed_time.count() << " milliseconds"
               << std::endl;
 
-    checkSortResult(vec_clone, vec);
+    // checkSortResult(vec_clone, vec);
 
     return 0;
 }

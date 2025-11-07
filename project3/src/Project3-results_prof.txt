@@ -15,7 +15,7 @@ Couldn't record kernel reference relocation symbol
 Symbol resolution may be skewed if relocation was used (e.g. kexec).
 Check /proc/kallsyms permission or run as root.
 Quick Sort Complete!
-Execution Time: 3711 milliseconds
-[ perf record: Woken up 16 times to write data ]
-[ perf record: Captured and wrote 5.557 MB perf.data.16 (76843 samples) ]
+Execution Time: 3679 milliseconds
+[ perf record: Woken up 15 times to write data ]
+[ perf record: Captured and wrote 5.369 MB perf.data.16 (73576 samples) ]
 
