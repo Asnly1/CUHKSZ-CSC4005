@@ -13,16 +13,23 @@
 #include <omp.h> 
 #include <cmath>
 
-std::pair<int, int> findSplit(std::vector<int>& buffer, int l_start, int l_end, int r_start, int r_end, int k)
+std::pair<int, int> findSplit(std::vector<int>& vec, int l_start, int l_end, int r_start, int r_end, int k)
 {
     int n1 = l_end - l_start + 1;
     int n2 = r_end - r_start + 1;
 
-    if (n1 == 0) return {0, k};
-    if (n2 == 0) return {k, 0};
+    if (n1 == 0) 
+    {
+        return {0, k};
+    }
+    if (n2 == 0) 
+    {
+        return {k, 0};
+    }
 
-    if (n1 > n2) {
-        auto split = findSplit(buffer, r_start, r_end, l_start, l_end, k);
+    if (n1 > n2) 
+    {
+        auto split = findSplit(vec, r_start, r_end, l_start, l_end, k);
         return {split.second, split.first};
     }
 
@@ -34,10 +41,10 @@ std::pair<int, int> findSplit(std::vector<int>& buffer, int l_start, int l_end, 
         int i = (low + high) / 2;
         int j = k - i;
 
-        int L_left = (i == 0) ? INT_MIN : buffer[l_start + i - 1];
-        int L_right = (i == n1) ? INT_MAX : buffer[l_start + i];
-        int R_left = (j == 0) ? INT_MIN : buffer[r_start + j - 1];
-        int R_right = (j == n2) ? INT_MAX : buffer[r_start + j];
+        int L_left = (i == 0) ? INT_MIN : vec[l_start + i - 1];
+        int L_right = (i == n1) ? INT_MAX : vec[l_start + i];
+        int R_left = (j == 0) ? INT_MIN : vec[r_start + j - 1];
+        int R_right = (j == n2) ? INT_MAX : vec[r_start + j];
 
         if (L_left <= R_right && R_left <= L_right)
         {
@@ -69,47 +76,13 @@ void insertionSort(std::vector<int>& vec, int low, int high) {
 // Merge two subarrays of vector vec[]
 // First subarray is vec[l..m]
 // Second subarray is vec[m+1..r]
-void sequentialMerge(std::vector<int>& vec, std::vector<int>& buffer, int l, int m, int r) {
-    for (int i = l; i <= r; i++) {
-        buffer[i] = vec[i];
-    }
-
-    int i = l;
-    int j = m + 1;
-    int k = l;
-
-    while (i <= m && j <= r) 
-    {
-        if (buffer[i] <= buffer[j]) 
-        {
-            vec[k] = buffer[i];
-            i++;
-        }
-        else 
-        {
-            vec[k] = buffer[j];
-            j++;
-        }
-        k++;
-    }
-
-    // Copy the remaining elements of L[], if there are any
-    while (i <= m) {
-        vec[k] = buffer[i];
-        i++;
-        k++;
-    }
-
-    // Copy the remaining elements of R[], if there are any
-    while (j <= r) {
-        vec[k] = buffer[j];
-        j++;
-        k++;
-    }
+void sequentialMerge(std::vector<int>& dest, std::vector<int>& src, int l, int m, int r) 
+{
+    sequentialMergeHelper(src, l, m, m + 1, r, dest, l);
 }
 
-void sequentialMergeHelper(const std::vector<int>& buffer, int l_start, int l_end,
-                           int r_start, int r_end, std::vector<int>& vec, int des_start)
+void sequentialMergeHelper(const std::vector<int>& src, int l_start, int l_end,
+                           int r_start, int r_end, std::vector<int>& dest, int des_start)
 {
     int i = l_start;
     int j = r_start;
@@ -117,14 +90,14 @@ void sequentialMergeHelper(const std::vector<int>& buffer, int l_start, int l_en
 
     while (i <= l_end && j <= r_end) 
     {
-        if (buffer[i] <= buffer[j]) 
+        if (src[i] <= src[j]) 
         {
-            vec[k] = buffer[i];
+            dest[k] = src[i];
             i++;
         } 
         else 
         {
-            vec[k] = buffer[j];
+            dest[k] = src[j];
             j++;
         }
         k++;
@@ -132,77 +105,92 @@ void sequentialMergeHelper(const std::vector<int>& buffer, int l_start, int l_en
 
     while (i <= l_end) 
     { 
-        vec[k++] = buffer[i++];
+        dest[k] = src[i];
+        i++;
+        k++;
     }
 
     while (j <= r_end) 
     { 
-        vec[k++] = buffer[j++];
+        dest[k] = src[j];
+        j++;
+        k++;
     }
 }
                            
-void parMerge(std::vector<int>& vec, std::vector<int>& buffer, int l, int m, int r, int depth, int max_depth) {
-    if ((r - l + 1) < (1<<15) || depth > max_depth || omp_get_num_threads() < 2)
+void parMerge(std::vector<int>& dest, int dest_start, const std::vector<int>& src,
+              int l_start, int l_end, 
+              int r_start, int r_end,
+              int depth, int max_depth)
+{
+    int n1 = l_end - l_start + 1;
+    int n2 = r_end - r_start + 1;
+    int total_size = n1 + n2;
+
+    if (total_size < 2048 || depth > max_depth) {
+        sequentialMergeHelper(src, l_start, l_end, r_start, r_end, dest, dest_start);
+        return;
+    }
+
+    int k = total_size / 2;
+
+    auto split = findSplit(src, l_start, l_end, r_start, r_end, k);
+    int i = split.first;
+    int j = split.second;
+
+    #pragma omp task shared(dest, src)
     {
-        sequentialMerge(vec, buffer, l, m, r);
+        parMerge(dest, dest_start, src,
+                 l_start, l_start + i - 1,
+                 r_start, r_start + j - 1,
+                 depth + 1, max_depth);
+    }
+
+    #pragma omp task shared(dest, src)
+    {
+        parMerge(dest, dest_start + k, src,
+                 l_start + i, l_end,
+                 r_start + j, r_end,
+                 depth + 1, max_depth);
+    }
+    #pragma omp taskwait
+}
+
+void parMergeSort(std::vector<int>& dest, std::vector<int>& src, int l, int r, int depth, int max_depth) {
+    if (l == r) {
+        dest[l] = src[l];
+        return;
+    }
+
+    int vec_length = r - l + 1;
+    if (vec_length <= 64)
+    {
+        std::copy(src.begin() + l, src.begin() + r + 1, dest.begin() + l);
+        insertionSort(dest, l, r);
+        return;
+    }
+
+    int m = l + (r - l) / 2;
+
+    if (depth < max_depth) {
+        #pragma omp taskgroup
+        {
+            #pragma omp task shared(src, dest)
+            parMergeSort(src, dest, l, m, depth + 1, max_depth);
+
+            #pragma omp task shared(src, dest)
+            parMergeSort(src, dest, m + 1, r, depth + 1, max_depth);
+
+            #pragma omp taskwait
+        }
+        
+        parMerge(dest, l, src, l, m, m + 1, r, depth + 1, max_depth);
     }
     else
     {
-        for (int iter = l; iter <= r; i++) {
-            buffer[iter] = vec[iter];
-        }
-
-        int n1 = m - l + 1;
-        int n2 = r - m;
-        int k = (n1+n2) / 2;
-
-        auto split = findSplit(buffer, l, m, m + 1, r, k);
-        int i = split.first;
-        int j = split.second;
-
-        #pragma omp task shared(buffer, vec) firstprivate(l,m,r,i,j,k)
-        sequentialMergeHelper(buffer, l, l + i - 1, m + 1, m + 1 + j - 1, vec, l);
-        
-        #pragma omp task shared(buffer, vec) firstprivate(l,m,r,i,j,k)
-        sequentialMergeHelper(buffer, l + i, m, m + 1 + j, r, vec, l + k);
-
-        #pragma omp taskwait
-    }
-}
-
-void parMergeSort(std::vector<int>& vec, std::vector<int>& aux, const int &l, const int &r, int depth, int max_depth) {
-    if (l < r)
-    {
-        int vec_length = r - l + 1;
-        if (vec_length <= (1<<15))
-        {
-            insertionSort(vec, l ,r);
-            return;
-        }
-        else
-        {
-            int m = l + (r - l) / 2;
-
-            if (depth < max_depth)
-            #pragma omp taskgroup
-            {
-                #pragma omp task shared(vec, aux) firstprivate(l, m, depth, max_depth)
-                parMergeSort(vec, aux, l, m, depth+1, max_depth);
-
-                #pragma omp task shared(vec, aux) firstprivate(m, r, depth, max_depth)
-                parMergeSort(vec, aux, m + 1, r, depth+1, max_depth);
-
-                #pragma omp taskwait
-                parMerge(vec, aux, l, m, r, depth + 1, max_depth);
-            }
-            else
-            {
-                parMergeSort(vec, aux, l, m, depth+1, max_depth);
-                parMergeSort(vec, aux, m + 1, r, depth+1, max_depth);
-
-                sequentialMerge(vec, aux, l, m, r);
-            }
-        }
+        parMergeSort(src, dest, l, m, depth + 1, max_depth);
+        parMergeSort(src, dest, m + 1, r, depth + 1, max_depth);
+        sequentialMerge(dest, src, l, m, r);
     }
 }
 
@@ -227,7 +215,7 @@ int main(int argc, char** argv) {
     {
         #pragma omp single
         {
-            parMergeSort(vec, buffer, 0, size-1, 0, max_depth);
+            parMergeSort(buffer, vec, 0, size-1, 0, max_depth);
         }
     }
 
@@ -239,5 +227,5 @@ int main(int argc, char** argv) {
     std::cout << "Execution Time: " << elapsed_time.count() << " milliseconds"
               << std::endl;
 
-    checkSortResult(vec_clone, vec);
+    checkSortResult(vec_clone, buffer);
 }

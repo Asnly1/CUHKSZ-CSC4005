@@ -12,6 +12,15 @@
 #include "../utils.hpp"
 
 int partition_sequential(std::vector<int> &vec, int low, int high) {
+    int mid = low + (high - low) / 2;
+    if ((vec[low] <= vec[mid] && vec[mid] <= vec[high]) || (vec[high] <= vec[mid] && vec[mid] <= vec[low])) 
+    {
+        std::swap(vec[mid], vec[high]);
+    } 
+    else if ((vec[mid] <= vec[low] && vec[low] <= vec[high]) || (vec[high] <= vec[low] && vec[low] <= vec[mid])) 
+    {
+        std::swap(vec[low], vec[high]);
+    }
     int pivot = vec[high];
     int i = low - 1;
 
@@ -27,17 +36,51 @@ int partition_sequential(std::vector<int> &vec, int low, int high) {
 }
 
 int prefix_sum_parallel(std::vector<int> &vec, std::vector<int> &result, int low, int high) {
+    int n = high - low;
+    if (n <= 0) {
+        return 0;
+    }
+
     int total_sum = 0;
+    std::vector<int> block_sums;
+    std::vector<int> block_offsets;
+    int num_threads = 0;
 
     #pragma omp parallel
     {
-        #pragma omp for reduction(inscan, +: total_sum)
-        for (int i = low; i < high; i++)
+        int tid = omp_get_thread_num();
+
+        #pragma omp single
         {
-            int v = vec[i];
-            #pragma omp scan exclusive(total_sum)
-            result[i] = total_sum;
-            total_sum += v;
+            num_threads = omp_get_num_threads();
+            block_sums.resize(num_threads);
+            block_offsets.resize(num_threads);
+        }
+
+        int local_sum = 0;
+        #pragma omp for schedule(static) nowait
+        for (int i = low; i < high; i++) {
+            local_sum += vec[i];
+        }
+        block_sums[tid] = local_sum;
+
+        #pragma omp barrier
+
+        #pragma omp single
+        {
+            int offset = 0;
+            for (int i = 0; i < num_threads; i++) {
+                block_offsets[i] = offset;
+                offset += block_sums[i];
+            }
+            total_sum = offset;
+        }
+
+        int thread_offset = block_offsets[tid];
+        #pragma omp for schedule(static)
+        for (int i = low; i < high; i++) {
+            result[i] = thread_offset;
+            thread_offset += vec[i];
         }
     }
 
@@ -47,6 +90,15 @@ int prefix_sum_parallel(std::vector<int> &vec, std::vector<int> &result, int low
 int partition_parallel(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &L, 
                        std::vector<int> &S_prefix_sum, std::vector<int> &L_prefix_sum, std::vector<int> &temp,
                        int low, int high) {
+    int mid = low + (high - low) / 2;
+    if ((vec[low] <= vec[mid] && vec[mid] <= vec[high]) || (vec[high] <= vec[mid] && vec[mid] <= vec[low])) 
+    {
+        std::swap(vec[mid], vec[high]);
+    } 
+    else if ((vec[mid] <= vec[low] && vec[low] <= vec[high]) || (vec[high] <= vec[low] && vec[low] <= vec[mid])) 
+    {
+        std::swap(vec[low], vec[high]);
+    }
     int pivot = vec[high];
     int num_small;
     int no_use;
@@ -91,7 +143,7 @@ void quickSort(std::vector<int> &vec, std::vector<int> &S, std::vector<int> &L,
                int low, int high, int depth, int max_depth) {
     if (low < high) {
         int pivotIndex;
-        if (high - low <= (1<<20) || depth > max_depth || omp_get_max_threads() < 2)
+        if (high - low <= 1024 || depth > max_depth || omp_get_max_threads() < 2)
         {
             pivotIndex = partition_sequential(vec, low, high);
         }
