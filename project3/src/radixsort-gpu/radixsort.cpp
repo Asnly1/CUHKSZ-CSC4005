@@ -66,9 +66,9 @@ void radixSort(std::vector<int> &vec) {
             }
 
             #pragma acc parallel loop collapse(2)
-            for (int g = 0; g < NUM_GANGS; ++g) 
+            for (int b = 0; b < BASE; b++)
             {
-                for (int b = 0; b < BASE; ++b) 
+                for (int g = 0; g < NUM_GANGS; g++) 
                 {
                     #pragma acc atomic update
                     count[b] += local_counts[g][b];
@@ -105,7 +105,7 @@ void radixSort(std::vector<int> &vec) {
                 int start = gid * chunk_size;
                 int end = (start + chunk_size > n) ? n : (start + chunk_size);
 
-                #pragma acc loop worker vector
+                #pragma acc loop seq
                 for (int i = start; i < end; i++) {
                     int digit = (vec_raw[i] >> shift) & (BASE - 1);
 
