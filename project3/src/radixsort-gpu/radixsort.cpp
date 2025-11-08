@@ -71,8 +71,6 @@ void radixSort(std::vector<int> &vec) {
                 }
                 count[b] = sum;
             }
-            
-            #pragma acc wait
 
             #pragma acc serial
             {
@@ -87,15 +85,12 @@ void radixSort(std::vector<int> &vec) {
             for (int b = 0; b < BASE; b++) 
             {
                 gang_prefix_sum[0][b] = 0;
-                // 用serial
                 #pragma acc loop seq
                 for (int g = 1; g < NUM_GANGS; g++) 
                 {
                     gang_prefix_sum[g][b] = gang_prefix_sum[g-1][b] + local_counts[g-1][b];
                 }
             }
-            
-            #pragma acc wait
 
             #pragma acc parallel loop gang num_gangs(NUM_GANGS)
             for (int gid = 0; gid < NUM_GANGS; gid++)

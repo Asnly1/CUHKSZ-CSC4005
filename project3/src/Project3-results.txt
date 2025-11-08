@@ -1,6 +1,6 @@
 Parallel Radix Sort on GPU (Optimized with -O2)
 Radix Sort Complete!
-Execution Time: 903 milliseconds
-std::sort Time: 10787 milliseconds
+Execution Time: 754 milliseconds
+std::sort Time: 10801 milliseconds
 Pass the sorting result check!
 
