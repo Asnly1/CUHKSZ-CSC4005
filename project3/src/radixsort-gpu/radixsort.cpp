@@ -87,8 +87,8 @@ void radixSort(std::vector<int> &vec) {
             #pragma acc parallel loop
             for (int b = 0; b < BASE; b++) 
             {
-                #pragma acc loop seq
                 gang_prefix_sum[0][b] = 0;
+                #pragma acc loop seq
                 for (int g = 1; g < NUM_GANGS; g++) 
                 {
                     gang_prefix_sum[g][b] = gang_prefix_sum[g-1][b] + local_counts[g-1][b];
