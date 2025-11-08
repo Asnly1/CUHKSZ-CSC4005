@@ -1,0 +1,8 @@
+Parallel Radix Sort on GPU (Optimized with -O2)
+Radix Sort Complete!
+Execution Time: 311 milliseconds
+std::sort Time: 10758 milliseconds
+Fail to pass the sorting result check!
+0th element of the sorted vector is expected to be 1
+But your 0th element is 0
+
