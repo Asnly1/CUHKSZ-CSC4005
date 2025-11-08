@@ -1,6 +1,9 @@
 Parallel Radix Sort on GPU (Optimized with -O2)
-Radix Sort Complete!
-Execution Time: 754 milliseconds
-std::sort Time: 10801 milliseconds
-Pass the sorting result check!
+Failing in Thread:1
+Accelerator Fatal Error: call to cuStreamSynchronize returned error 700: Illegal address during kernel execution
+ File: /nfsmnt/123090765/CUHKSZ-CSC4005/project3/src/radixsort-gpu/radixsort.cpp
+ Function: _Z9radixSortRSt6vectorIiSaIiEE:18
+ Line: 117
+
+srun: error: node05: task 0: Exited with exit code 1
 
