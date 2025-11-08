@@ -29,18 +29,18 @@ SEARCH_SIZE=200000000  # Larger size for searching tasks
 # echo ""
 
 # Task 2: Parallel Quick Sort with Parallel Partitioning on CPU
-echo "Parallel Quick Sort with Parallel Partitioning on CPU (Optimized with -O2)"
-for num_cores in 4 8 16 32
-do
-  echo "Number of cores: $num_cores"
-  srun -n 1 --cpus-per-task $num_cores ../build/src/quicksort/quicksort $num_cores $DATA_SIZE
-done
-echo ""
+# echo "Parallel Quick Sort with Parallel Partitioning on CPU (Optimized with -O2)"
+# for num_cores in 4 8 16 32
+# do
+#   echo "Number of cores: $num_cores"
+#   srun -n 1 --cpus-per-task $num_cores ../build/src/quicksort/quicksort $num_cores $DATA_SIZE
+# done
+# echo ""
 
 # # Task 3: Parallel Radix Sort on GPU
-# echo "Parallel Radix Sort on GPU (Optimized with -O2)"
-# srun -n 1 --gres=gpu:1 ../build/src/radixsort-gpu/radixsort $DATA_SIZE
-# echo ""
+echo "Parallel Radix Sort on GPU (Optimized with -O2)"
+srun -n 1 --gres=gpu:1 ../build/src/radixsort-gpu/radixsort $DATA_SIZE
+echo ""
 
 # # Task 4: Parallel Searching for Data Array on CPU
 # echo "Parallel Searching for Data Array on CPU (Optimized with -O2)"

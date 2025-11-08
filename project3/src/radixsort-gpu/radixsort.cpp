@@ -68,7 +68,7 @@ void radixSort(std::vector<int> &vec) {
             }
 
             #pragma acc parallel loop collapse(2)
-            for (int g = 0; g < num_gangs; ++g) 
+            for (int g = 0; g < NUM_GANGS; ++g) 
             {
                 for (int b = 0; b < BASE; ++b) 
                 {
