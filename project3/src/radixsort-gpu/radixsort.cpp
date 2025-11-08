@@ -61,18 +61,15 @@ void radixSort(std::vector<int> &vec) {
             #pragma acc wait
             
             #pragma acc parallel loop
-            for (int b = 0; b < BASE; b++) {
-                count[b] = 0;
-            }
-
-            #pragma acc parallel loop collapse(2)
-            for (int g = 0; g < NUM_GANGS; ++g) 
+            for (int b = 0; b < BASE; b++) 
             {
-                for (int b = 0; b < BASE; ++b) 
+                int sum = 0;
+                #pragma acc loop seq
+                for (int g = 0; g < NUM_GANGS; g++)
                 {
-                    #pragma acc atomic update
-                    count[b] += local_counts[g][b];
+                    sum += local_counts[g][b];
                 }
+                count[b] = sum;
             }
             
             #pragma acc wait
@@ -90,6 +87,7 @@ void radixSort(std::vector<int> &vec) {
             for (int b = 0; b < BASE; b++) 
             {
                 gang_prefix_sum[0][b] = 0;
+                // 用serial
                 #pragma acc loop seq
                 for (int g = 1; g < NUM_GANGS; g++) 
                 {
@@ -112,8 +110,12 @@ void radixSort(std::vector<int> &vec) {
                     int global_start = start_pos[digit];
                     int prior_gang_offset = gang_prefix_sum[gid][digit];
 
-                    int within_gang_offset = local_offsets[gid][digit];
-                    local_offsets[gid][digit]++;
+                    int within_gang_offset;
+                    #pragma acc atomic capture
+                    {
+                        within_gang_offset = local_offsets[gid][digit];
+                        local_offsets[gid][digit]++;
+                    }
 
                     int pos = global_start + prior_gang_offset + within_gang_offset;
                     output[pos] = vec_raw[i];
