@@ -104,18 +104,18 @@ void radixSort(std::vector<int> &vec) {
                 int start = gid * chunk_size;
                 int end = (start + chunk_size > n) ? n : (start + chunk_size);
 
-                #pragma acc loop worker vector
+                #pragma acc loop seq
                 for (int i = start; i < end; i++) {
                     int digit = (vec_raw[i] >> shift) & (BASE - 1);
 
-                    int pos;
+                    int within_gang_offset;
                     #pragma acc atomic capture
                     {
-                        pos = local_offsets[gid][digit];
-                        local_offsets[gid][digit] = pos + 1;
+                        within_gang_offset = local_offsets[gid][digit];
+                        local_offsets[gid][digit]++;
                     }
 
-                    output[pos] = vec_raw[i];
+                    output[within_gang_offset] = vec_raw[i];
                 }
             }
 
