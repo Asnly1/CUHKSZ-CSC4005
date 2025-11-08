@@ -141,7 +141,7 @@ void radixSort(std::vector<int> &vec) {
                     {
                         int d = (vec_raw[i] >> shift) & (BASE - 1);
                         int pos = tile_base[d];
-                        tile_base[d]++
+                        tile_base[d]++;
                         output[pos] = vec_raw[i];
                     }
                 }

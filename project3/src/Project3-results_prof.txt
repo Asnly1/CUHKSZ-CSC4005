@@ -1,0 +1,305 @@
+std::sort (Optimized with -O2)
+Number of cores: 1
+std::sort Complete!
+Execution Time: 10092 milliseconds
+Number of cores: 4
+std::sort Complete!
+Execution Time: 5012 milliseconds
+Number of cores: 8
+std::sort Complete!
+Execution Time: 2528 milliseconds
+Number of cores: 16
+std::sort Complete!
+Execution Time: 1278 milliseconds
+Number of cores: 32
+std::sort Complete!
+Execution Time: 682 milliseconds
+
+Parallel Merge Sort with Parallel Merging on CPU (Optimized with -O2)
+Number of cores: 1
+Merge Sort Complete!
+Execution Time: 14669 milliseconds
+std::sort Time: 10525 milliseconds
+Pass the sorting result check!
+
+ Performance counter stats for '../build/src/mergesort/mergesort 1 100000000':
+
+    79,040,666,270      cpu-cycles                                                  
+       190,344,375      cache-misses                                                
+           293,109      page-faults                                                 
+
+      27.338437906 seconds time elapsed
+
+      26.735724000 seconds user
+       0.595904000 seconds sys
+
+
+Number of cores: 4
+Merge Sort Complete!
+Execution Time: 8368 milliseconds
+std::sort Time: 10648 milliseconds
+Pass the sorting result check!
+
+ Performance counter stats for '../build/src/mergesort/mergesort 4 100000000':
+
+    86,406,236,526      cpu-cycles                                                  
+       189,651,691      cache-misses                                                
+           999,890      page-faults                                                 
+
+      21.234999456 seconds time elapsed
+
+      28.973960000 seconds user
+       1.035212000 seconds sys
+
+
+Number of cores: 8
+Merge Sort Complete!
+Execution Time: 3695 milliseconds
+std::sort Time: 10662 milliseconds
+Pass the sorting result check!
+
+ Performance counter stats for '../build/src/mergesort/mergesort 8 100000000':
+
+    84,801,854,029      cpu-cycles                                                  
+       197,702,048      cache-misses                                                
+           756,621      page-faults                                                 
+
+      16.556709722 seconds time elapsed
+
+      28.759126000 seconds user
+       0.852804000 seconds sys
+
+
+Number of cores: 16
+Merge Sort Complete!
+Execution Time: 2048 milliseconds
+std::sort Time: 10626 milliseconds
+Pass the sorting result check!
+
+ Performance counter stats for '../build/src/mergesort/mergesort 16 100000000':
+
+    84,041,730,264      cpu-cycles                                                  
+       202,986,778      cache-misses                                                
+           616,080      page-faults                                                 
+
+      14.874453896 seconds time elapsed
+
+      28.971384000 seconds user
+       0.748294000 seconds sys
+
+
+Number of cores: 32
+Merge Sort Complete!
+Execution Time: 1108 milliseconds
+std::sort Time: 10584 milliseconds
+Pass the sorting result check!
+
+ Performance counter stats for '../build/src/mergesort/mergesort 32 100000000':
+
+    89,667,569,455      cpu-cycles                                                  
+       204,934,480      cache-misses                                                
+           559,413      page-faults                                                 
+
+      13.918158009 seconds time elapsed
+
+      31.370434000 seconds user
+       0.748344000 seconds sys
+
+
+
+Parallel Quick Sort with Parallel Partitioning on CPU (Optimized with -O2)
+Number of cores: 1
+Quick Sort Complete!
+Execution Time: 15997 milliseconds
+std::sort Time: 10713 milliseconds
+Pass the sorting result check!
+
+ Performance counter stats for '../build/src/quicksort/quicksort 1 100000000':
+
+    83,431,010,875      cpu-cycles                                                  
+       354,480,548      cache-misses                                                
+           317,525      page-faults                                                 
+
+      28.840948383 seconds time elapsed
+
+      28.277709000 seconds user
+       0.559954000 seconds sys
+
+
+Number of cores: 4
+Quick Sort Complete!
+Execution Time: 7177 milliseconds
+std::sort Time: 10850 milliseconds
+Pass the sorting result check!
+
+ Performance counter stats for '../build/src/quicksort/quicksort 4 100000000':
+
+   113,082,229,065      cpu-cycles                                                  
+       345,360,442      cache-misses                                                
+           841,504      page-faults                                                 
+
+      20.217886990 seconds time elapsed
+
+      38.372603000 seconds user
+       0.880013000 seconds sys
+
+
+Number of cores: 8
+Quick Sort Complete!
+Execution Time: 3815 milliseconds
+std::sort Time: 10840 milliseconds
+Pass the sorting result check!
+
+ Performance counter stats for '../build/src/quicksort/quicksort 8 100000000':
+
+   111,933,338,234      cpu-cycles                                                  
+       357,755,270      cache-misses                                                
+           768,068      page-faults                                                 
+
+      16.863703545 seconds time elapsed
+
+      38.249367000 seconds user
+       0.843412000 seconds sys
+
+
+Number of cores: 16
+Quick Sort Complete!
+Execution Time: 2578 milliseconds
+std::sort Time: 10770 milliseconds
+Pass the sorting result check!
+
+ Performance counter stats for '../build/src/quicksort/quicksort 16 100000000':
+
+   125,743,172,293      cpu-cycles                                                  
+       362,718,870      cache-misses                                                
+           607,551      page-faults                                                 
+
+      15.552295165 seconds time elapsed
+
+      43.632329000 seconds user
+       0.724522000 seconds sys
+
+
+Number of cores: 32
+Quick Sort Complete!
+Execution Time: 2142 milliseconds
+std::sort Time: 11024 milliseconds
+Pass the sorting result check!
+
+ Performance counter stats for '../build/src/quicksort/quicksort 32 100000000':
+
+   181,571,246,138      cpu-cycles                                                  
+       403,485,083      cache-misses                                                
+           524,212      page-faults                                                 
+
+      15.644584509 seconds time elapsed
+
+      63.249236000 seconds user
+       1.269871000 seconds sys
+
+
+
+Parallel Radix Sort on GPU (Optimized with -O2)
+Radix Sort Complete!
+Execution Time: 961 milliseconds
+std::sort Time: 10853 milliseconds
+Pass the sorting result check!
+Generating '/tmp/nsys-report-f4af.qdstrm'
+[1/1] [0%                          ] radixsort.nsys-rep[1/1] [0%                          ] radixsort.nsys-rep[1/1] [==========48%               ] radixsort.nsys-rep[1/1] [===========52%              ] radixsort.nsys-rep[1/1] [===========53%              ] radixsort.nsys-rep[1/1] [============54%             ] radixsort.nsys-rep[1/1] [============55%             ] radixsort.nsys-rep[1/1] [============57%             ] radixsort.nsys-rep[1/1] [=============58%            ] radixsort.nsys-rep[1/1] [================69%         ] radixsort.nsys-rep[1/1] [===================80%      ] radixsort.nsys-rep[1/1] [======================91%   ] radixsort.nsys-rep[1/1] [========================98% ] radixsort.nsys-rep[1/1] [========================99% ] radixsort.nsys-rep[1/1] [========================100%] radixsort.nsys-rep[1/1] [========================100%] radixsort.nsys-rep
+Generated:
+    /nfsmnt/123090765/CUHKSZ-CSC4005/project3/src/./radixsort.nsys-rep
+
+Parallel Searching for Data Array on CPU (Optimized with -O2)
+Number of cores: 1
+Parallel Array Binary Search Complete!
+Execution Time: 582 milliseconds
+Pass the searching result check!
+
+ Performance counter stats for '../build/src/searching-cpu/searching_array_parallel 1 200000000':
+
+    87,565,869,122      cpu-cycles                                                  
+       192,706,396      cache-misses                                                
+           234,516      page-faults                                                 
+
+      30.281530420 seconds time elapsed
+
+      29.892050000 seconds user
+       0.384206000 seconds sys
+
+
+Number of cores: 4
+Parallel Array Binary Search Complete!
+Execution Time: 234 milliseconds
+Pass the searching result check!
+
+ Performance counter stats for '../build/src/searching-cpu/searching_array_parallel 4 200000000':
+
+    88,097,133,393      cpu-cycles                                                  
+       191,836,072      cache-misses                                                
+           248,571      page-faults                                                 
+
+      29.921757784 seconds time elapsed
+
+      30.060686000 seconds user
+       0.440010000 seconds sys
+
+
+Number of cores: 8
+Parallel Array Binary Search Complete!
+Execution Time: 145 milliseconds
+Pass the searching result check!
+
+ Performance counter stats for '../build/src/searching-cpu/searching_array_parallel 8 200000000':
+
+    88,218,910,092      cpu-cycles                                                  
+       191,956,171      cache-misses                                                
+           247,216      page-faults                                                 
+
+      29.856866219 seconds time elapsed
+
+      30.145512000 seconds user
+       0.464208000 seconds sys
+
+
+Number of cores: 16
+Parallel Array Binary Search Complete!
+Execution Time: 101 milliseconds
+Pass the searching result check!
+
+ Performance counter stats for '../build/src/searching-cpu/searching_array_parallel 16 200000000':
+
+    88,353,636,084      cpu-cycles                                                  
+       191,697,837      cache-misses                                                
+           246,293      page-faults                                                 
+
+      29.811544397 seconds time elapsed
+
+      30.397201000 seconds user
+       0.396433000 seconds sys
+
+
+Number of cores: 32
+Parallel Array Binary Search Complete!
+Execution Time: 105 milliseconds
+Pass the searching result check!
+
+ Performance counter stats for '../build/src/searching-cpu/searching_array_parallel 32 200000000':
+
+    89,692,020,676      cpu-cycles                                                  
+       191,552,065      cache-misses                                                
+           234,618      page-faults                                                 
+
+      29.866245384 seconds time elapsed
+
+      31.092171000 seconds user
+       0.400311000 seconds sys
+
+
+Parallel Searching for Data Array on GPU (Optimized with -O2)
+Parallel Array Binary Search Complete!
+Execution Time: 753 milliseconds
+Pass the searching result check!
+Generating '/tmp/nsys-report-8db4.qdstrm'
+[1/1] [0%                          ] search.nsys-rep[1/1] [0%                          ] search.nsys-rep[1/1] [===========50%              ] search.nsys-rep[1/1] [========================100%] search.nsys-rep[1/1] [=====32%                    ] search.nsys-rep[1/1] [==========49%               ] search.nsys-rep[1/1] [============54%             ] search.nsys-rep[1/1] [=============60%            ] search.nsys-rep[1/1] [===============65%          ] search.nsys-rep[1/1] [================70%         ] search.nsys-rep[1/1] [==================75%       ] search.nsys-rep[1/1] [===================81%      ] search.nsys-rep[1/1] [=====================86%    ] search.nsys-rep[1/1] [======================91%   ] search.nsys-rep[1/1] [=======================93%  ] search.nsys-rep[1/1] [=======================94%  ] search.nsys-rep[1/1] [=======================95%  ] search.nsys-rep[1/1] [========================99% ] search.nsys-rep[1/1] [========================100%] search.nsys-rep[1/1] [========================100%] search.nsys-rep
+Generated:
+    /nfsmnt/123090765/CUHKSZ-CSC4005/project3/src/./search.nsys-rep

@@ -1,0 +1,125 @@
+cuhksz_123090765@node01:~/CUHKSZ-CSC4005/project3/src$ nsys stats ./radixsort.nsys-rep 
+Generating SQLite file ./radixsort.sqlite from ./radixsort.nsys-rep
+Exporting 22745 events: [==================================================100%]
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/nvtx_sum.py]... 
+SKIPPED: ./radixsort.sqlite does not contain NV Tools Extension (NVTX) data.
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/osrt_sum.py]... 
+
+ ** OS Runtime Summary (osrt_sum):
+
+ Time (%)  Total Time (ns)  Num Calls    Avg (ns)       Med (ns)      Min (ns)     Max (ns)    StdDev (ns)            Name         
+ --------  ---------------  ---------  -------------  -------------  -----------  -----------  ------------  ----------------------
+     50.0   11,613,082,832        127   91,441,597.1  100,119,039.0        7,095  100,140,837  27,348,768.8  poll                  
+     49.6   11,501,537,121         23  500,066,831.3  500,065,461.0  500,052,597  500,079,093       6,483.0  pthread_cond_timedwait
+      0.3       72,156,907        521      138,496.9       11,211.0          441   28,679,431   1,461,836.8  ioctl                 
+      0.1       17,079,159         25      683,166.4        3,450.0        1,377   16,950,262   3,388,980.9  fopen                 
+      0.0        1,797,748         31       57,991.9        8,458.0        5,488    1,133,578     201,155.2  mmap64                
+      0.0        1,144,687         10      114,468.7       46,829.5       22,119      773,928     232,099.6  sem_timedwait         
+      0.0          784,792         49       16,016.2       15,165.0        5,367       28,621       5,104.4  open64                
+      0.0          343,505          3      114,501.7      129,232.0       82,101      132,172      28,098.3  pthread_create        
+      0.0          301,172          1      301,172.0      301,172.0      301,172      301,172           0.0  pthread_mutex_lock    
+      0.0          159,245         18        8,846.9        4,354.5        1,728       53,093      12,320.2  mmap                  
+      0.0           47,364         49          966.6           47.0           46       44,996       6,421.0  fgets                 
+      0.0           39,020         18        2,167.8        1,521.5          746       11,178       2,299.2  fclose                
+      0.0           38,680          8        4,835.0        4,049.5        1,759       13,353       3,660.9  munmap                
+      0.0           30,175          6        5,029.2        5,638.0        1,727        8,408       2,457.9  open                  
+      0.0           24,638         14        1,759.9        1,255.5          921        3,764       1,030.3  read                  
+      0.0           24,433         56          436.3          360.5          219        1,081         197.7  fcntl                 
+      0.0           23,292         11        2,117.5        2,309.0          907        3,134         733.8  write                 
+      0.0           20,393         14        1,456.6           38.5           36        8,828       2,818.8  fflush                
+      0.0           19,278          8        2,409.8          200.5           55        9,267       3,947.9  fwrite                
+      0.0           16,898          2        8,449.0        8,449.0        4,561       12,337       5,498.5  socket                
+      0.0           12,150          1       12,150.0       12,150.0       12,150       12,150           0.0  connect               
+      0.0            8,924          1        8,924.0        8,924.0        8,924        8,924           0.0  pipe2                 
+      0.0            2,200          8          275.0          273.0          220          329          38.9  dup                   
+      0.0            1,804          1        1,804.0        1,804.0        1,804        1,804           0.0  bind                  
+      0.0              955          1          955.0          955.0          955          955           0.0  listen                
+      0.0              805          4          201.3          221.5           51          311         121.9  putc                  
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/cuda_api_sum.py]... 
+
+ ** CUDA API Summary (cuda_api_sum):
+
+ Time (%)  Total Time (ns)  Num Calls    Avg (ns)       Med (ns)      Min (ns)     Max (ns)    StdDev (ns)           Name        
+ --------  ---------------  ---------  -------------  -------------  -----------  -----------  ------------  --------------------
+     49.6      240,804,326         34    7,082,480.2       33,646.5        2,335   61,689,277  17,629,469.8  cuStreamSynchronize 
+     27.3      132,693,681          1  132,693,681.0  132,693,681.0  132,693,681  132,693,681           0.0  cuMemcpyDtoHAsync_v2
+     22.7      110,489,057          1  110,489,057.0  110,489,057.0  110,489,057  110,489,057           0.0  cuMemcpyHtoDAsync_v2
+      0.2        1,059,742          1    1,059,742.0    1,059,742.0    1,059,742    1,059,742           0.0  cuMemAllocHost_v2   
+      0.1          590,678          8       73,834.8       39,070.0        1,909      186,521      82,766.5  cuMemAlloc_v2       
+      0.0          167,960         32        5,248.8        4,163.5        3,385       32,695       5,121.0  cuLaunchKernel      
+      0.0           97,424          1       97,424.0       97,424.0       97,424       97,424           0.0  cuModuleLoadDataEx  
+      0.0            2,177          3          725.7          396.0          332        1,449         627.2  cuCtxSetCurrent     
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/cuda_gpu_kern_sum.py]... 
+
+ ** CUDA GPU Kernel Summary (cuda_gpu_kern_sum):
+
+ Time (%)  Total Time (ns)  Instances    Avg (ns)      Med (ns)     Min (ns)    Max (ns)   StdDev (ns)                            Name                         
+ --------  ---------------  ---------  ------------  ------------  ----------  ----------  ------------  ------------------------------------------------------
+     87.7      211,201,783          4  52,800,445.8  59,562,094.0  30,390,709  61,686,886  15,059,621.6  radixSort_99(std::vector<int, std::allocator<int>> &) 
+      8.2       19,787,643          4   4,946,910.8   5,936,555.5   1,954,297   5,960,235   1,995,110.6  radixSort_42(std::vector<int, std::allocator<int>> &) 
+      3.6        8,628,771          4   2,157,192.8   2,160,041.0   2,142,233   2,166,456      11,417.5  radixSort_148(std::vector<int, std::allocator<int>> &)
+      0.4          884,381          4     221,095.3     244,287.0     150,272     245,535      47,221.0  radixSort_79(std::vector<int, std::allocator<int>> &) 
+      0.0          114,047          4      28,511.8      31,215.5      20,352      31,264       5,439.9  radixSort_58(std::vector<int, std::allocator<int>> &) 
+      0.0           64,576          4      16,144.0      17,904.0      10,816      17,952       3,552.1  radixSort_73(std::vector<int, std::allocator<int>> &) 
+      0.0           27,361          4       6,840.3       7,504.0       4,769       7,584       1,381.9  radixSort_90(std::vector<int, std::allocator<int>> &) 
+      0.0           22,370          4       5,592.5       6,129.0       3,840       6,272       1,170.3  radixSort_34(std::vector<int, std::allocator<int>> &) 
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/cuda_gpu_mem_time_sum.py]... 
+
+ ** CUDA GPU MemOps Summary (by Time) (cuda_gpu_mem_time_sum):
+
+ Time (%)  Total Time (ns)  Count    Avg (ns)       Med (ns)      Min (ns)     Max (ns)    StdDev (ns)      Operation     
+ --------  ---------------  -----  -------------  -------------  -----------  -----------  -----------  ------------------
+     54.6      132,375,980      1  132,375,980.0  132,375,980.0  132,375,980  132,375,980          0.0  [CUDA memcpy DtoH]
+     45.4      110,001,756      1  110,001,756.0  110,001,756.0  110,001,756  110,001,756          0.0  [CUDA memcpy HtoD]
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/cuda_gpu_mem_size_sum.py]... 
+
+ ** CUDA GPU MemOps Summary (by Size) (cuda_gpu_mem_size_sum):
+
+ Total (MB)  Count  Avg (MB)  Med (MB)  Min (MB)  Max (MB)  StdDev (MB)      Operation     
+ ----------  -----  --------  --------  --------  --------  -----------  ------------------
+    400.000      1   400.000   400.000   400.000   400.000        0.000  [CUDA memcpy DtoH]
+    400.000      1   400.000   400.000   400.000   400.000        0.000  [CUDA memcpy HtoD]
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/openmp_sum.py]... 
+SKIPPED: ./radixsort.sqlite does not contain OpenMP event data.
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/opengl_khr_range_sum.py]... 
+SKIPPED: ./radixsort.sqlite does not contain KHR Extension (KHR_DEBUG) data.
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/opengl_khr_gpu_range_sum.py]... 
+SKIPPED: ./radixsort.sqlite does not contain GPU KHR Extension (KHR_DEBUG) data.
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/vulkan_marker_sum.py]... 
+SKIPPED: ./radixsort.sqlite does not contain Vulkan Debug Extension (Vulkan Debug Util) data.
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/vulkan_gpu_marker_sum.py]... 
+SKIPPED: ./radixsort.sqlite does not contain GPU Vulkan Debug Extension (GPU Vulkan Debug markers) data.
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/dx11_pix_sum.py]... 
+SKIPPED: ./radixsort.sqlite does not contain DX11 CPU debug markers.
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/dx12_gpu_marker_sum.py]... 
+SKIPPED: ./radixsort.sqlite does not contain DX12 GPU debug markers.
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/dx12_pix_sum.py]... 
+SKIPPED: ./radixsort.sqlite does not contain DX12 CPU debug markers.
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/wddm_queue_sum.py]... 
+SKIPPED: ./radixsort.sqlite does not contain WDDM context data.
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/um_sum.py]... 
+SKIPPED: ./radixsort.sqlite does not contain CUDA Unified Memory CPU page faults data.
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/um_total_sum.py]... 
+SKIPPED: ./radixsort.sqlite does not contain CUDA Unified Memory CPU page faults data.
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/um_cpu_page_faults_sum.py]... 
+SKIPPED: ./radixsort.sqlite does not contain CUDA Unified Memory CPU page faults data.
+
+Processing [./radixsort.sqlite] with [/opt/nvidia/hpc_sdk/Linux_x86_64/23.7/profilers/Nsight_Systems/host-linux-x64/reports/openacc_sum.py]... 
+SKIPPED: ./radixsort.sqlite does not contain OpenACC event data.
