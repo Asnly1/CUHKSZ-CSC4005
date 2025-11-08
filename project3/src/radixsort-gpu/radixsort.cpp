@@ -41,18 +41,9 @@ void radixSort(std::vector<int> &vec) {
                 }
             }
 
-            #pragma acc parallel loop gang num_gangs(NUM_GANGS) num_workers(32) vector_length(128)
+            #pragma acc parallel loop gang num_gangs(NUM_GANGS)
             for (int gid = 0; gid < NUM_GANGS; gid++)
             {
-                int worker_counts[BASE];
-                #pragma acc loop worker
-                for (int b = 0; b < BASE; b++)
-                {
-                    worker_counts[b] = 0;
-                }
-
-                #pragma acc wait
-
                 int start = gid * chunk_size;
                 int end = (start + chunk_size > n) ? n : (start + chunk_size);
                 
@@ -62,16 +53,7 @@ void radixSort(std::vector<int> &vec) {
                     int digit = (vec_raw[i] >> shift) & (BASE - 1);
 
                     #pragma acc atomic update
-                    worker_counts[digit]++;
-                }
-
-                #pragma acc wait
-
-                #pragma acc loop worker
-                for (int b = 0; b < BASE; b++) 
-                {
-                    #pragma acc atomic update
-                    local_counts[gid][b] += worker_counts[b];
+                    local_counts[gid][digit]++;
                 }
             }
 
@@ -122,7 +104,7 @@ void radixSort(std::vector<int> &vec) {
                 int start = gid * chunk_size;
                 int end = (start + chunk_size > n) ? n : (start + chunk_size);
 
-                #pragma acc loop seq
+                #pragma acc loop worker vector
                 for (int i = start; i < end; i++) {
                     int digit = (vec_raw[i] >> shift) & (BASE - 1);
 
