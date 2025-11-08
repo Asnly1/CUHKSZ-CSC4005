@@ -42,7 +42,7 @@ void radixSort(std::vector<int> &vec) {
                 }
             }
 
-            #pragma acc parallel num_gangs(NUM_GANGS)
+            #pragma acc parallel loop gang num_gangs(NUM_GANGS)
             {
                 for (int gid = 0; gid < NUM_GANGS; gid++)
                 {
@@ -101,7 +101,7 @@ void radixSort(std::vector<int> &vec) {
             
             #pragma acc wait
 
-            #pragma acc parallel num_gangs(NUM_GANGS)
+            #pragma acc parallel loop gang num_gangs(NUM_GANGS)
             {
                 for (int gid = 0; gid < NUM_GANGS; gid++)
                 {
