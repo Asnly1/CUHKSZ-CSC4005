@@ -50,14 +50,12 @@ void radixSort(std::vector<int> &vec) {
                 #pragma acc loop worker vector
                 for (int i = start; i < end; i++) 
                 {
-                    int digit = (vec_raw[i] >> shift) & (BASE - 1);
+                    int d = (vec_raw[i] >> shift) & (BASE - 1);
 
                     #pragma acc atomic update
-                    local_counts[gid][digit]++;
+                    local_counts[gid][d]++;
                 }
             }
-
-            #pragma acc wait
             
             #pragma acc parallel loop
             for (int b = 0; b < BASE; b++) 
@@ -98,24 +96,54 @@ void radixSort(std::vector<int> &vec) {
                 }
             }
 
+            int tile_size = 2048;
+
             #pragma acc parallel loop gang num_gangs(NUM_GANGS) vector_length(128)
             for (int gid = 0; gid < NUM_GANGS; gid++)
             {
                 int start = gid * chunk_size;
-                int end = (start + chunk_size > n) ? n : (start + chunk_size);
+                int end   = (start + chunk_size > n) ? n : (start + chunk_size);
 
-                #pragma acc loop worker vector
-                for (int i = start; i < end; i++) {
-                    int digit = (vec_raw[i] >> shift) & (BASE - 1);
+                for (int tile = start; tile < end; tile += tile_size)
+                {
+                    int t_end = (tile + tile_size > end) ? end : (tile + tile_size);
+                    int tile_count[BASE];
 
-                    int within_gang_offset;
-                    #pragma acc atomic capture
+                    #pragma acc loop vector
+                    for (int d = 0; d < BASE; d++) 
                     {
-                        within_gang_offset = local_offsets[gid][digit];
-                        local_offsets[gid][digit]++;
+                        tile_count[d] = 0;
                     }
 
-                    output[within_gang_offset] = vec_raw[i];
+                    #pragma acc loop worker vector
+                    for (int i = tile; i < t_end; i++) 
+                    {
+                        int d = (vec_raw[i] >> shift) & (BASE - 1);
+                        #pragma acc atomic update
+                        tile_count[d]++;
+                    }
+
+                    int tile_base[BASE];
+                    #pragma acc loop seq
+                    for (int d = 0; d < BASE; d++)
+                    {
+                        int base_offset;
+                        #pragma acc atomic capture
+                        {   
+                            base_offset = local_offsets[gid][d];
+                            local_offsets[gid][d] += tile_count[d];
+                        }
+                        tile_base[d] = base_offset;
+                    }
+
+                    #pragma acc loop seq
+                    for (int i = tile; i < t_end; i++) 
+                    {
+                        int d = (vec_raw[i] >> shift) & (BASE - 1);
+                        int pos = tile_base[d];
+                        tile_base[d]++
+                        output[pos] = vec_raw[i];
+                    }
                 }
             }
 
