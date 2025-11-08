@@ -112,12 +112,8 @@ void radixSort(std::vector<int> &vec) {
                     int global_start = start_pos[digit];
                     int prior_gang_offset = gang_prefix_sum[gid][digit];
 
-                    int within_gang_offset;
-                    #pragma acc atomic capture
-                    {
-                        within_gang_offset = local_offsets[gid][digit];
-                        local_offsets[gid][digit]++;
-                    }
+                    int within_gang_offset = local_offsets[gid][digit];
+                    local_offsets[gid][digit]++;
 
                     int pos = global_start + prior_gang_offset + within_gang_offset;
                     output[pos] = vec_raw[i];
