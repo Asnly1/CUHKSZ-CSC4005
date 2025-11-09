@@ -16,7 +16,7 @@
 #define NUM_GANGS 1024
 
 void radixSort(std::vector<int> &vec) {
-    int n = vec.size();
+    const int n = vec.size();
     int *vec_raw = vec.data();
 
     int *output = new int[n];
@@ -25,6 +25,8 @@ void radixSort(std::vector<int> &vec) {
     int start_pos[BASE];
     int (*gang_prefix_sum)[BASE] = new int[NUM_GANGS][BASE];
     int (*local_offsets)[BASE] = new int[NUM_GANGS][BASE];
+
+    const int tile_size = 2048;
 
     #pragma acc data copy(vec_raw[0:n]) create(output[0:n], count[0:BASE], local_counts[0:NUM_GANGS][0:BASE], \
                           start_pos[0:BASE], gang_prefix_sum[0:NUM_GANGS][0:BASE], local_offsets[0:NUM_GANGS][0:BASE])
@@ -61,7 +63,7 @@ void radixSort(std::vector<int> &vec) {
             for (int b = 0; b < BASE; b++) 
             {
                 int sum = 0;
-                #pragma acc loop seq
+                #pragma acc loop vector reduction(+:sum)
                 for (int g = 0; g < NUM_GANGS; g++)
                 {
                     sum += local_counts[g][b];
@@ -95,8 +97,6 @@ void radixSort(std::vector<int> &vec) {
                     local_offsets[g][b] = start_pos[b] + gang_prefix_sum[g][b];
                 }
             }
-
-            int tile_size = 2048;
 
             #pragma acc parallel loop gang num_gangs(NUM_GANGS) vector_length(128)
             for (int gid = 0; gid < NUM_GANGS; gid++)
