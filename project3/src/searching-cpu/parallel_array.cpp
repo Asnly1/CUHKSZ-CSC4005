@@ -12,7 +12,7 @@
 #include <omp.h>
 #include "../utils.hpp"
 
-int binarySearch(const std::vector<int>& vec, int target, int left, int right) {
+int binarySearch(const std::vector<int>& vec, const int target, int left, int right) {
     int result = right;
     
     while (left <= right) {
@@ -32,17 +32,17 @@ int binarySearch(const std::vector<int>& vec, int target, int left, int right) {
 std::vector<int> binarySearchArray(const std::vector<int>& vec, 
                                     const std::vector<int>& search_targets) {
     std::vector<int> results(search_targets.size());
-    int number_targets = search_targets.size();
-    int vector_size = vec.size();
+    const int number_targets = search_targets.size();
+    const int vector_size = vec.size();
     
     #pragma omp parallel
     {
-        int tid = omp_get_thread_num();
-        int number_threads = omp_get_num_threads();
+        const int tid = omp_get_thread_num();
+        const int number_threads = omp_get_num_threads();
 
-        int chunk_size = (number_targets + number_threads - 1) / number_threads;
-        int start = tid * chunk_size;
-        int end = std::min(number_targets, (tid + 1) * chunk_size);
+        const int chunk_size = (number_targets + number_threads - 1) / number_threads;
+        const int start = tid * chunk_size;
+        const int end = std::min(number_targets, (tid + 1) * chunk_size);
 
         int left_hint = 0;
 

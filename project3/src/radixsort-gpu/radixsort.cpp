@@ -17,21 +17,21 @@
 
 void radixSort(std::vector<int> &vec) {
     const int n = vec.size();
-    int *vec_raw = vec.data();
+    int* __restrict__ vec_raw = vec.data();
 
-    int *output = new int[n];
+    int* __restrict__output = new int[n];
     int count[BASE];
-    int (*local_counts)[BASE] = new int[NUM_GANGS][BASE];
+    int (* __restrict__ local_counts)[BASE] = new int[NUM_GANGS][BASE];
     int start_pos[BASE];
-    int (*gang_prefix_sum)[BASE] = new int[NUM_GANGS][BASE];
-    int (*local_offsets)[BASE] = new int[NUM_GANGS][BASE];
+    int (* __restrict__ gang_prefix_sum)[BASE] = new int[NUM_GANGS][BASE];
+    int (* __restrict__ local_offsets)[BASE] = new int[NUM_GANGS][BASE];
 
     const int tile_size = 2048;
 
     #pragma acc data copy(vec_raw[0:n]) create(output[0:n], count[0:BASE], local_counts[0:NUM_GANGS][0:BASE], \
                           start_pos[0:BASE], gang_prefix_sum[0:NUM_GANGS][0:BASE], local_offsets[0:NUM_GANGS][0:BASE])
     {
-        int chunk_size = (n + NUM_GANGS - 1) / NUM_GANGS;
+        const int chunk_size = (n + NUM_GANGS - 1) / NUM_GANGS;
         for (int shift = 0; shift < 32; shift += BASE_BITS)
         {
             #pragma acc parallel loop collapse(2)
@@ -46,8 +46,8 @@ void radixSort(std::vector<int> &vec) {
             #pragma acc parallel loop gang num_gangs(NUM_GANGS) vector_length(128)
             for (int gid = 0; gid < NUM_GANGS; gid++)
             {
-                int start = gid * chunk_size;
-                int end = (start + chunk_size > n) ? n : (start + chunk_size);
+                const int start = gid * chunk_size;
+                const int end = (start + chunk_size > n) ? n : (start + chunk_size);
                 
                 #pragma acc loop worker vector
                 for (int i = start; i < end; i++) 
@@ -101,12 +101,12 @@ void radixSort(std::vector<int> &vec) {
             #pragma acc parallel loop gang num_gangs(NUM_GANGS) vector_length(128)
             for (int gid = 0; gid < NUM_GANGS; gid++)
             {
-                int start = gid * chunk_size;
-                int end   = (start + chunk_size > n) ? n : (start + chunk_size);
+                const int start = gid * chunk_size;
+                const int end   = (start + chunk_size > n) ? n : (start + chunk_size);
 
                 for (int tile = start; tile < end; tile += tile_size)
                 {
-                    int t_end = (tile + tile_size > end) ? end : (tile + tile_size);
+                    const int t_end = (tile + tile_size > end) ? end : (tile + tile_size);
                     int tile_count[BASE];
 
                     #pragma acc loop vector

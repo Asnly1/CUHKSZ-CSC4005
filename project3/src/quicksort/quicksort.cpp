@@ -14,8 +14,8 @@
 #include <cstring>
 #include <cstdint>
 
-int partition_sequential(std::vector<int> &vec, int low, int high) {
-    int mid = low + (high - low) / 2;
+int partition_sequential(std::vector<int> &vec, const int low, const int high) {
+    const int mid = low + (high - low) / 2;
     if ((vec[low] <= vec[mid] && vec[mid] <= vec[high]) || (vec[high] <= vec[mid] && vec[mid] <= vec[low])) 
     {
         std::swap(vec[mid], vec[high]);
@@ -24,7 +24,7 @@ int partition_sequential(std::vector<int> &vec, int low, int high) {
     {
         std::swap(vec[low], vec[high]);
     }
-    int pivot = vec[high];
+    const int pivot = vec[high];
     int i = low - 1;
 
     for (int j = low; j < high; j++) {
@@ -38,32 +38,32 @@ int partition_sequential(std::vector<int> &vec, int low, int high) {
     return i + 1;
 }
 
-std::pair<int, std::vector<int>> prefix_sum_parallel(std::vector<uint8_t> &vec, int low, int high) {
+std::pair<int, std::vector<int>> prefix_sum_parallel(const std::vector<uint8_t> &vec, const int low, const int high) {
     std::vector<int> block_sums;
     std::vector<int> block_offsets;
-    int num_threads;
-    int n = high - low;
+    const int num_threads;
+    const int n = high - low;
     if (n <= 0) 
     {
         return {0, block_offsets};
     }
 
-    num_threads = omp_get_max_threads();
+    const num_threads = omp_get_max_threads();
     block_sums.assign(num_threads, 0);
     block_offsets.assign(num_threads, 0);
 
-    int chunk_size = n / num_threads;
-    int rem = n % num_threads;
+    const int chunk_size = n / num_threads;
+    const int rem = n % num_threads;
     for (int tid = 0; tid < num_threads; tid++)
     {
         #pragma omp task default(none) \
                 firstprivate(tid, low, chunk_size, rem, n) \
                 shared(vec, block_sums)
         {
-            int length = tid < rem ? (chunk_size + 1) : chunk_size;
-            int offset = tid < rem ? (chunk_size + 1) * tid : rem + chunk_size * tid;
-            int begin = low + offset;
-            int end = begin + length;
+            const int length = tid < rem ? (chunk_size + 1) : chunk_size;
+            const int offset = tid < rem ? (chunk_size + 1) * tid : rem + chunk_size * tid;
+            const int begin = low + offset;
+            const int end = begin + length;
 
             int local_sum = 0;
             #pragma omp simd reduction(+:local_sum)
@@ -76,13 +76,12 @@ std::pair<int, std::vector<int>> prefix_sum_parallel(std::vector<uint8_t> &vec, 
     }
 
     #pragma omp taskwait
+
+    int acc = 0;
+    for (int t = 0; t < num_threads; ++t) 
     {
-        int acc = 0;
-        for (int t = 0; t < num_threads; ++t) 
-        {
-            block_offsets[t] = acc;
-            acc += block_sums[t];
-        }
+        block_offsets[t] = acc;
+        acc += block_sums[t];
     }
 
     int total = 0;
@@ -94,8 +93,8 @@ std::pair<int, std::vector<int>> prefix_sum_parallel(std::vector<uint8_t> &vec, 
 }
 
 int partition_parallel(std::vector<int> &vec, std::vector<uint8_t> &S, std::vector<int> &temp,
-                       int low, int high) {
-    int mid = low + (high - low) / 2;
+                       const int low, const int high) {
+    const int mid = low + (high - low) / 2;
     // vec[mid] is median
     if ((vec[low] <= vec[mid] && vec[mid] <= vec[high]) || (vec[high] <= vec[mid] && vec[mid] <= vec[low])) 
     {
@@ -106,8 +105,8 @@ int partition_parallel(std::vector<int> &vec, std::vector<uint8_t> &S, std::vect
     {
         std::swap(vec[low], vec[high]);
     }
-    int pivot = vec[high];
-    int n = high - low;
+    const int pivot = vec[high];
+    const int n = high - low;
     int num_small;
     std::vector<int>block_offsets;
     
@@ -123,9 +122,9 @@ int partition_parallel(std::vector<int> &vec, std::vector<uint8_t> &S, std::vect
     num_small = prefix_result.first;
     block_offsets = prefix_result.second;
 
-    int num_threads = omp_get_max_threads();
-    int chunk_size = n / num_threads;
-    int rem = n % num_threads;
+    const int num_threads = omp_get_max_threads();
+    const int chunk_size = n / num_threads;
+    const int rem = n % num_threads;
 
     for (int tid = 0; tid < num_threads; ++tid)
     {
@@ -133,13 +132,13 @@ int partition_parallel(std::vector<int> &vec, std::vector<uint8_t> &S, std::vect
                 firstprivate(tid, low, high, n, num_threads, chunk_size, rem, num_small, pivot) \
                 shared(vec, temp, block_offsets)
         {
-            int length = tid < rem ? (chunk_size + 1) : chunk_size;
-            int offset = tid < rem ? (chunk_size + 1) * tid : rem + chunk_size * tid;
-            int begin = low + offset;
-            int end = begin + length;
-            int small_block_offset = block_offsets[tid];
-            int prior_elements = begin - low;
-            int big_block_offset = prior_elements - small_block_offset;
+            const int length = tid < rem ? (chunk_size + 1) : chunk_size;
+            const int offset = tid < rem ? (chunk_size + 1) * tid : rem + chunk_size * tid;
+            const int begin = low + offset;
+            const int end = begin + length;
+            const int small_block_offset = block_offsets[tid];
+            const int prior_elements = begin - low;
+            const int big_block_offset = prior_elements - small_block_offset;
 
             int local_prefix = 0;
             int local_large_prefix = 0;
@@ -171,7 +170,7 @@ int partition_parallel(std::vector<int> &vec, std::vector<uint8_t> &S, std::vect
 }
 
 void quickSort(std::vector<int> &vec, std::vector<uint8_t> &S, std::vector<int> &temp,
-               int low, int high, int depth, int max_depth) {
+               const int low, const int high, const int depth, const int max_depth) {
     if (low < high) {
         int pivotIndex;
         if (high - low > 65536)

@@ -13,10 +13,10 @@
 #include <omp.h> 
 #include <cmath>
 
-std::pair<int, int> findSplit(const std::vector<int>& vec, int l_start, int l_end, int r_start, int r_end, int k)
+std::pair<int, int> findSplit(const std::vector<int>& vec, const int l_start, const int l_end, const int r_start, const int r_end, const int k)
 {
-    int n1 = l_end - l_start + 1;
-    int n2 = r_end - r_start + 1;
+    const int n1 = l_end - l_start + 1;
+    const int n2 = r_end - r_start + 1;
 
     if (n1 == 0) 
     {
@@ -33,8 +33,8 @@ std::pair<int, int> findSplit(const std::vector<int>& vec, int l_start, int l_en
         return {split.second, split.first};
     }
 
-    int low = std::max(0, k - n2);
-    int high = std::min(k, n1);
+    const int low = std::max(0, k - n2);
+    const int high = std::min(k, n1);
 
     while (low <= high)
     {
@@ -62,7 +62,7 @@ std::pair<int, int> findSplit(const std::vector<int>& vec, int l_start, int l_en
     return {-1, -1};
 }
 
-void insertionSort(std::vector<int>& vec, int low, int high) {
+void insertionSort(std::vector<int>& vec, const int low, const int high) {
     for (int i = low+1; i <= high; ++i) {
         int key = vec[i], j = i - 1;
         while (j >= low && vec[j] > key) {
@@ -74,8 +74,8 @@ void insertionSort(std::vector<int>& vec, int low, int high) {
 }
 
 
-void sequentialMergeHelper(const std::vector<int>& src, int l_start, int l_end,
-                           int r_start, int r_end, std::vector<int>& dest, int des_start)
+void sequentialMergeHelper(const std::vector<int>& src, const int l_start, const int l_end,
+                           const int r_start, const int r_end, std::vector<int>& dest, const int des_start)
 {
     int i = l_start;
     int j = r_start;
@@ -111,30 +111,30 @@ void sequentialMergeHelper(const std::vector<int>& src, int l_start, int l_end,
     }
 }
 
-void sequentialMerge(std::vector<int>& dest, std::vector<int>& src, int l, int m, int r) 
+void sequentialMerge(std::vector<int>& dest, std::vector<int>& src, const int l, const int m, const int r) 
 {
     sequentialMergeHelper(src, l, m, m + 1, r, dest, l);
 }
 
-void parMerge(std::vector<int>& dest, int dest_start, const std::vector<int>& src,
-              int l_start, int l_end, 
-              int r_start, int r_end,
-              int depth, int max_depth)
+void parMerge(std::vector<int>& dest, const int dest_start, const std::vector<int>& src,
+              const int l_start, const int l_end, 
+              const int r_start, const int r_end,
+              const int depth, const int max_depth)
 {
-    int n1 = l_end - l_start + 1;
-    int n2 = r_end - r_start + 1;
-    int total_size = n1 + n2;
+    const int n1 = l_end - l_start + 1;
+    const int n2 = r_end - r_start + 1;
+    const int total_size = n1 + n2;
 
     if (total_size < 2048 || depth > max_depth) {
         sequentialMergeHelper(src, l_start, l_end, r_start, r_end, dest, dest_start);
         return;
     }
 
-    int k = total_size / 2;
+    const int k = total_size / 2;
 
     auto split = findSplit(src, l_start, l_end, r_start, r_end, k);
-    int i = split.first;
-    int j = split.second;
+    const int i = split.first;
+    const int j = split.second;
 
     #pragma omp task shared(dest, src)
     {
@@ -154,13 +154,13 @@ void parMerge(std::vector<int>& dest, int dest_start, const std::vector<int>& sr
     #pragma omp taskwait
 }
 
-void parMergeSort(std::vector<int>& dest, std::vector<int>& src, int l, int r, int depth, int max_depth) {
+void parMergeSort(std::vector<int>& dest, std::vector<int>& src, const int l, const int r, const int depth, const int max_depth) {
     if (l == r) {
         dest[l] = src[l];
         return;
     }
 
-    int vec_length = r - l + 1;
+    const int vec_length = r - l + 1;
     if (vec_length <= 64)
     {
         std::copy(src.begin() + l, src.begin() + r + 1, dest.begin() + l);
@@ -168,7 +168,7 @@ void parMergeSort(std::vector<int>& dest, std::vector<int>& src, int l, int r, i
         return;
     }
 
-    int m = l + (r - l) / 2;
+    const int m = l + (r - l) / 2;
 
     if (depth < max_depth) {
         #pragma omp taskgroup
