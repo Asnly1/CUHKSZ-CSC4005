@@ -1,98 +1,103 @@
 std::sort (Optimized with -O2)
 Number of cores: 1
 std::sort Complete!
-Execution Time: 10058 milliseconds
+Execution Time: 10056 milliseconds
 Number of cores: 4
 std::sort Complete!
 Execution Time: 5014 milliseconds
 Number of cores: 8
 std::sort Complete!
-Execution Time: 2532 milliseconds
+Execution Time: 2519 milliseconds
 Number of cores: 16
 std::sort Complete!
-Execution Time: 1281 milliseconds
+Execution Time: 1278 milliseconds
 Number of cores: 32
 std::sort Complete!
-Execution Time: 689 milliseconds
+Execution Time: 679 milliseconds
 
 Parallel Merge Sort with Parallel Merging on CPU (Optimized with -O2)
 Number of cores: 1
 Merge Sort Complete!
-Execution Time: 14632 milliseconds
-std::sort Time: 10502 milliseconds
+Execution Time: 14635 milliseconds
+std::sort Time: 10505 milliseconds
 Pass the sorting result check!
 Number of cores: 4
 Merge Sort Complete!
-Execution Time: 5231 milliseconds
-std::sort Time: 10650 milliseconds
+Execution Time: 5180 milliseconds
+std::sort Time: 10629 milliseconds
 Pass the sorting result check!
 Number of cores: 8
 Merge Sort Complete!
-Execution Time: 3727 milliseconds
-std::sort Time: 10604 milliseconds
+Execution Time: 3698 milliseconds
+std::sort Time: 10624 milliseconds
 Pass the sorting result check!
 Number of cores: 16
 Merge Sort Complete!
-Execution Time: 1987 milliseconds
-std::sort Time: 10579 milliseconds
+Execution Time: 2133 milliseconds
+std::sort Time: 10593 milliseconds
 Pass the sorting result check!
 Number of cores: 32
 Merge Sort Complete!
-Execution Time: 1117 milliseconds
-std::sort Time: 10871 milliseconds
+Execution Time: 1124 milliseconds
+std::sort Time: 10593 milliseconds
 Pass the sorting result check!
 
-/var/spool/slurmd/job10696/slurm_script: line 31: Task: command not found
+/var/spool/slurmd/job10709/slurm_script: line 31: Task: command not found
 Parallel Quick Sort with Parallel Partitioning on CPU (Optimized with -O2)
+Number of cores: 1
+Quick Sort Complete!
+Execution Time: 15961 milliseconds
+std::sort Time: 10684 milliseconds
+Pass the sorting result check!
 Number of cores: 4
 Quick Sort Complete!
-Execution Time: 7097 milliseconds
-std::sort Time: 10824 milliseconds
+Execution Time: 7164 milliseconds
+std::sort Time: 10826 milliseconds
 Pass the sorting result check!
 Number of cores: 8
 Quick Sort Complete!
-Execution Time: 3819 milliseconds
+Execution Time: 4170 milliseconds
 std::sort Time: 10794 milliseconds
 Pass the sorting result check!
 Number of cores: 16
 Quick Sort Complete!
-Execution Time: 2606 milliseconds
-std::sort Time: 10770 milliseconds
+Execution Time: 2732 milliseconds
+std::sort Time: 10764 milliseconds
 Pass the sorting result check!
 Number of cores: 32
 Quick Sort Complete!
-Execution Time: 1972 milliseconds
-std::sort Time: 10753 milliseconds
+Execution Time: 2060 milliseconds
+std::sort Time: 11064 milliseconds
 Pass the sorting result check!
 
 Parallel Radix Sort on GPU (Optimized with -O2)
 Radix Sort Complete!
-Execution Time: 525 milliseconds
-std::sort Time: 10764 milliseconds
+Execution Time: 492 milliseconds
+std::sort Time: 10737 milliseconds
 Pass the sorting result check!
 
 Parallel Searching for Data Array on CPU (Optimized with -O2)
 Number of cores: 1
 Parallel Array Binary Search Complete!
-Execution Time: 580 milliseconds
+Execution Time: 581 milliseconds
 Pass the searching result check!
 Number of cores: 4
 Parallel Array Binary Search Complete!
-Execution Time: 233 milliseconds
+Execution Time: 232 milliseconds
 Pass the searching result check!
 Number of cores: 8
 Parallel Array Binary Search Complete!
-Execution Time: 144 milliseconds
+Execution Time: 142 milliseconds
 Pass the searching result check!
 Number of cores: 16
 Parallel Array Binary Search Complete!
-Execution Time: 100 milliseconds
+Execution Time: 101 milliseconds
 Pass the searching result check!
 Number of cores: 32
 Parallel Array Binary Search Complete!
-Execution Time: 104 milliseconds
+Execution Time: 97 milliseconds
 Pass the searching result check!
 Parallel Searching for Data Array on GPU (Optimized with -O2)
 Parallel Array Binary Search Complete!
-Execution Time: 359 milliseconds
+Execution Time: 360 milliseconds
 Pass the searching result check!

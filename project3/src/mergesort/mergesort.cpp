@@ -33,8 +33,8 @@ std::pair<int, int> findSplit(const std::vector<int>& vec, const int l_start, co
         return {split.second, split.first};
     }
 
-    const int low = std::max(0, k - n2);
-    const int high = std::min(k, n1);
+    int low = std::max(0, k - n2);
+    int high = std::min(k, n1);
 
     while (low <= high)
     {

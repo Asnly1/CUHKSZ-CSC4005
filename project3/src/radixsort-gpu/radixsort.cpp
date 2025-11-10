@@ -19,7 +19,7 @@ void radixSort(std::vector<int> &vec) {
     const int n = vec.size();
     int* __restrict__ vec_raw = vec.data();
 
-    int* __restrict__output = new int[n];
+    int* __restrict__ output = new int[n];
     int count[BASE];
     int (* __restrict__ local_counts)[BASE] = new int[NUM_GANGS][BASE];
     int start_pos[BASE];

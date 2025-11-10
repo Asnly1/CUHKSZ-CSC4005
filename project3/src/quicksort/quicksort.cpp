@@ -41,14 +41,14 @@ int partition_sequential(std::vector<int> &vec, const int low, const int high) {
 std::pair<int, std::vector<int>> prefix_sum_parallel(const std::vector<uint8_t> &vec, const int low, const int high) {
     std::vector<int> block_sums;
     std::vector<int> block_offsets;
-    const int num_threads;
+    int num_threads;
     const int n = high - low;
     if (n <= 0) 
     {
         return {0, block_offsets};
     }
 
-    const num_threads = omp_get_max_threads();
+    num_threads = omp_get_max_threads();
     block_sums.assign(num_threads, 0);
     block_offsets.assign(num_threads, 0);
 
