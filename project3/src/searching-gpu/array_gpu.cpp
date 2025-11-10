@@ -10,43 +10,36 @@
 
 // Binary Search - finds the FIRST occurrence of targets from [i, i + BATCH_SIZE - 1] in range [0, size - 1]
 #pragma acc routine seq
-void binarySearch(const int* vec, int size, int bits, const int* targets, int i, int* results) {
-    int target = targets[i];
-    int left = 0;
-    int right = size-1;
-    int result = size;
+static inline void binarySearch(const int* __restrict__ vec, const int size, const int bits, const int* __restrict__ targets, const int i, int* __restrict__ results) {
+    const register int target = targets[i];
+    int register idx = -1;
 
-    for (int iter = 0; iter <= bits; iter++)
+    for (register int step = 1 << bits; step > 0; step >>= 1)
     {
-        bool valid = (left <= right);
-        int mid = left + (right - left) / 2;
+        register int pos = idx + step;
+        register int safe = (pos < size) ? pos : size - 1;
 
-        int value = valid ? vec[mid] : 0;
-
-        bool large = value >= target;
-
-        result = (valid && large) ? mid : result;
-        right = (valid && large) ? mid - 1 : right;
-        left = (valid && !large) ? mid + 1 : left; 
+        register int valid = pos < size && vec[safe] < target;
+        idx += valid * step;
     }
 
-    results[i] = result;
+    results[i] = idx + 1;
 }
 
 std::vector<int> binarySearchArray(const std::vector<int>& vec, 
                                     const std::vector<int>& search_targets) {
-    int n = vec.size();
-    int nbits = 31 - __builtin_clz(n); // log2(n)
-    int search_size = search_targets.size();
+    const int n = vec.size();
+    const int nbits = 31 - __builtin_clz(n); // log2(n)
+    const int search_size = search_targets.size();
     std::vector<int> results(search_size);
 
-    const int* vec_ptr = vec.data();
-    const int* target_ptr = search_targets.data();
-    int* results_ptr = results.data();
+    const int* __restrict__ vec_ptr = vec.data();
+    const int* __restrict__ target_ptr = search_targets.data();
+    int* __restrict__ results_ptr = results.data();
 
     #pragma acc data copyin(vec_ptr[0:n], target_ptr[0:search_size]) copyout(results_ptr[0:search_size])
     {
-        #pragma acc parallel loop
+        #pragma acc parallel loop vector_length(128)
         for (int i = 0; i < search_size; i++)
         {
             binarySearch(vec_ptr, n, nbits, target_ptr, i, results_ptr);
