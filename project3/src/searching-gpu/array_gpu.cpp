@@ -10,7 +10,7 @@
 #include <climits>
 
 // Binary Search - finds the FIRST occurrence of targets from [i, i + BATCH_SIZE - 1] in range [0, size - 1]
-#pragma acc routine
+#pragma acc routine seq
 int find_partition(const int* __restrict__ vec, const int* __restrict__ search, const int i_min, const int i_max, const int diag, const int search_size) 
 {
     int low = i_min;
@@ -56,15 +56,15 @@ std::vector<int> binarySearchArray(const std::vector<int>& vec,
     int* __restrict__ results_ptr = results.data();
 
     #pragma acc data copyin(vec_ptr[0:n], target_ptr[0:search_size]) \
-                    create (partition_i_ptr[0:parts+1], partition_j_ptr[0:parts+1]) \ 
+                    create (partition_i_ptr[0:parts+1], partition_j_ptr[0:parts+1]) \
                     copyout(results_ptr[0:search_size])
     {
         #pragma acc parallel loop gang vector
         for (int k = 0; k <= parts; k++)
         {
             int diag = k * (n + search_size) / parts;
-            int i_min = std::max(0, diag - search_size);
-            int i_max = std::min(n, diag);
+            int i_min = (diag - search_size > 0) ? (diag - search_size) : 0;
+            int i_max = (diag < n) ? diag : n;
             int i = find_partition(vec_ptr, target_ptr, i_min, i_max, diag, search_size);
             partition_i_ptr[k] = i;
             partition_j_ptr[k] = diag - i;
