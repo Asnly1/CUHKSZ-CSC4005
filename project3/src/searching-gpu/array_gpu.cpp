@@ -11,7 +11,7 @@
 
 // Binary Search - finds the FIRST occurrence of targets from [i, i + BATCH_SIZE - 1] in range [0, size - 1]
 #pragma acc routine seq
-int find_partition(const int* __restrict__ vec, const int* __restrict__ search, const int i_min, const int i_max, const int diag, const int search_size) 
+static inline int find_partition(const int* __restrict__ vec, const int* __restrict__ search, const int i_min, const int i_max, const int diag, const int search_size) 
 {
     int low = i_min;
     int high = i_max;
@@ -59,7 +59,8 @@ std::vector<int> binarySearchArray(const std::vector<int>& vec,
                     create (partition_i_ptr[0:parts+1], partition_j_ptr[0:parts+1]) \
                     copyout(results_ptr[0:search_size])
     {
-        #pragma acc parallel loop gang vector
+        #pragma acc parallel loop gang vector \
+        present(vec_ptr, target_ptr, partition_i_ptr, partition_j_ptr)
         for (int k = 0; k <= parts; k++)
         {
             int diag = k * (n + search_size) / parts;
@@ -70,13 +71,20 @@ std::vector<int> binarySearchArray(const std::vector<int>& vec,
             partition_j_ptr[k] = diag - i;
         }
 
-        #pragma acc parallel loop gang vector
+        #pragma acc parallel loop gang vector \
+        present(vec_ptr, target_ptr, partition_i_ptr, partition_j_ptr)s
         for (int k = 0; k < parts; k++)
         {
             int i_begin = partition_i_ptr[k];
             int i_end = partition_i_ptr[k+1];
             int j_begin = partition_j_ptr[k];
             int j_end = partition_j_ptr[k+1];
+
+            i_begin = (i_begin < 0) ? 0 : ((i_begin > n) ? n : i_begin);
+            i_end   = (i_end   < 0) ? 0 : ((i_end   > n) ? n : i_end);
+            j_begin = (j_begin < 0) ? 0 : ((j_begin > search_size) ? search_size : j_begin);
+            j_end   = (j_end   < 0) ? 0 : ((j_end   > search_size) ? search_size : j_end);
+
             while (j_begin < j_end)
             {
                 while (i_begin < i_end && vec_ptr[i_begin] < target_ptr[j_begin])
