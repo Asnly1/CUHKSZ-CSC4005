@@ -170,10 +170,10 @@ int partition_parallel(std::vector<int> &vec, std::vector<uint8_t> &S, std::vect
 }
 
 void quickSort(std::vector<int> &vec, std::vector<uint8_t> &S, std::vector<int> &temp,
-               const int low, const int high, const int depth, const int max_depth) {
+               const int low, const int high, const int depth, const int max_depth, const bool use_parallel) {
     if (low < high) {
         int pivotIndex;
-        if (high - low > 65536)
+        if (use_parallel && high - low > 65536)
         {
             pivotIndex = partition_parallel(vec, S, temp, low, high);
         }
@@ -181,22 +181,22 @@ void quickSort(std::vector<int> &vec, std::vector<uint8_t> &S, std::vector<int> 
         {
             pivotIndex = partition_sequential(vec, low, high);
         }
-        if (depth < max_depth)
+        if (use_parallel && depth < max_depth)
         {
              #pragma omp task default(none) \
-                    firstprivate(low, pivotIndex, depth, max_depth) \
+                    firstprivate(low, pivotIndex, depth, max_depth, use_parallel) \
                     shared(vec, S, temp)
-            quickSort(vec, S, temp, low, pivotIndex - 1, depth+1, max_depth);
+            quickSort(vec, S, temp, low, pivotIndex - 1, depth+1, max_depth, use_parallel);
              #pragma omp task default(none) \
-                    firstprivate(high, pivotIndex, depth, max_depth) \
+                    firstprivate(high, pivotIndex, depth, max_depth, use_parallel) \
                     shared(vec, S, temp)
-            quickSort(vec, S, temp, pivotIndex + 1, high, depth+1, max_depth);
+            quickSort(vec, S, temp, pivotIndex + 1, high, depth+1, max_depth, use_parallel);
             #pragma omp taskwait
         }
         else
         {
-            quickSort(vec, S, temp, low, pivotIndex - 1, depth+1, max_depth);
-            quickSort(vec, S, temp, pivotIndex + 1, high, depth+1, max_depth);  
+            quickSort(vec, S, temp, low, pivotIndex - 1, depth+1, max_depth, use_parallel);
+            quickSort(vec, S, temp, pivotIndex + 1, high, depth+1, max_depth, use_parallel);  
         }
     }
 }
@@ -220,12 +220,19 @@ int main(int argc, char** argv) {
     int max_depth = log2(thread_num);
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    #pragma omp parallel
+    if (thread_num > 1)
     {
-        #pragma omp single
+        #pragma omp parallel
         {
-            quickSort(vec, S, temp, 0, size - 1, 0, max_depth);
+            #pragma omp single
+            {
+                quickSort(vec, S, temp, 0, size - 1, 0, max_depth, true);
+            }
         }
+    }
+    else
+    {
+        quickSort(vec, S, temp, 0, size - 1, 0, -1, false);
     }
 
     auto end_time = std::chrono::high_resolution_clock::now();
