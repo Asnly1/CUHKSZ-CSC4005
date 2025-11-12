@@ -7,23 +7,36 @@
 #include <iostream>
 #include <vector>
 #include "../utils.hpp"
+#include <climits>
 
 // Binary Search - finds the FIRST occurrence of targets from [i, i + BATCH_SIZE - 1] in range [0, size - 1]
-#pragma acc routine seq
-static inline void binarySearch(const int* __restrict__ vec, const int size, const int bits, const int* __restrict__ targets, const int i, int* __restrict__ results) {
-    const register int target = targets[i];
-    int register idx = -1;
+#pragma acc routine
+int find_partition(const int* __restrict__ vec, const int* __restrict__ search, const int i_min, const int i_max, const int diag, const int search_size) 
+{
+    int low = i_min;
+    int high = i_max;
+    int result = i_min;
 
-    for (register int step = 1 << bits; step > 0; step >>= 1)
+    while (low <= high)
     {
-        register int pos = idx + step;
-        register int safe = (pos < size) ? pos : size - 1;
+        int i_mid = low + (high - low) / 2;
+        int j_mid = diag - i_mid;
 
-        register int valid = pos < size && vec[safe] < target;
-        idx += valid * step;
+        int val_A = (i_mid == 0) ? INT_MIN : vec[i_mid - 1];
+        int val_B = (j_mid == search_size) ? INT_MAX : search[j_mid];
+
+        if (val_A <= val_B)
+        {
+            result = i_mid;
+            low = i_mid + 1;
+        }
+        else
+        {
+            high = i_mid - 1;
+        }
     }
 
-    results[i] = idx + 1;
+    return result;
 }
 
 std::vector<int> binarySearchArray(const std::vector<int>& vec, 
@@ -31,18 +44,50 @@ std::vector<int> binarySearchArray(const std::vector<int>& vec,
     const int n = vec.size();
     const int nbits = 31 - __builtin_clz(n); // log2(n)
     const int search_size = search_targets.size();
+    const int parts = 4096;
+    std::vector<int> partition_i(parts + 1);
+    std::vector<int> partition_j(parts + 1);
     std::vector<int> results(search_size);
 
     const int* __restrict__ vec_ptr = vec.data();
     const int* __restrict__ target_ptr = search_targets.data();
+    int * __restrict__ partition_i_ptr = partition_i.data();
+    int * __restrict__ partition_j_ptr = partition_j.data();
     int* __restrict__ results_ptr = results.data();
 
-    #pragma acc data copyin(vec_ptr[0:n], target_ptr[0:search_size]) copyout(results_ptr[0:search_size])
+    #pragma acc data copyin(vec_ptr[0:n], target_ptr[0:search_size]) \
+                    create (partition_i_ptr[0:parts+1], partition_j_ptr[0:parts+1]) \ 
+                    copyout(results_ptr[0:search_size])
     {
-        #pragma acc parallel loop vector_length(128)
-        for (int i = 0; i < search_size; i++)
+        #pragma acc parallel loop gang vector
+        for (int k = 0; k <= parts; k++)
         {
-            binarySearch(vec_ptr, n, nbits, target_ptr, i, results_ptr);
+            int diag = k * (n + search_size) / parts;
+            int i_min = std::max(0, diag - search_size);
+            int i_max = std::min(n, diag);
+            int i = find_partition(vec_ptr, target_ptr, i_min, i_max, diag, search_size);
+            partition_i_ptr[k] = i;
+            partition_j_ptr[k] = diag - i;
+        }
+
+        #pragma acc parallel loop gang vector
+        for (int k = 0; k < parts; k++)
+        {
+            int i_begin = partition_i_ptr[k];
+            int i_end = partition_i_ptr[k+1];
+            int j_begin = partition_j_ptr[k];
+            int j_end = partition_j_ptr[k+1];
+            while (j_begin < j_end)
+            {
+                while (i_begin < i_end && vec_ptr[i_begin] < target_ptr[j_begin])
+                {
+                    i_begin++;
+                }
+
+                results_ptr[j_begin] = i_begin;
+
+                j_begin++;
+            }
         }
     }
 
