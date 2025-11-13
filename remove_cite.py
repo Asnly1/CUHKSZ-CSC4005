@@ -20,4 +20,4 @@ def remove_cite_tags(input_file):
     print(f"✅ 已处理完成，保存到: {output_path}")
 
 # 示例用法：
-remove_cite_tags("/Users/hovsco/Documents/CUHKSZ/2025_Fall/CSC4005/CUHKSZ-CSC4005/project2/report.md")
+remove_cite_tags("/Users/hovsco/Documents/CUHKSZ/2025_Fall/CSC4005/CUHKSZ-CSC4005/project3/src/report.md")
