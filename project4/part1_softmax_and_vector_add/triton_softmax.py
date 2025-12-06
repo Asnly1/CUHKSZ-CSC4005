@@ -47,8 +47,41 @@ def softmax_kernel(output_ptr,
                    HAS_MASK: tl.constexpr,
                    BLOCK_SIZE: tl.constexpr,
                    num_stages: tl.constexpr):
-    # Your code here
-    # TODO
+    row_start = tl.program_id(0)
+    row_step = tl.num_programs(0)
+    
+    for row_idx in tl.range(row_start, n_rows, row_step, num_stages=num_stages):
+        row_start_ptr = input_ptr + row_idx * input_row_stride
+        mask_start_ptr = mask_ptr + row_idx * input_row_stride
+        
+        col_offsets = tl.arange(0, BLOCK_SIZE)
+        input_ptrs = row_start_ptr + col_offsets
+        mask_ptrs = mask_start_ptr + col_offsets
+        
+        boundary_mask = col_offsets < n_cols
+        if HAS_MASK:
+            loaded_mask = tl.load(mask_ptrs, mask=boundary_mask, other=0.0)
+            all_mask = (loaded_mask != 0)
+        else:
+            all_mask = boundary_mask
+        row = tl.load(input_ptrs, mask=all_mask, other=-float('inf'))
+        
+        row = row * scale
+        row_minus_max = row - tl.max(row, axis=0)
+        numerator = tl.exp(row_minus_max)
+        denominator = tl.sum(numerator, axis=0)
+        softmax_output = numerator / denominator
+        
+        if HAS_DROPOUT:
+            random_offset = row_idx * n_cols + col_offsets
+            random_value = tl.rand(seed, random_offset)
+            dropout_mask = random_value < (1-dropout_p)
+            softmax_output = tl.where(dropout_mask, softmax_output * (1.0 / (1-dropout_p)), 0.0)
+        
+        output_start_ptr = output_ptr + row_idx * output_row_stride
+        output_ptrs = output_start_ptr + col_offsets
+        tl.store(output_ptrs, softmax_output, mask=boundary_mask)
+        
 
 properties = driver.active.utils.get_device_properties(DEVICE.index)
 NUM_SM = properties["multiprocessor_count"]
@@ -58,11 +91,34 @@ WARP_SIZE = properties["warpSize"]
 target = triton.runtime.driver.active.get_current_target()
 kernels = {}
 
-
+# 这个是不是少个seed参数？
 def softmax(x, mask=None, scale=1.0, dropout_p=0.0):
-    # Your code here
-    # TODO
+    n_rows, n_cols = x.shape
+    BLOCK_SIZE = triton.next_power_of_2(n_cols)
+    num_warps = 8
+    num_stages = 4 if SIZE_SMEM > 200000 else 2
+    seed = torch.randint(0, 2**31, (1,), device=x.device).item()
+    HAS_DROPOUT = True if dropout_p != 0.0 else False
+    HAS_MASK = True if mask is not None else False
     
+    y = torch.empty_like(x)
+    kernel = softmax_kernel.warmup(y, x, mask, x.stride(0), y.stride(0), n_rows, n_cols, scale=scale, dropout_p=dropout_p, seed=seed,
+                                   HAS_DROPOUT=HAS_DROPOUT, HAS_MASK=HAS_MASK, BLOCK_SIZE=BLOCK_SIZE, 
+                                   num_stages=num_stages, num_warps=num_warps, grid=(1, ))
+    kernel._init_handles()
+    n_regs = kernel.n_regs
+    size_smem = kernel.metadata.shared
+    
+    occupancy = NUM_REGS // (n_regs * WARP_SIZE * num_warps)
+    occupancy = min(occupancy, SIZE_SMEM // size_smem)
+    num_programs = NUM_SM * occupancy
+
+    num_programs = min(num_programs, n_rows)
+
+    kernel[(num_programs, 1, 1)](y, x, mask, x.stride(0), y.stride(0), n_rows, n_cols, scale=scale, dropout_p=dropout_p, seed=seed,
+                                 HAS_DROPOUT=HAS_DROPOUT, HAS_MASK=HAS_MASK, BLOCK_SIZE=BLOCK_SIZE,
+                                 num_stages=num_stages, num_warps=num_warps)
+    return y
 
 def torch_softmax(x, mask=None, scale=1.0, dropout_p=0.0):
     x = x * scale
