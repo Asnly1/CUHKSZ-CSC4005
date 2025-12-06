@@ -91,7 +91,6 @@ WARP_SIZE = properties["warpSize"]
 target = triton.runtime.driver.active.get_current_target()
 kernels = {}
 
-# 这个是不是少个seed参数？
 def softmax(x, mask=None, scale=1.0, dropout_p=0.0):
     n_rows, n_cols = x.shape
     BLOCK_SIZE = triton.next_power_of_2(n_cols)

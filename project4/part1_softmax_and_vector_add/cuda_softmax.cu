@@ -16,7 +16,73 @@ __host__ __device__ float generate_random(unsigned int seed, int global_idx) {
 __global__ void softmax_forward_kernel(float* out, const float* inp, const float* mask, 
                                        int N, int C, 
                                        float scale, float dropout_p, unsigned int seed) {
-    // Your code here
+    __shared__ float local_data[];                                
+    int row = blockIdx.x;
+    if (row >= N) {
+        return;
+    }
+    int tid = threadIdx.x;
+
+    float local_max = -INFINITY;
+    for (int i = tid; i < C; i+=blockDim.x) {
+        int idx = row * C + i;
+        float val = inp[idx] * scale;
+        if (mask[idx] < 0.5f) val = -INFINITY;
+        if (val > local_max) local_max = val;
+    }
+    local_data[tid] = local_max;
+    __syncthreads();
+
+    for (int i = blockDim.x / 2; i > 0; i >>= 1) {
+        if (tid < i) {
+            local_data[tid] = fmaxf(local_data[tid], local_data[tid+i]);
+        }
+        __syncthreads();
+    }
+
+    float max_val = local_data[0];
+    __syncthreads();
+
+    float local_sum = 0.0f;
+    for (int i = tid; i < C; i+=blockDim.x) {
+        int idx = row * C + i;
+        float val = inp[idx] * scale;
+        if (mask[idx] < 0.5f) {
+            out[idx] = 0.0f;
+        } else {
+            float res = __expf(val - max_val);
+            out[idx] = res;
+            local_sum += res;
+        }
+    }
+    local_data[tid] = local_sum;
+    __syncthreads();
+
+    for (int i = blockDim.x / 2; i > 0; i >>= 1) {
+        if (tid < i) {
+            local_data[tid] = local_data[tid] + local_data[tid+i];
+        }
+        __syncthreads();
+    }
+
+    float sum = local_data[0];
+
+    float dropout_scale = 1.0f / (1.0f - dropout_p);
+        for (int i = tid; i < C; i+=blockDim.x) {
+            int idx = row * C + i;
+            float val = out[idx] / sum;
+            
+            if (dropout_p > 0.0f) {
+                float rand_val = generate_random(seed, idx);
+                if (rand_val < dropout_p) {
+                    val = 0.0f;
+                } else {
+                    val *= dropout_scale;
+                }
+            }
+
+            out[idx] = val;
+        }
 }
 
 void cpu_softmax(float* out, const float* inp, const float* mask, 
