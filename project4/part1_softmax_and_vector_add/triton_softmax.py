@@ -62,14 +62,14 @@ def softmax_kernel(output_ptr,
     
     for row_idx in tl.range(row_start, n_rows, row_step, num_stages=num_stages):
         row_start_ptr = input_ptr + row_idx * input_row_stride
-        mask_start_ptr = mask_ptr + row_idx * input_row_stride
         
         col_offsets = tl.arange(0, BLOCK_SIZE)
         input_ptrs = row_start_ptr + col_offsets
-        mask_ptrs = mask_start_ptr + col_offsets
         
         boundary_mask = col_offsets < n_cols
         if HAS_MASK:
+            mask_start_ptr = mask_ptr + row_idx * input_row_stride
+            mask_ptrs = mask_start_ptr + col_offsets
             loaded_mask = tl.load(mask_ptrs, mask=boundary_mask, other=0.0)
             all_mask = (loaded_mask != 0)
         else:
