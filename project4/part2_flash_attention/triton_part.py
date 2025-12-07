@@ -6,17 +6,76 @@ from triton.runtime import driver
 
 DEVICE = triton.runtime.driver.active.get_active_torch_device()
 
+@triton.autotune(
+    configs = [
+        triton.Config({'BLOCK_M': 32, 'BLOCK_N':32}, num_stages=2, num_warps=4),
+        triton.Config({'BLOCK_M': 64, 'BLOCK_N':64}, num_stages=2, num_warps=4),
+        triton.Config({'BLOCK_M': 128, 'BLOCK_N':64}, num_stages=2, num_warps=4),
+        triton.Config({'BLOCK_M': 128, 'BLOCK_N':128}, num_stages=2, num_warps=4),
+    ],
+    key=['seq_len', 'd_model'],
+)
 @triton.jit
 def flash_attention_v1(
     q_ptr, k_ptr, v_ptr, o_ptr,
     seq_len, d_model: tl.constexpr,
     stride_qm, stride_km, stride_vm, stride_om,
-    BLOCK_M: tl.constexpr,
-    BLOCK_N: tl.constexpr,
+    BLOCK_M: tl.constexpr, # total line of Q that current program controls, Bc in paper
+    BLOCK_N: tl.constexpr, # loop columns in K and V, Br in paper
 ):  
-    # Your code here
-    # TODO
-
+    row_id = tl.program_id(0)
+    
+    # offset_r: the idx of lines of Q that current program controls
+    # offset_d: total columns
+    offset_r = row_id * BLOCK_M+ tl.arange(0, BLOCK_M) # (BLOCK_M, )
+    offset_d = tl.arange(0, d_model) # (d_model, )
+    
+    # It should be (BLOCK_M, d_model)
+    q_inputs = q_ptr + offset_r[:, None] * stride_qm + offset_d[None, :]
+    
+    mask_i = offset_r < seq_len # (BLOCK_M, )
+    # Cannot be padding with -float('inf')
+    # Reason: -inf * -inf = inf or 0 * -inf = Nan will happen when multiply with T
+    q_i = tl.load(q_inputs, mask=mask_i[:, None], other=0.0)
+    
+    m_i = tl.zeros([BLOCK_M], dtype=tl.float32) - float('inf')
+    l_i = tl.zeros([BLOCK_M], dtype=tl.float32)
+    output = tl.zeros([BLOCK_M, d_model], dtype=tl.float32)
+    
+    scale = 1.0 / tl.sqrt(d_model.to(tl.float32))
+    
+    for col_idx in tl.range(0, seq_len, BLOCK_N):
+        # offset_c: the idx of lines of K and V that current loop controls
+        offset_c = col_idx * BLOCK_N + tl.arange(0, BLOCK_N) # (BLOCK_N, )
+        
+        # It should be (BLOCK_N, d_model)
+        k_inputs = k_ptr + offset_c[:, None] * stride_km + offset_d[None, :]
+        v_inputs = v_ptr + offset_c[:, None] * stride_vm + offset_d[None, :]
+        mask_j = offset_c < seq_len # (BLOCK_N, )
+        k_j = tl.load(k_inputs, mask=mask_j[:, None], other=0.0)
+        v_j = tl.load(v_inputs, mask=mask_j[:, None], other=0.0)
+        
+        s_ij = tl.dot(q_i, tl.trans(k_j)) * scale # (BLOCK_M, BLOCK_N)
+        s_ij = tl.where(offset_c[None, :] < seq_len, s_ij, -float('inf'))
+        
+        m_ij = tl.max(s_ij, axis=1) # (BLOCK_M, )
+        p_ij = tl.exp(s_ij-m_ij[:, None]) # (BLOCK_M, BLOCK_N)
+        l_ij = tl.sum(p_ij, axis=1) # (BLOCK_M, )
+        
+        m_i_new = tl.maximum(m_i, m_ij) # (BLOCK_M, )
+        alpha = tl.exp(m_i-m_i_new) # (BLOCK_M, )
+        beta = tl.exp(m_ij-m_i_new) # (BLOCK_M, )
+        l_i_new = alpha * l_i + beta * l_ij # (BLOCK_M, )
+        
+        output =(l_i[:, None] * alpha[:, None] * output + beta[:, None] * tl.dot(p_ij, v_j)) / l_i_new[:, None]
+        # (BLOCK_M, ) * (BLOCK_M, d_model) + (BLOCK_M, ) * (BLOCK_M, d_model) = (BLOCK_M, d_model)
+        
+        l_i = l_i_new
+        m_i = m_i_new
+        
+    o_outputs = o_ptr + offset_r[:, None] * stride_om + offset_d[None, :]
+    tl.store(o_outputs, output, mask=mask_i[:, None])
+    
 properties = driver.active.utils.get_device_properties(DEVICE.index)
 NUM_SM = properties["multiprocessor_count"]
 NUM_REGS = properties["max_num_regs"]
@@ -32,9 +91,13 @@ def call_flash_attention_v1(q, k, v):
     seq_len, d_model = q.shape
     o = torch.empty_like(q)
 
-    # Your code here
-    # TODO
+    # Paper's Implementation
+    # BLOCK_M = triton.cdiv(SIZE_SMEM, (4*d_model))
+    # BLOCK_N = triton.cdiv(BLOCK_M, d_model)
+    grid = lambda META: (triton.cdiv(seq_len, META['BLOCK_M']), 1, 1)
     
+    flash_attention_v1[grid](q, k, v, o, seq_len, d_model,
+                             q.stride(0), k.stride(0), v.stride(0), o.stride(0))
     return o
 
 def pytorch_attention(q, k, v):
