@@ -15,7 +15,7 @@ def native_softmax(x, mask=None, scale=1.0, dropout_p=0.0):
     """
     x = x * scale
     if mask is not None:
-        x = torch.where(mask, x, torch.tensor(-float('inf'), device=x.device))
+        x = torch.where(mask, x, torch.tensor(float('-inf'), device=x.device))
     # read  MN elements ; write M  elements
     x_max = x.max(dim=1)[0]
     # read MN + M elements ; write MN elements
@@ -74,7 +74,7 @@ def softmax_kernel(output_ptr,
             all_mask = (loaded_mask != 0)
         else:
             all_mask = boundary_mask
-        row = tl.load(input_ptrs, mask=all_mask, other=-float('inf'))
+        row = tl.load(input_ptrs, mask=all_mask, other=float('-inf'))
         
         row = row * scale
         row_minus_max = row - tl.max(row, axis=0)
@@ -117,7 +117,7 @@ def softmax(x, mask=None, scale=1.0, dropout_p=0.0):
 def torch_softmax(x, mask=None, scale=1.0, dropout_p=0.0):
     x = x * scale
     if mask is not None:
-        x = torch.where(mask, x, torch.tensor(-float('inf'), device=x.device))
+        x = torch.where(mask, x, torch.tensor(float('-inf'), device=x.device))
     y = torch.softmax(x, dim=-1)
     if dropout_p > 0.0:
         y = torch.nn.functional.dropout(y, p=dropout_p, training=True)

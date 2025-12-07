@@ -34,7 +34,7 @@ def flash_attention_v1(
     q_inputs = q_ptr + offset_r[:, None] * stride_qm + offset_d[None, :]
     
     mask_i = offset_r < seq_len # (BLOCK_M, )
-    # Cannot be padding with -float('inf')
+    # Cannot be padding with float('-inf')
     # Reason: -inf * -inf = inf or 0 * -inf = Nan will happen when multiply with T
     q_i = tl.load(q_inputs, mask=mask_i[:, None], other=0.0)
     
@@ -56,7 +56,7 @@ def flash_attention_v1(
         v_j = tl.load(v_inputs, mask=mask_j[:, None], other=0.0)
         
         s_ij = tl.dot(q_i, tl.trans(k_j)) * scale # (BLOCK_M, BLOCK_N)
-        s_ij = tl.where(offset_c[None, :] < seq_len, s_ij, -float('inf'))
+        s_ij = tl.where(offset_c[None, :] < seq_len, s_ij, float('-inf'))
         
         m_ij = tl.max(s_ij, axis=1) # (BLOCK_M, )
         p_ij = tl.exp(s_ij-m_ij[:, None]) # (BLOCK_M, BLOCK_N)

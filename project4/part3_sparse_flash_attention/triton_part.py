@@ -14,9 +14,70 @@ def flash_attention_v1(
     BLOCK_M: tl.constexpr,
     BLOCK_N: tl.constexpr,
 ):
-    # Your code here
-    # TODO
+    row_id = tl.program_id(0)
+    
+    # offset_r: the idx of lines of Q that current program controls
+    # offset_d: total columns
+    offset_r = row_id * BLOCK_M+ tl.arange(0, BLOCK_M) # (BLOCK_M, )
+    offset_d = tl.arange(0, d_model) # (d_model, )
+    
+    # It should be (BLOCK_M, d_model)
+    q_inputs = q_ptr + offset_r[:, None] * stride_qm + offset_d[None, :]
+    
+    mask_i = offset_r < seq_len # (BLOCK_M, )
+    # Cannot be padding with float('-inf')
+    # Reason: -inf * -inf = inf or 0 * -inf = Nan will happen when multiply with T
+    q_i = tl.load(q_inputs, mask=mask_i[:, None], other=0.0)
+    
+    m_i = tl.zeros([BLOCK_M], dtype=tl.float32) - float('inf')
+    l_i = tl.zeros([BLOCK_M], dtype=tl.float32)
+    output = tl.zeros([BLOCK_M, d_model], dtype=tl.float32)
+    
+    scale = 1.0 / tl.sqrt(d_model.to(tl.float32))
+    
+    num_blocks_n = (seq_len + BLOCK_N - 1) // BLOCK_N
+    
+    for col_idx in tl.range(0, seq_len, BLOCK_N):
+        block_n_id = col_idx // BLOCK_N
+        
+        offset_mask = row_id * num_blocks_n + block_n_id
 
+        is_active = tl.load(sparse_mask_ptr + offset_mask)
+        
+        if is_active == 0:
+            continue
+        
+        # offset_c: the idx of lines of K and V that current loop controls
+        offset_c = col_idx * BLOCK_N + tl.arange(0, BLOCK_N) # (BLOCK_N, )
+        
+        # It should be (BLOCK_N, d_model)
+        k_inputs = k_ptr + offset_c[:, None] * stride_km + offset_d[None, :]
+        v_inputs = v_ptr + offset_c[:, None] * stride_vm + offset_d[None, :]
+        mask_j = offset_c < seq_len # (BLOCK_N, )
+        k_j = tl.load(k_inputs, mask=mask_j[:, None], other=0.0)
+        v_j = tl.load(v_inputs, mask=mask_j[:, None], other=0.0)
+        
+        s_ij = tl.dot(q_i, tl.trans(k_j)) * scale # (BLOCK_M, BLOCK_N)
+        s_ij = tl.where(offset_c[None, :] < seq_len, s_ij, float('-inf'))
+        
+        m_ij = tl.max(s_ij, axis=1) # (BLOCK_M, )
+        p_ij = tl.exp(s_ij-m_ij[:, None]) # (BLOCK_M, BLOCK_N)
+        l_ij = tl.sum(p_ij, axis=1) # (BLOCK_M, )
+        
+        m_i_new = tl.maximum(m_i, m_ij) # (BLOCK_M, )
+        alpha = tl.exp(m_i-m_i_new) # (BLOCK_M, )
+        beta = tl.exp(m_ij-m_i_new) # (BLOCK_M, )
+        l_i_new = alpha * l_i + beta * l_ij # (BLOCK_M, )
+        
+        output =(l_i[:, None] * alpha[:, None] * output + beta[:, None] * tl.dot(p_ij, v_j)) / l_i_new[:, None]
+        # (BLOCK_M, ) * (BLOCK_M, d_model) + (BLOCK_M, ) * (BLOCK_M, d_model) = (BLOCK_M, d_model)
+        
+        l_i = l_i_new
+        m_i = m_i_new
+        
+    o_outputs = o_ptr + offset_r[:, None] * stride_om + offset_d[None, :]
+    tl.store(o_outputs, output, mask=mask_i[:, None])
+    
 properties = driver.active.utils.get_device_properties(DEVICE.index)
 NUM_SM = properties["multiprocessor_count"]
 NUM_REGS = properties["max_num_regs"]
@@ -26,8 +87,10 @@ target = triton.runtime.driver.active.get_current_target()
 kernels = {}
 
 def get_block_MN(d_model):
-    # Your code here
-    # TODO
+    if d_model <= 64:
+        return 64, 64
+    else:
+        return 128, 64
 
 def call_flash_attention_v1_sparse(q, k, v, mask_ptr):
     assert q.shape == k.shape == v.shape, "Input shapes must match"
@@ -35,8 +98,12 @@ def call_flash_attention_v1_sparse(q, k, v, mask_ptr):
     seq_len, d_model = q.shape
     o = torch.empty_like(q)
     
-    # Your code here
-    # TODO
+    BLOCK_M, BLOCK_N = get_block_MN(d_model)
+    grid = (triton.cdiv(seq_len, BLOCK_M), 1, 1)
+    
+    flash_attention_v1[grid](q, k, v, o, mask_ptr, seq_len, d_model,
+                             q.stride(0), k.stride(0), v.stride(0), o.stride(0),
+                             BLOCK_M=BLOCK_M, BLOCK_N=BLOCK_N)
         
     return o
 
