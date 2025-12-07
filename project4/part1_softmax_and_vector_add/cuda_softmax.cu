@@ -16,7 +16,7 @@ __host__ __device__ float generate_random(unsigned int seed, int global_idx) {
 __global__ void softmax_forward_kernel(float* out, const float* inp, const float* mask, 
                                        int N, int C, 
                                        float scale, float dropout_p, unsigned int seed) {
-    __shared__ float local_data[];                                
+    extern __shared__ float local_data[];                                
     int row = blockIdx.x;
     if (row >= N) {
         return;

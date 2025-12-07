@@ -33,7 +33,7 @@ def flash_attention_v1(
     l_i = tl.zeros([BLOCK_M], dtype=tl.float32)
     output = tl.zeros([BLOCK_M, d_model], dtype=tl.float32)
     
-    scale = 1.0 / tl.sqrt(d_model.to(tl.float32))
+    scale = 1.0 / (d_model ** 0.5)
     
     num_blocks_n = (seq_len + BLOCK_N - 1) // BLOCK_N
     
@@ -44,36 +44,34 @@ def flash_attention_v1(
 
         is_active = tl.load(sparse_mask_ptr + offset_mask)
         
-        if is_active == 0:
-            continue
-        
-        # offset_c: the idx of lines of K and V that current loop controls
-        offset_c = col_idx * BLOCK_N + tl.arange(0, BLOCK_N) # (BLOCK_N, )
-        
-        # It should be (BLOCK_N, d_model)
-        k_inputs = k_ptr + offset_c[:, None] * stride_km + offset_d[None, :]
-        v_inputs = v_ptr + offset_c[:, None] * stride_vm + offset_d[None, :]
-        mask_j = offset_c < seq_len # (BLOCK_N, )
-        k_j = tl.load(k_inputs, mask=mask_j[:, None], other=0.0)
-        v_j = tl.load(v_inputs, mask=mask_j[:, None], other=0.0)
-        
-        s_ij = tl.dot(q_i, tl.trans(k_j)) * scale # (BLOCK_M, BLOCK_N)
-        s_ij = tl.where(offset_c[None, :] < seq_len, s_ij, float('-inf'))
-        
-        m_ij = tl.max(s_ij, axis=1) # (BLOCK_M, )
-        p_ij = tl.exp(s_ij-m_ij[:, None]) # (BLOCK_M, BLOCK_N)
-        l_ij = tl.sum(p_ij, axis=1) # (BLOCK_M, )
-        
-        m_i_new = tl.maximum(m_i, m_ij) # (BLOCK_M, )
-        alpha = tl.exp(m_i-m_i_new) # (BLOCK_M, )
-        beta = tl.exp(m_ij-m_i_new) # (BLOCK_M, )
-        l_i_new = alpha * l_i + beta * l_ij # (BLOCK_M, )
-        
-        output =(l_i[:, None] * alpha[:, None] * output + beta[:, None] * tl.dot(p_ij, v_j)) / l_i_new[:, None]
-        # (BLOCK_M, ) * (BLOCK_M, d_model) + (BLOCK_M, ) * (BLOCK_M, d_model) = (BLOCK_M, d_model)
-        
-        l_i = l_i_new
-        m_i = m_i_new
+        if is_active != 0:            
+            # offset_c: the idx of lines of K and V that current loop controls
+            offset_c = col_idx + tl.arange(0, BLOCK_N) # (BLOCK_N, )
+            
+            # It should be (BLOCK_N, d_model)
+            k_inputs = k_ptr + offset_c[:, None] * stride_km + offset_d[None, :]
+            v_inputs = v_ptr + offset_c[:, None] * stride_vm + offset_d[None, :]
+            mask_j = offset_c < seq_len # (BLOCK_N, )
+            k_j = tl.load(k_inputs, mask=mask_j[:, None], other=0.0)
+            v_j = tl.load(v_inputs, mask=mask_j[:, None], other=0.0)
+            
+            s_ij = tl.dot(q_i, tl.trans(k_j)) * scale # (BLOCK_M, BLOCK_N)
+            s_ij = tl.where(offset_c[None, :] < seq_len, s_ij, float('-inf'))
+            
+            m_ij = tl.max(s_ij, axis=1) # (BLOCK_M, )
+            p_ij = tl.exp(s_ij-m_ij[:, None]) # (BLOCK_M, BLOCK_N)
+            l_ij = tl.sum(p_ij, axis=1) # (BLOCK_M, )
+            
+            m_i_new = tl.maximum(m_i, m_ij) # (BLOCK_M, )
+            alpha = tl.exp(m_i-m_i_new) # (BLOCK_M, )
+            beta = tl.exp(m_ij-m_i_new) # (BLOCK_M, )
+            l_i_new = alpha * l_i + beta * l_ij # (BLOCK_M, )
+            
+            output =(l_i[:, None] * alpha[:, None] * output + beta[:, None] * tl.dot(p_ij, v_j)) / l_i_new[:, None]
+            # (BLOCK_M, ) * (BLOCK_M, d_model) + (BLOCK_M, ) * (BLOCK_M, d_model) = (BLOCK_M, d_model)
+            
+            l_i = l_i_new
+            m_i = m_i_new
         
     o_outputs = o_ptr + offset_r[:, None] * stride_om + offset_d[None, :]
     tl.store(o_outputs, output, mask=mask_i[:, None])

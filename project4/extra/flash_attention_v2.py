@@ -42,11 +42,11 @@ def flash_attention_v2(
     l_i = tl.zeros([BLOCK_M], dtype=tl.float32)
     output = tl.zeros([BLOCK_M, d_model], dtype=tl.float32)
     
-    scale = 1.0 / tl.sqrt(d_model.to(tl.float32))
+    scale = 1.0 / (d_model ** 0.5)
     
     for col_idx in tl.range(0, seq_len, BLOCK_N):
         # offset_c: the idx of lines of K and V that current loop controls
-        offset_c = col_idx * BLOCK_N + tl.arange(0, BLOCK_N) # (BLOCK_N, )
+        offset_c = col_idx + tl.arange(0, BLOCK_N) # (BLOCK_N, )
         
         # It should be (BLOCK_N, d_model)
         k_inputs = k_ptr + offset_c[:, None] * stride_km + offset_d[None, :]
