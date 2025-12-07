@@ -31,7 +31,15 @@ def native_softmax(x, mask=None, scale=1.0, dropout_p=0.0):
     # in total: read 5MN + 2M elements ; wrote 3MN + 2M elements
     return ret
 
-
+@triton.autotune(
+    configs = [
+        triton.Config({'num_stages': 2, 'num_warps':4}, num_stages=2, num_warps=4),
+        triton.Config({'num_stages': 2, 'num_warps':8}, num_stages=2, num_warps=8),
+        triton.Config({'num_stages': 4, 'num_warps':4}, num_stages=4, num_warps=4),
+        triton.Config({'num_stages': 4, 'num_warps':8}, num_stages=4, num_warps=8),
+    ],
+    key=['n_rows', 'n_cols'],
+)
 @triton.jit
 def softmax_kernel(output_ptr, 
                    input_ptr,
@@ -48,6 +56,8 @@ def softmax_kernel(output_ptr,
                    BLOCK_SIZE: tl.constexpr,
                    num_stages: tl.constexpr):
     row_start = tl.program_id(0)
+    if row_start >= n_rows:
+        return
     row_step = tl.num_programs(0)
     
     for row_idx in tl.range(row_start, n_rows, row_step, num_stages=num_stages):
@@ -94,29 +104,14 @@ kernels = {}
 def softmax(x, mask=None, scale=1.0, dropout_p=0.0):
     n_rows, n_cols = x.shape
     BLOCK_SIZE = triton.next_power_of_2(n_cols)
-    num_warps = 8
-    num_stages = 4 if SIZE_SMEM > 200000 else 2
     seed = torch.randint(0, 2**31, (1,), device=x.device).item()
     HAS_DROPOUT = True if dropout_p != 0.0 else False
     HAS_MASK = True if mask is not None else False
     
     y = torch.empty_like(x)
-    kernel = softmax_kernel.warmup(y, x, mask, x.stride(0), y.stride(0), n_rows, n_cols, scale=scale, dropout_p=dropout_p, seed=seed,
-                                   HAS_DROPOUT=HAS_DROPOUT, HAS_MASK=HAS_MASK, BLOCK_SIZE=BLOCK_SIZE, 
-                                   num_stages=num_stages, num_warps=num_warps, grid=(1, ))
-    kernel._init_handles()
-    n_regs = kernel.n_regs
-    size_smem = kernel.metadata.shared
-    
-    occupancy = NUM_REGS // (n_regs * WARP_SIZE * num_warps)
-    occupancy = min(occupancy, SIZE_SMEM // size_smem)
-    num_programs = NUM_SM * occupancy
-
-    num_programs = min(num_programs, n_rows)
-
-    kernel[(num_programs, 1, 1)](y, x, mask, x.stride(0), y.stride(0), n_rows, n_cols, scale=scale, dropout_p=dropout_p, seed=seed,
-                                 HAS_DROPOUT=HAS_DROPOUT, HAS_MASK=HAS_MASK, BLOCK_SIZE=BLOCK_SIZE,
-                                 num_stages=num_stages, num_warps=num_warps)
+    grid = (n_rows, 1, 1)
+    softmax_kernel[grid](y, x, mask, x.stride(0), y.stride(0), n_rows, n_cols, scale=scale, dropout_p=dropout_p, seed=seed,
+                                 HAS_DROPOUT=HAS_DROPOUT, HAS_MASK=HAS_MASK, BLOCK_SIZE=BLOCK_SIZE)
     return y
 
 def torch_softmax(x, mask=None, scale=1.0, dropout_p=0.0):
