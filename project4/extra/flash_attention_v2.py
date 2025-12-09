@@ -9,8 +9,6 @@ DEVICE = triton.runtime.driver.active.get_active_torch_device()
 @triton.autotune(
     configs = [
         triton.Config({'BLOCK_M': 32, 'BLOCK_N':16}, num_stages=1, num_warps=4),
-        triton.Config({'BLOCK_M': 32, 'BLOCK_N':32}, num_stages=1, num_warps=4),
-        triton.Config({'BLOCK_M': 64, 'BLOCK_N':32}, num_stages=1, num_warps=4),
     ],
     key=['seq_len', 'd_model'],
 )
@@ -55,18 +53,20 @@ def flash_attention_v2(
         v_j = tl.load(v_inputs, mask=mask_j[:, None], other=0.0)
         
         s_ij = tl.dot(q_i, tl.trans(k_j)) * scale # (BLOCK_M, BLOCK_N)
-        s_ij = tl.where(offset_c[None, :] < seq_len, s_ij, float('-inf'))
+        if col_idx + BLOCK_N > seq_len:
+            s_ij = tl.where(mask_j[None, :], s_ij, float('-inf'))
         
         m_ij = tl.max(s_ij, axis=1) # (BLOCK_M, )
-        p_ij = tl.exp(s_ij-m_ij[:, None]) # (BLOCK_M, BLOCK_N)
+        m_i_new = tl.maximum(m_i, m_ij) # (BLOCK_M, )
+        
+        p_ij = tl.exp(s_ij-m_i_new[:, None]) # (BLOCK_M, BLOCK_N)
         l_ij = tl.sum(p_ij, axis=1) # (BLOCK_M, )
         
-        m_i_new = tl.maximum(m_i, m_ij) # (BLOCK_M, )
         alpha = tl.exp(m_i-m_i_new) # (BLOCK_M, )
-        beta = tl.exp(m_ij-m_i_new) # (BLOCK_M, )
-        l_i_new = alpha * l_i + beta * l_ij # (BLOCK_M, )
+        l_i_new = alpha * l_i + l_ij # (BLOCK_M, )
         
-        output = alpha[:, None] * output + beta[:, None] * tl.dot(p_ij, v_j) 
+        output = alpha[:, None] * output
+        output = tl.dot(p_ij, v_j, output) # D = AB + C
         # (BLOCK_M, 1) * (BLOCK_M, d_model) + (BLOCK_M, 1) * (BLOCK_M, BLOCK_N) * (BLOCK_N, d_model) = (BLOCK_M, d_model)
         
         l_i = l_i_new
