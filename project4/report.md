@@ -1,3 +1,9 @@
+---
+header-includes:
+  - \usepackage{float}
+float-placement-figure: H
+---
+
 # Project 4: Parallel Programming with FlashAttention Report
 
 ## 1\. How to Compile and Execute
@@ -64,13 +70,13 @@ To make it faster, I eliminate the compute of bata, simply changing the order of
 | $4096 \times 4096$         | 0.543          | 0.836                | 1.54x               | 1.673        | 2.686               |
 | $8192 \times 4096$         | 0.935          | 1.553                | 1.66x               | 3.200        | 5.319               |
 
-![Triton Sofrmax Performance](triton_softmax.png)
+![](triton_softmax.png)
 
 | Matrix Size ($N \times N$) | My CUDA (ms) | Baseline CUDA (ms) | Speedup vs Baseline |
 | :------------------------- | :----------- | :----------------- | :------------------ |
 | $8192 \times 4096$         | 2.85         | 3                  | 1.05x               |
 
-![CUDA Sofrmax Performance](cuda_softmax.png)
+![](cuda_softmax.png)
 
 ### 3.2 Task 2: FlashAttention v1 Performance ($d=256$)
 
@@ -81,7 +87,7 @@ To make it faster, I eliminate the compute of bata, simply changing the order of
 | 2048    | 5.877          | 6.005            | 1.02x               | 0.901        |
 | 4096    | 22.523         | 23.118           | 1.03x               | 3.674        |
 
-![Flash Attention V1 Performance](flash_v1.png)
+![](flash_v1.png)
 
 ### 3.3 Task 3: Sparse FlashAttention Performance ($d=256$)
 
@@ -91,7 +97,7 @@ To make it faster, I eliminate the compute of bata, simply changing the order of
 | 2048    | 0.379             | 0.412                | 1.09x               | 15.51x                |
 | 4096    | 0.863             | 0.972                | 1.13x               | 26.10x                |
 
-![Sparse Flash Attention Performance](sparse.png)
+![](sparse.png)
 
 ### 3.4 Extra Credit: FlashAttention v2 Comparison ($d=256$)
 
@@ -101,7 +107,7 @@ To make it faster, I eliminate the compute of bata, simply changing the order of
 | 2048    | 5.877      | 5.626      | 1.04x            |
 | 4096    | 22.523     | 22.476     | 1.002x           |
 
-![Flash Attention V2 Performance](flash_v2.png)
+![](flash_v2.png)
 
 ## 4. Performance Analysis
 
