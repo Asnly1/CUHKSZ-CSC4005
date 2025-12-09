@@ -1,4 +1,4 @@
-Job started at: Sun Dec  7 02:50:31 PM UTC 2025
+Job started at: Tue Dec  9 07:31:15 AM UTC 2025
 Node: node05
 ------------------------------------------------------------------
 >>> Running Part 1: Triton Softmax
@@ -18,26 +18,26 @@ pass all correctness test
 -----------------------------------------
 softmax-performance:
         N    Triton     Torch  Naive Softmax
-0    64.0  0.151286  0.088949       0.178229
-1   128.0  1.722267  0.095681       0.185325
-2   256.0  0.166498  0.132452       0.241159
-3   512.0  0.177347  0.232544       0.390354
-4  1024.0  0.260024  0.433363       0.719840
-5  2048.0  0.327979  0.842929       1.374949
-6  4096.0  0.538729  1.683198       2.694150
-7  8192.0  1.136288  3.216433       5.330520
+0    64.0  0.143782  0.107007       0.222311
+1   128.0  0.149496  0.113166       0.228545
+2   256.0  0.182822  0.132570       0.241409
+3   512.0  0.180463  0.227402       0.395411
+4  1024.0  0.226761  0.427725       0.713944
+5  2048.0  0.329334  0.843326       1.373646
+6  4096.0  0.542767  1.672891       2.686118
+7  8192.0  0.934822  3.199935       5.318506
 ------------------------------------------------------------------
 >>> Running Part 2: CUDA Softmax
 Compiling CUDA code
 Compilation successful.
 
 Running Correctness Check...
-Max absolute difference: 1.25146e-09
+Max absolute difference: 1.30967e-09
 PASS: GPU result matches CPU result.
 
 Running Benchmark (
 GPU Execution Time (10 runs): 
-Total Time: 28.5028 ms
-Average Time: 2.85028 ms
+Total Time: 28.4973 ms
+Average Time: 2.84973 ms
 
-Job finished at: Sun Dec  7 02:51:02 PM UTC 2025
+Job finished at: Tue Dec  9 07:31:44 AM UTC 2025

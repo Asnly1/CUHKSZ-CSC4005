@@ -1,26 +1,35 @@
-Job started at: Sun Dec  7 03:13:14 PM UTC 2025
+Job started at: Tue Dec  9 07:31:18 AM UTC 2025
 Node: node07
 ------------------------------------------------------------------
 >>> Running Part 3: Triton Flash Attention Sparse
 Attention output correct for seq_len=64, d_model=32!
 Attention output correct for seq_len=64, d_model=64!
-Traceback (most recent call last):
-  File "/nfsmnt/123090765/CUHKSZ-CSC4005/project4/./part3_sparse_flash_attention/triton_part.py", line 203, in <module>
-    unit_test(2 ** i, d_model)
-  File "/nfsmnt/123090765/CUHKSZ-CSC4005/project4/./part3_sparse_flash_attention/triton_part.py", line 151, in unit_test
-    o_triton = call_flash_attention_v1_sparse(q, k, v, mask)
-  File "/nfsmnt/123090765/CUHKSZ-CSC4005/project4/./part3_sparse_flash_attention/triton_part.py", line 102, in call_flash_attention_v1_sparse
-    flash_attention_v1[grid](q, k, v, o, mask_ptr, seq_len, d_model,
-  File "/usr/local/lib/python3.10/dist-packages/triton/runtime/jit.py", line 347, in <lambda>
-    return lambda *args, **kwargs: self.run(grid=grid, warmup=False, *args, **kwargs)
-  File "/usr/local/lib/python3.10/dist-packages/triton/runtime/jit.py", line 591, in run
-    kernel.run(grid_0, grid_1, grid_2, stream, kernel.function, kernel.packed_metadata,
-  File "/usr/local/lib/python3.10/dist-packages/triton/compiler/compiler.py", line 413, in __getattribute__
-    self._init_handles()
-  File "/usr/local/lib/python3.10/dist-packages/triton/compiler/compiler.py", line 401, in _init_handles
-    raise OutOfResources(self.metadata.shared, max_shared, "shared memory")
-triton.runtime.errors.OutOfResources: out of resource: shared memory, Required: 131200, Hardware limit: 65536. Reducing block sizes or `num_stages` may help.
-srun: error: node07: task 0: Exited with exit code 1
+Attention output correct for seq_len=64, d_model=128!
+Attention output correct for seq_len=128, d_model=32!
+Attention output correct for seq_len=128, d_model=64!
+Attention output correct for seq_len=128, d_model=128!
+Attention output correct for seq_len=256, d_model=32!
+Attention output correct for seq_len=256, d_model=64!
+Attention output correct for seq_len=256, d_model=128!
+Attention output correct for seq_len=512, d_model=32!
+Attention output correct for seq_len=512, d_model=64!
+Attention output correct for seq_len=512, d_model=128!
+Attention output correct for seq_len=1024, d_model=32!
+Attention output correct for seq_len=1024, d_model=64!
+Attention output correct for seq_len=1024, d_model=128!
+Attention output correct for seq_len=2048, d_model=32!
+Attention output correct for seq_len=2048, d_model=64!
+Attention output correct for seq_len=2048, d_model=128!
+pass all unit test
+-----------------------------------------
+flash-attention-performance:
+   seq_len      d=64     d=128     d=256
+0    128.0  0.032437  0.056316  0.065341
+1    256.0  0.024518  0.039085  0.073523
+2    512.0  0.026666  0.045622  0.087582
+3   1024.0  0.048730  0.087543  0.167151
+4   2048.0  0.101162  0.187129  0.378793
+5   4096.0  0.219408  0.416889  0.863106
 ------------------------------------------------------------------
 
-Job finished at: Sun Dec  7 03:13:34 PM UTC 2025
+Job finished at: Tue Dec  9 07:31:28 AM UTC 2025

@@ -1,35 +1,47 @@
-Job started at: Sun Dec  7 03:49:34 PM UTC 2025
+Job started at: Tue Dec  9 07:32:41 AM UTC 2025
 Node: node05
 ------------------------------------------------------------------
 >>> Running Part 2: Triton Flash Attention
+Attention output correct for seq_len=256, d_model=32!
+Attention output correct for seq_len=256, d_model=64!
+Attention output correct for seq_len=256, d_model=128!
+Attention output correct for seq_len=512, d_model=32!
+Attention output correct for seq_len=512, d_model=64!
+Attention output correct for seq_len=512, d_model=128!
+Attention output correct for seq_len=1024, d_model=32!
+Attention output correct for seq_len=1024, d_model=64!
+Attention output correct for seq_len=1024, d_model=128!
+Attention output correct for seq_len=2048, d_model=32!
+Attention output correct for seq_len=2048, d_model=64!
+Attention output correct for seq_len=2048, d_model=128!
 pass all unit test
 -----------------------------------------
 flash-attention-performance:
-    seq_len      d=256
-0       4.0   0.035025
-1       8.0   0.025744
-2      16.0   0.037548
-3      32.0   0.036028
-4      64.0   0.063901
-5     128.0   0.118207
-6     256.0   0.230067
-7     512.0   0.456151
-8    1024.0   1.524203
-9    2048.0   6.114302
-10   4096.0  23.873096
+    seq_len      d=64     d=128      d=256
+0       4.0  0.006726  0.009955   0.018420
+1       8.0  0.006673  0.010110   0.019179
+2      16.0  0.006865  0.010147   0.018614
+3      32.0  0.007666  0.014927   0.033611
+4      64.0  0.011980  0.023212   0.059155
+5     128.0  0.020551  0.040315   0.110323
+6     256.0  0.071961  0.075911   0.211469
+7     512.0  0.072733  0.142384   0.419479
+8    1024.0  0.220243  0.432210   1.448632
+9    2048.0  0.818957  1.656951   5.876969
+10   4096.0  3.230844  6.632780  22.522664
 pytorch-attention-performance:
-    seq_len     d=256
-0       4.0  0.012655
-1       8.0  0.013895
-2      16.0  0.014801
-3      32.0  0.017941
-4      64.0  0.019366
-5     128.0  0.021479
-6     256.0  0.038736
-7     512.0  0.066117
-8    1024.0  0.226401
-9    2048.0  0.888420
-10   4096.0  3.571574
+    seq_len      d=64     d=128     d=256
+0       4.0  0.009337  0.012427  0.012793
+1       8.0  0.010096  0.013353  0.014103
+2      16.0  0.010180  0.013680  0.014728
+3      32.0  0.014491  0.016027  0.017701
+4      64.0  0.014413  0.016072  0.019327
+5     128.0  0.018035  0.018001  0.021297
+6     256.0  0.020730  0.024245  0.038817
+7     512.0  0.033986  0.043726  0.066167
+8    1024.0  0.102975  0.151958  0.227859
+9    2048.0  0.392729  0.549326  0.900786
+10   4096.0  1.557024  2.241054  3.674425
 ------------------------------------------------------------------
 
-Job finished at: Sun Dec  7 03:49:53 PM UTC 2025
+Job finished at: Tue Dec  9 07:33:07 AM UTC 2025

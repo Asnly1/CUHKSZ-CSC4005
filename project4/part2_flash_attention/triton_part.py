@@ -66,7 +66,9 @@ def flash_attention_v1(
         beta = tl.exp(m_ij-m_i_new) # (BLOCK_M, )
         l_i_new = alpha * l_i + beta * l_ij # (BLOCK_M, )
         
-        output =(l_i[:, None] * alpha[:, None] * output + beta[:, None] * tl.dot(p_ij, v_j)) / l_i_new[:, None]
+        # Do division in a small dimension: (BLOCK_M, ) instead of (BLOCK_M, d_model)
+        # 22.52 vs 23.90
+        output =((l_i[:, None] * alpha[:, None])  / l_i_new[:, None]) * output + beta[:, None]  / l_i_new[:, None] * tl.dot(p_ij, v_j)
         # (BLOCK_M, ) * (BLOCK_M, d_model) + (BLOCK_M, ) * (BLOCK_M, d_model) = (BLOCK_M, d_model)
         
         l_i = l_i_new
@@ -125,9 +127,9 @@ def benchmark():
             x_names=['seq_len'],
             x_vals=[2 ** i for i in range(2, 13)],
             line_arg='d_model',
-            line_vals=[256],
-            line_names=['d=256'],
-            styles=[('red', '-.')],
+            line_vals=[64, 128, 256],
+            line_names=['d=64', 'd=128', 'd=256'],
+            styles=[('blue', '-'), ('green', '--'), ('red', '-.')],
             ylabel="Latency (ms)",
             plot_name="flash-attention-performance",
             args={'provider': 'flash_attention'},
@@ -141,9 +143,9 @@ def benchmark():
             x_names=['seq_len'],
             x_vals=[2 ** i for i in range(2, 13)],
             line_arg='d_model',
-            line_vals=[256],
-            line_names=['d=256'],
-            styles=[('brown', '-.')],
+            line_vals=[64, 128, 256],
+            line_names=['d=64', 'd=128', 'd=256'],
+            styles=[('orange', '-'), ('purple', '--'), ('brown', '-.')],
             ylabel="Latency (ms)",
             plot_name="pytorch-attention-performance",
             args={'provider': 'pytorch'},
@@ -169,9 +171,9 @@ def unit_test(seq_len, d_model):
     print(f"Attention output correct for seq_len={seq_len}, d_model={d_model}!")
 
 if __name__ == "__main__":
-    # for i in range(8, 12):
-    #     for d_model in [32, 64, 128]:
-    #         unit_test(2 ** i, d_model)
+    for i in range(8, 12):
+        for d_model in [32, 64, 128]:
+            unit_test(2 ** i, d_model)
     print("pass all unit test")
     print("-----------------------------------------")   
     benchmark()

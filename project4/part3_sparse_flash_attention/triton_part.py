@@ -67,7 +67,8 @@ def flash_attention_v1(
             beta = tl.exp(m_ij-m_i_new) # (BLOCK_M, )
             l_i_new = alpha * l_i + beta * l_ij # (BLOCK_M, )
             
-            output =(l_i[:, None] * alpha[:, None] * output + beta[:, None] * tl.dot(p_ij, v_j)) / l_i_new[:, None]
+            # Do division in a small dimension: (BLOCK_M, ) instead of (BLOCK_M, d_model)
+            output =((l_i[:, None] * alpha[:, None])  / l_i_new[:, None]) * output + beta[:, None]  / l_i_new[:, None] * tl.dot(p_ij, v_j)
             # (BLOCK_M, ) * (BLOCK_M, d_model) + (BLOCK_M, ) * (BLOCK_M, d_model) = (BLOCK_M, d_model)
             
             l_i = l_i_new
@@ -85,10 +86,7 @@ target = triton.runtime.driver.active.get_current_target()
 kernels = {}
 
 def get_block_MN(d_model):
-    if d_model <= 64:
-        return 64, 64
-    else:
-        return 128, 64
+    return 32, 16
 
 def call_flash_attention_v1_sparse(q, k, v, mask_ptr):
     assert q.shape == k.shape == v.shape, "Input shapes must match"
